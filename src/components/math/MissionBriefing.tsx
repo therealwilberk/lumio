@@ -13,9 +13,11 @@ export function MissionBriefing({ trigger }: { trigger?: React.ReactNode }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {trigger || <Button variant="outline" className="gap-2 border-indigo-500/50 hover:bg-indigo-500/10">
-          <BookOpen className="w-4 h-4" /> MISSION INTEL
-        </Button>}
+        {trigger || (
+          <Button variant="outline" className="gap-2 border-indigo-500/50 hover:bg-indigo-500/10">
+            <BookOpen className="w-4 h-4" /> MISSION INTEL
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="max-w-2xl bg-black/95 border-indigo-500/30 text-white backdrop-blur-xl">
         <DialogHeader>

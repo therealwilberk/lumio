@@ -88,7 +88,10 @@ export function SandboxPage() {
   useEffect(() => {
     isMounted.current = true;
     fetchStats();
-    return () => { isMounted.current = false; if (timerRef.current) clearInterval(timerRef.current); };
+    return () => { 
+      isMounted.current = false; 
+      if (timerRef.current) clearInterval(timerRef.current); 
+    };
   }, [fetchStats]);
   useEffect(() => {
     if (isTimed && !isSuccess && !isSubmitting) {
@@ -127,9 +130,9 @@ export function SandboxPage() {
           method: 'POST',
           body: JSON.stringify({ isCorrect: true, points })
         });
-        if (isMounted.current) { 
-          setStats(updated); 
-          setTimeout(nextProblem, 2500); 
+        if (isMounted.current) {
+          setStats(updated);
+          setTimeout(nextProblem, 2500);
         }
       } catch (e) { console.error(e); setIsSubmitting(false); }
     } else {
@@ -142,10 +145,10 @@ export function SandboxPage() {
           method: 'POST',
           body: JSON.stringify({ isCorrect: false })
         });
-        if (isMounted.current) { 
-          setStats(updated); 
-          setIsSubmitting(false); 
-          setTimeLeft(stats?.difficulty === 'hard' ? 30 : 20); 
+        if (isMounted.current) {
+          setStats(updated);
+          setIsSubmitting(false);
+          setTimeLeft(stats?.difficulty === 'hard' ? 30 : 20);
         }
       } catch (e) { console.error(e); setIsSubmitting(false); }
     }
@@ -158,23 +161,37 @@ export function SandboxPage() {
       <LayoutGroup>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
-            <Button variant="ghost" onClick={() => navigate('/')} className="rounded-xl border border-transparent hover:border-white/10" disabled={isAnimating || isSubmitting}>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/')} 
+              className="rounded-xl border border-transparent hover:border-white/10" 
+              disabled={isAnimating || isSubmitting}
+            >
               <ArrowLeft className="mr-2 w-4 h-4" /> Exit
             </Button>
             <div className="flex items-center gap-4 bg-black/60 backdrop-blur-2xl px-4 py-2 rounded-2xl border border-white/10 shadow-2xl">
               <div className="flex items-center space-x-3 px-2">
                 <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess} />
-                <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase cursor-pointer flex items-center gap-2"><Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo</Label>
+                <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase cursor-pointer flex items-center gap-2">
+                  <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo
+                </Label>
               </div>
               <div className="h-6 w-px bg-white/10" />
               <div className="flex items-center gap-2">
-                <DifficultySelector variant="compact" value={stats?.difficulty || 'easy'} onValueChange={handleDifficultyChange} disabled={isSuccess} />
+                <DifficultySelector 
+                  variant="compact" 
+                  value={stats?.difficulty || 'easy'} 
+                  onValueChange={handleDifficultyChange} 
+                  disabled={isSuccess || isAnimating} 
+                />
                 {isSyncing && <RefreshCw className="w-3 h-3 animate-spin text-indigo-500" />}
               </div>
               <div className="h-6 w-px bg-white/10" />
               <MissionBriefing trigger={<Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-400/60"><BookOpen className="w-4 h-4" /></Button>} />
               <div className="h-6 w-px bg-white/10" />
-              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] uppercase px-2"><TrendingUp className="w-4 h-4" />{stats?.streak ?? 0}</div>
+              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] uppercase px-2">
+                <TrendingUp className="w-4 h-4" />{stats?.streak ?? 0}
+              </div>
             </div>
           </div>
           <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-start", isShaking && "animate-shake")}>
@@ -182,21 +199,21 @@ export function SandboxPage() {
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 {showTenFrames ? (
                   <>
-                    <TenFrame 
-                      id="frame-1" 
-                      value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1} 
-                      color="indigo" 
-                      label="BANK A" 
-                      isSuccess={isSuccess} 
+                    <TenFrame
+                      id="frame-1"
+                      value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1}
+                      color="indigo"
+                      label="BANK A"
+                      isSuccess={isSuccess}
                       startIndex={0}
                     />
                     <div className="text-4xl font-black text-white/10">+</div>
-                    <TenFrame 
-                      id="frame-2" 
-                      value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2} 
-                      color="orange" 
-                      label="BANK B" 
-                      isSuccess={isSuccess} 
+                    <TenFrame
+                      id="frame-2"
+                      value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2}
+                      color="orange"
+                      label="BANK B"
+                      isSuccess={isSuccess}
                       startIndex={problem.num1}
                     />
                   </>
@@ -230,10 +247,10 @@ export function SandboxPage() {
               <div className="text-center relative">
                 <AnimatePresence>
                   {scorePopup && (
-                    <motion.div 
-                      initial={{ opacity: 0, y: 20, scale: 0.5 }} 
-                      animate={{ opacity: 1, y: -150, scale: 2 }} 
-                      exit={{ opacity: 0, scale: 3 }} 
+                    <motion.div
+                      initial={{ opacity: 0, y: 20, scale: 0.5 }}
+                      animate={{ opacity: 1, y: -150, scale: 2 }}
+                      exit={{ opacity: 0, scale: 3 }}
                       className="absolute left-1/2 -translate-x-1/2 text-7xl font-black text-green-400 z-50 pointer-events-none italic"
                     >
                       +{scorePopup} XP
@@ -269,22 +286,22 @@ export function SandboxPage() {
                   <div className={cn("absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20", (answer.length > 0 || isAnimating) && "opacity-60 power-pulse", isSuccess && "from-green-500 to-emerald-600 opacity-100")} />
                   <div className="relative flex gap-4">
                     <div className="relative flex-1">
-                      <Input 
-                        type="number" 
-                        inputMode="numeric" 
-                        value={answer} 
-                        onChange={(e) => handleInputChange(e.target.value)} 
-                        placeholder="?" 
-                        className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")} 
-                        onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }} 
-                        disabled={isSuccess || isAnimating} 
-                        autoFocus 
+                      <Input
+                        type="number"
+                        inputMode="numeric"
+                        value={answer}
+                        onChange={(e) => handleInputChange(e.target.value)}
+                        placeholder="?"
+                        className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")}
+                        onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
+                        disabled={isSuccess || isAnimating}
+                        autoFocus
                       />
                     </div>
-                    <Button 
-                      size="lg" 
-                      onClick={checkAnswer} 
-                      className={cn("h-32 px-12 rounded-2xl text-3xl font-black italic transition-all", isSuccess ? "bg-green-500 text-white" : "btn-gradient")} 
+                    <Button
+                      size="lg"
+                      onClick={checkAnswer}
+                      className={cn("h-32 px-12 rounded-2xl text-3xl font-black italic transition-all", isSuccess ? "bg-green-500 text-white" : "btn-gradient")}
                       disabled={isSuccess || isAnimating || !answer}
                     >
                       {isSubmitting && !isSuccess ? <Loader2 className="w-8 h-8 animate-spin" /> : isSuccess ? <CheckCircle2 className="w-12 h-12" /> : "ENGAGE"}
@@ -293,15 +310,15 @@ export function SandboxPage() {
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, "C", 0, "DEL"].map((num) => (
-                    <Button 
-                      key={String(num)} 
-                      variant="outline" 
-                      className={cn("h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")} 
-                      onClick={() => { 
-                        if (num === "C") handleInputChange(""); 
-                        else if (num === "DEL") handleInputChange(answer.slice(0, -1)); 
-                        else handleInputChange(answer + num); 
-                      }} 
+                    <Button
+                      key={String(num)}
+                      variant="outline"
+                      className={cn("h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")}
+                      onClick={() => {
+                        if (num === "C") handleInputChange("");
+                        else if (num === "DEL") handleInputChange(answer.slice(0, -1));
+                        else handleInputChange(answer + num);
+                      }}
                       disabled={isSuccess || isAnimating}
                     >
                       {num === "C" ? <RotateCcw /> : num === "DEL" ? <Delete /> : num}
