@@ -10,6 +10,7 @@ import { NumberLine } from '@/components/math/NumberLine';
 import { CircularTimer } from '@/components/math/CircularTimer';
 import { DifficultySelector } from '@/components/math/DifficultySelector';
 import { MissionBriefing } from '@/components/math/MissionBriefing';
+import { MissionLog, type LogEntry } from '@/components/math/MissionLog';
 import { generateProblem, getHintStrategy, getMakeTenBreakdown } from '@/lib/math-utils';
 import { api } from '@/lib/api-client';
 import { v4 as uuidv4 } from 'uuid';
@@ -34,6 +35,7 @@ export function SandboxPage() {
   const [isShaking, setIsShaking] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [scorePopup, setScorePopup] = useState<number | null>(null);
+  const [missionHistory, setMissionHistory] = useState<LogEntry[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const userId = useMemo(() => {
     let id = localStorage.getItem('nexus_user_id');
@@ -51,11 +53,33 @@ export function SandboxPage() {
       console.error('Failed to fetch stats:', e);
     }
   }, [userId]);
+  const nextProblem = useCallback(() => {
+    if (!isMounted.current) return;
+    const diff = stats?.difficulty || 'easy';
+    const streak = stats?.streak || 0;
+    let baseMax = diff === 'easy' ? 10 : diff === 'medium' ? 20 : 40;
+    if (diff === 'hard' && streak > 10) baseMax = 60;
+    // Guard against duplicates
+    const nextProb = generateProblem(baseMax, problem);
+    setProblem(nextProb);
+    setAnswer('');
+    setMistakes(0);
+    setIsSuccess(false);
+    setIsAnimating(false);
+    setIsSubmitting(false);
+    setShowHint(false);
+    setTimeLeft(diff === 'hard' ? 30 : 20);
+    setScorePopup(null);
+  }, [stats, problem]);
   const handleDifficultyChange = async (val: DifficultyLevel) => {
     if (!stats || isSubmitting || isAnimating || isSuccess) return;
+    // Optimistic UI Update
     const previous = stats.difficulty;
-    setStats({ ...stats, difficulty: val });
+    const updatedStats = { ...stats, difficulty: val };
+    setStats(updatedStats);
     setIsSyncing(true);
+    // Instantly trigger new problem logic
+    nextProblem();
     try {
       await api<StudentStats>(`/api/student/${userId}/settings`, {
         method: 'PATCH',
@@ -69,28 +93,12 @@ export function SandboxPage() {
       setIsSyncing(false);
     }
   };
-  const nextProblem = useCallback(() => {
-    if (!isMounted.current) return;
-    const diff = stats?.difficulty || 'easy';
-    const streak = stats?.streak || 0;
-    let baseMax = diff === 'easy' ? 10 : diff === 'medium' ? 20 : 40;
-    if (diff === 'hard' && streak > 10) baseMax = 60;
-    setProblem(generateProblem(baseMax));
-    setAnswer('');
-    setMistakes(0);
-    setIsSuccess(false);
-    setIsAnimating(false);
-    setIsSubmitting(false);
-    setShowHint(false);
-    setTimeLeft(diff === 'hard' ? 30 : 20);
-    setScorePopup(null);
-  }, [stats]);
   useEffect(() => {
     isMounted.current = true;
     fetchStats();
-    return () => { 
-      isMounted.current = false; 
-      if (timerRef.current) clearInterval(timerRef.current); 
+    return () => {
+      isMounted.current = false;
+      if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [fetchStats]);
   useEffect(() => {
@@ -115,6 +123,8 @@ export function SandboxPage() {
       setIsAnimating(true);
       setIsSuccess(true);
       let multiplier = 1;
+      const totalTime = stats?.difficulty === 'hard' ? 30 : 20;
+      const timeTaken = totalTime - timeLeft;
       if (isTimed) {
         if (timeLeft > 15) multiplier = 4;
         else if (timeLeft > 10) multiplier = 3;
@@ -124,6 +134,16 @@ export function SandboxPage() {
       if (stats?.difficulty === 'hard') multiplier += 2;
       const points = 10 * multiplier;
       setScorePopup(points);
+      // Update Session Log
+      const newEntry: LogEntry = {
+        id: uuidv4(),
+        problem: `${problem.num1} + ${problem.num2} = ${numericAnswer}`,
+        points,
+        multiplier,
+        timeTaken,
+        timestamp: Date.now()
+      };
+      setMissionHistory(prev => [newEntry, ...prev].slice(0, 10));
       confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
@@ -134,7 +154,10 @@ export function SandboxPage() {
           setStats(updated);
           setTimeout(nextProblem, 2500);
         }
-      } catch (e) { console.error(e); setIsSubmitting(false); }
+      } catch (e) { 
+        console.error(e); 
+        setIsSubmitting(false); 
+      }
     } else {
       setIsShaking(true);
       setTimeout(() => { if (isMounted.current) setIsShaking(false); }, 500);
@@ -150,7 +173,10 @@ export function SandboxPage() {
           setIsSubmitting(false);
           setTimeLeft(stats?.difficulty === 'hard' ? 30 : 20);
         }
-      } catch (e) { console.error(e); setIsSubmitting(false); }
+      } catch (e) { 
+        console.error(e); 
+        setIsSubmitting(false); 
+      }
     }
   };
   const hintStrategy = useMemo(() => getHintStrategy(problem.num1, problem.num2), [problem]);
@@ -159,12 +185,13 @@ export function SandboxPage() {
   return (
     <div className={cn("min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700", isSuccess && "bg-indigo-950/20")}>
       <LayoutGroup>
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+          {/* Header Dashboard */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')} 
-              className="rounded-xl border border-transparent hover:border-white/10" 
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
+              className="rounded-xl border border-transparent hover:border-white/10"
               disabled={isAnimating || isSubmitting}
             >
               <ArrowLeft className="mr-2 w-4 h-4" /> Exit
@@ -178,11 +205,11 @@ export function SandboxPage() {
               </div>
               <div className="h-6 w-px bg-white/10" />
               <div className="flex items-center gap-2">
-                <DifficultySelector 
-                  variant="compact" 
-                  value={stats?.difficulty || 'easy'} 
-                  onValueChange={handleDifficultyChange} 
-                  disabled={isSuccess || isAnimating} 
+                <DifficultySelector
+                  variant="compact"
+                  value={stats?.difficulty || 'easy'}
+                  onValueChange={handleDifficultyChange}
+                  disabled={isSuccess || isAnimating}
                 />
                 {isSyncing && <RefreshCw className="w-3 h-3 animate-spin text-indigo-500" />}
               </div>
@@ -194,8 +221,9 @@ export function SandboxPage() {
               </div>
             </div>
           </div>
-          <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-start", isShaking && "animate-shake")}>
-            <div className="space-y-10 order-2 lg:order-1">
+          <div className={cn("grid grid-cols-1 lg:grid-cols-12 gap-12 items-start", isShaking && "animate-shake")}>
+            {/* Visual Column */}
+            <div className="lg:col-span-7 space-y-10">
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 {showTenFrames ? (
                   <>
@@ -242,8 +270,13 @@ export function SandboxPage() {
               <div className="bg-black/60 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md relative overflow-hidden">
                 <NumberLine max={stats?.difficulty === 'hard' ? 60 : 30} target1={problem.num1} target2={problem.num2} isAnimating={isAnimating || isSuccess} />
               </div>
+              {/* Tactical Feed Mobile Overlay */}
+              <div className="lg:hidden">
+                 <MissionLog history={missionHistory} className="h-64" />
+              </div>
             </div>
-            <div className="space-y-8 order-1 lg:order-2">
+            {/* Input & Logging Column */}
+            <div className="lg:col-span-5 space-y-8">
               <div className="text-center relative">
                 <AnimatePresence>
                   {scorePopup && (
@@ -308,12 +341,16 @@ export function SandboxPage() {
                     </Button>
                   </div>
                 </div>
+                {/* Tactical Mission Log Desktop */}
+                <div className="hidden lg:block">
+                  <MissionLog history={missionHistory} className="h-64" />
+                </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, "C", 0, "DEL"].map((num) => (
                     <Button
                       key={String(num)}
                       variant="outline"
-                      className={cn("h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")}
+                      className={cn("h-16 text-2xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")}
                       onClick={() => {
                         if (num === "C") handleInputChange("");
                         else if (num === "DEL") handleInputChange(answer.slice(0, -1));
@@ -321,7 +358,7 @@ export function SandboxPage() {
                       }}
                       disabled={isSuccess || isAnimating}
                     >
-                      {num === "C" ? <RotateCcw /> : num === "DEL" ? <Delete /> : num}
+                      {num === "C" ? <RotateCcw className="w-5 h-5" /> : num === "DEL" ? <Delete className="w-5 h-5" /> : num}
                     </Button>
                   ))}
                 </div>

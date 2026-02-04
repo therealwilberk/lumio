@@ -15,7 +15,7 @@ export interface HintStrategy {
   };
 }
 export function getMakeTenBreakdown(n1: number, n2: number): MakeTenBreakdown {
-  const needs = Math.max(0, 10 - n1);
+  const needs = Math.max(0, 10 - (n1 % 10 === 0 ? 10 : n1 % 10));
   const remainder = Math.max(0, n2 - needs);
   return { needs, remainder };
 }
@@ -24,9 +24,9 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
   if (sum <= 10) {
     return {
       type: 'count',
-      title: 'COUNT THE GEMS',
-      description: 'Since the total is 10 or less, we can count every gem one by one!',
-      steps: [`Start with ${n1}`, `Count ${n2} more`],
+      title: 'PRECISION COUNTING',
+      description: 'Since the total is small, we can count up from the first number.',
+      steps: [`Start at ${n1}`, `Jump ${n2} more steps`],
       visualCues: { pulseAddend1: true, pulseAddend2: true, bridgeActive: false }
     };
   }
@@ -35,28 +35,30 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
     return {
       type: 'make-ten',
       title: 'BRIDGE TO TEN',
-      description: `Fill up the first frame to make a solid 10. It's much easier to add once you have a full set!`,
+      description: `Filling up to 10 makes the math much faster!`,
       steps: [
-        `${n1} needs ${needs} more to make 10`,
-        `Take ${needs} from Bank B`,
-        `Bank B has ${remainder} left over`,
-        `Now add 10 + ${remainder} = ${sum}`
+        `${n1} needs ${needs} to make a full 10`,
+        `Take ${needs} from ${n2}`,
+        `${n2} has ${remainder} left over`,
+        `Final: 10 + ${remainder} = ${sum}`
       ],
       visualCues: { pulseAddend1: false, pulseAddend2: false, bridgeActive: true }
     };
   }
+  // Large decomposition strategy
   const t1 = Math.floor(n1 / 10) * 10;
   const o1 = n1 % 10;
   const t2 = Math.floor(n2 / 10) * 10;
   const o2 = n2 % 10;
+  const onesSum = o1 + o2;
   return {
     type: 'decompose',
-    title: 'TACTICAL DECOMPOSITION',
-    description: 'Split the numbers into Tens and Ones to simplify the calculation.',
+    title: 'NEXUS DECOMPOSITION',
+    description: 'Split the numbers into TENS and ONES to conquer large sums.',
     steps: [
-      `Combine Tens: ${t1} + ${t2} = ${t1 + t2}`,
-      `Combine Ones: ${o1} + ${o2} = ${o1 + o2}`,
-      `Final Result: ${t1 + t2} + ${o1 + o2} = ${sum}`
+      `Tens: ${t1} + ${t2} = ${t1 + t2}`,
+      `Ones: ${o1} + ${o2} = ${onesSum}`,
+      onesSum > 10 ? `Bridge Ones: ${t1 + t2} + ${onesSum} = ${sum}` : `Total: ${t1 + t2} + ${onesSum} = ${sum}`
     ],
     visualCues: { pulseAddend1: true, pulseAddend2: true, bridgeActive: false }
   };
@@ -64,16 +66,21 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
 export function isBridgeThroughTen(n1: number, n2: number): boolean {
   return n1 % 10 !== 0 && (n1 % 10 + n2 % 10) > 10;
 }
-export function generateProblem(maxSum: number = 20): { num1: number, num2: number } {
-  const MAX_RETRY = 20;
+export function generateProblem(maxSum: number = 20, exclude?: { num1: number, num2: number }): { num1: number, num2: number } {
+  const MAX_RETRY = 50;
   let attempts = 0;
   while (attempts < MAX_RETRY) {
     attempts++;
     const n1 = Math.floor(Math.random() * (maxSum - 2)) + 2;
     const n2 = Math.floor(Math.random() * (maxSum - n1)) + 1;
-    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * 0.4) {
-      return n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
+    const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
+    // Validate range and avoid back-to-back duplicates
+    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * 0.3) {
+      if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
+        return potential;
+      }
     }
   }
-  return { num1: Math.floor(maxSum / 2), num2: Math.floor(maxSum / 3) };
+  // Fallback if loop fails to find unique
+  return { num1: Math.floor(maxSum / 1.5), num2: 1 };
 }
