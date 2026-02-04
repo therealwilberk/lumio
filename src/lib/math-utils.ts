@@ -45,7 +45,6 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
       visualCues: { pulseAddend1: false, pulseAddend2: false, bridgeActive: true }
     };
   }
-  // Large decomposition strategy
   const t1 = Math.floor(n1 / 10) * 10;
   const o1 = n1 % 10;
   const t2 = Math.floor(n2 / 10) * 10;
@@ -74,13 +73,38 @@ export function generateProblem(maxSum: number = 20, exclude?: { num1: number, n
     const n1 = Math.floor(Math.random() * (maxSum - 2)) + 2;
     const n2 = Math.floor(Math.random() * (maxSum - n1)) + 1;
     const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
-    // Validate range and avoid back-to-back duplicates
     if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * 0.3) {
       if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
         return potential;
       }
     }
   }
-  // Fallback if loop fails to find unique
   return { num1: Math.floor(maxSum / 1.5), num2: 1 };
+}
+export function getProblemCategory(sum: number): string {
+  if (sum <= 10) return 'Foundation';
+  if (sum <= 20) return 'Bridge';
+  return 'Decomposition';
+}
+export function calculatePerformanceSummary(logs: any[]) {
+  const summary: Record<string, { count: number; correct: number; totalTime: number }> = {
+    'Foundation': { count: 0, correct: 0, totalTime: 0 },
+    'Bridge': { count: 0, correct: 0, totalTime: 0 },
+    'Decomposition': { count: 0, correct: 0, totalTime: 0 }
+  };
+  logs.forEach(log => {
+    const sum = log.num1 + log.num2;
+    const category = getProblemCategory(sum);
+    if (summary[category]) {
+      summary[category].count++;
+      if (log.isCorrect) summary[category].correct++;
+      summary[category].totalTime += log.timeTaken;
+    }
+  });
+  return Object.entries(summary).map(([name, data]) => ({
+    name,
+    accuracy: data.count > 0 ? (data.correct / data.count) * 100 : 0,
+    avgTime: data.count > 0 ? data.totalTime / data.count : 0,
+    total: data.count
+  }));
 }

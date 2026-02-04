@@ -1,5 +1,5 @@
 import { IndexedEntity } from "./core-utils";
-import type { User, StudentStats } from "@shared/types";
+import type { User, StudentStats, SolveLog } from "@shared/types";
 import { MOCK_USERS } from "@shared/mock-data";
 export class StudentEntity extends IndexedEntity<StudentStats> {
   static readonly entityName = "student";
@@ -11,9 +11,10 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
     totalSolved: 0,
     totalScore: 0,
     lastSolvedAt: 0,
-    difficulty: "easy"
+    difficulty: "easy",
+    sessionLogs: []
   };
-  async updateProgress(isCorrect: boolean, points: number = 1): Promise<StudentStats> {
+  async updateProgress(isCorrect: boolean, points: number = 1, solveLog?: SolveLog): Promise<StudentStats> {
     return this.mutate((s) => {
       const now = Date.now();
       let newStreak = s.streak;
@@ -30,13 +31,17 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
       } else {
         newStreak = 0;
       }
+      const updatedLogs = solveLog 
+        ? [solveLog, ...(s.sessionLogs || [])].slice(0, 100)
+        : (s.sessionLogs || []);
       return {
         ...s,
         streak: newStreak,
         highScore: newHighScore,
         totalSolved: newTotalSolved,
         totalScore: newTotalScore,
-        lastSolvedAt: now
+        lastSolvedAt: now,
+        sessionLogs: updatedLogs
       };
     });
   }
@@ -44,7 +49,7 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
     return this.mutate((s) => ({
       ...s,
       ...settings,
-      id: s.id // Ensure ID remains immutable
+      id: s.id
     }));
   }
 }

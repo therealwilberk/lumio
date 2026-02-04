@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { Env } from './core-utils';
 import { StudentEntity } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { StudentStats } from "@shared/types";
+import type { StudentStats, SolveLog } from "@shared/types";
 export function userRoutes(app: Hono<{ Bindings: Env }>) {
   app.get('/api/student/:id', async (c) => {
     const id = c.req.param('id');
@@ -15,7 +15,8 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
         totalSolved: 0,
         totalScore: 0,
         lastSolvedAt: 0,
-        difficulty: "easy"
+        difficulty: "easy",
+        sessionLogs: []
       });
       return ok(c, initial);
     }
@@ -23,10 +24,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   app.post('/api/student/:id/progress', async (c) => {
     const id = c.req.param('id');
-    const { isCorrect, points } = (await c.req.json()) as { isCorrect: boolean; points?: number };
+    const { isCorrect, points, solveLog } = (await c.req.json()) as { isCorrect: boolean; points?: number; solveLog?: SolveLog };
     const student = new StudentEntity(c.env, id);
     if (!await student.exists()) return notFound(c, 'student not found');
-    const updated = await student.updateProgress(isCorrect, points ?? 1);
+    const updated = await student.updateProgress(isCorrect, points ?? 1, solveLog);
     return ok(c, updated);
   });
   app.patch('/api/student/:id/settings', async (c) => {
