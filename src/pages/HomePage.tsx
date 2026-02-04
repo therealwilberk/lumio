@@ -13,7 +13,7 @@ import { PowerGem } from '@/components/math/PowerGem';
 import { DifficultySelector } from '@/components/math/DifficultySelector';
 import { MissionBriefing } from '@/components/math/MissionBriefing';
 import { toast } from 'sonner';
-import { motion, AnimatePresence } from 'framer-motion';
+import { LazyMotion, domAnimation, m as motion, AnimatePresence } from 'framer-motion';
 export function HomePage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<StudentStats | null>(null);
@@ -59,14 +59,14 @@ export function HomePage() {
   }, [stats?.totalScore]);
   const progressValue = useMemo(() => {
     const score = stats?.totalScore ?? 0;
-    const prevThreshold = rankData.name === "RECRUIT" ? 0 :
-                          rankData.name === "ADEPT" ? 100 :
-                          rankData.name === "ELITE" ? 500 :
-                          rankData.name === "LEGEND" ? 1000 : 5000;
-    const range = rankData.next - prevThreshold;
+    const prevThreshold = score < 100 ? 0 :
+                          score < 500 ? 100 :
+                          score < 1000 ? 500 :
+                          score < 5000 ? 1000 : 5000;
+    const range = (score < 100 ? 100 : score < 500 ? 400 : score < 1000 ? 500 : score < 5000 ? 4000 : 5000) - prevThreshold;
     const current = score - prevThreshold;
     return Math.min(100, Math.max(0, (current / range) * 100));
-  }, [stats?.totalScore, rankData]);
+  }, [stats?.totalScore]);
   if (loading) return (
     <div className="min-h-screen flex items-center justify-center bg-background energy-grid-bg">
       <div className="flex flex-col items-center gap-4">
@@ -76,8 +76,9 @@ export function HomePage() {
     </div>
   );
   return (
-    <div className="min-h-screen energy-grid-bg bg-background text-foreground overflow-x-hidden">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <LazyMotion features={domAnimation}>
+      <div className="min-h-screen energy-grid-bg bg-background text-foreground overflow-x-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="py-8 md:py-10 lg:py-12">
           <ThemeToggle />
           <div className="text-center space-y-12 animate-fade-in">
@@ -184,5 +185,6 @@ export function HomePage() {
         </div>
       </div>
     </div>
+    </LazyMotion>
   );
 }

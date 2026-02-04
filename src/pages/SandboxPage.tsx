@@ -15,7 +15,7 @@ import { generateProblem, getHintStrategy, getMakeTenBreakdown } from '@/lib/mat
 import { api } from '@/lib/api-client';
 import { v4 as uuidv4 } from 'uuid';
 import confetti from 'canvas-confetti';
-import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
+import { LazyMotion, domAnimation, m as motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import type { StudentStats, DifficultyLevel } from '@shared/types';
@@ -157,8 +157,11 @@ export function SandboxPage() {
     } else {
       setIsShaking(true);
       setTimeout(() => { if (isMounted.current) setIsShaking(false); }, 500);
-      setMistakes(prev => prev + 1);
-      if (mistakes >= 1) setShowHint(true);
+      setMistakes(prev => {
+        const newMistakes = prev + 1;
+        if (newMistakes >= 2) setShowHint(true); // Fixed: was checking old value, now 2nd mistake
+        return newMistakes;
+      });
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
           method: 'POST',
@@ -184,9 +187,10 @@ export function SandboxPage() {
     return showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1;
   }, [showHint, hintStrategy, problem]);
   return (
-    <div className={cn("min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700", isSuccess && "bg-indigo-950/20")}>
-      <LayoutGroup>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+    <LazyMotion features={domAnimation}>
+      <div className={cn("min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700", isSuccess && "bg-indigo-950/20")}>
+        <LayoutGroup>
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
             <Button
               variant="ghost"
@@ -365,5 +369,6 @@ export function SandboxPage() {
         </div>
       </LayoutGroup>
     </div>
+  </LazyMotion>
   );
 }
