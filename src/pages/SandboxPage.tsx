@@ -8,13 +8,15 @@ import { Label } from '@/components/ui/label';
 import { TenFrame } from '@/components/math/TenFrame';
 import { NumberLine } from '@/components/math/NumberLine';
 import { CircularTimer } from '@/components/math/CircularTimer';
+import { DifficultySelector } from '@/components/math/DifficultySelector';
 import { generateProblem, getHintStrategy, getMakeTenBreakdown } from '@/lib/math-utils';
 import { api } from '@/lib/api-client';
 import { v4 as uuidv4 } from 'uuid';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import type { StudentStats } from '@shared/types';
+import { toast } from 'sonner';
+import type { StudentStats, DifficultyLevel } from '@shared/types';
 export function SandboxPage() {
   const navigate = useNavigate();
   const isMounted = useRef(true);
@@ -48,6 +50,23 @@ export function SandboxPage() {
       console.error('Failed to fetch stats:', e);
     }
   }, [userId]);
+  const handleDifficultyChange = async (val: DifficultyLevel) => {
+    if (!stats) return;
+    const previous = stats.difficulty;
+    setStats({ ...stats, difficulty: val });
+    try {
+      await api<StudentStats>(`/api/student/${userId}/settings`, {
+        method: 'PATCH',
+        body: JSON.stringify({ difficulty: val })
+      });
+      toast.success(`MISSION PARAMETERS: ${val.toUpperCase()}`, {
+        icon: val === 'hard' ? <Skull className="w-4 h-4 text-red-500" /> : <Zap className="w-4 h-4 text-orange-400" />
+      });
+    } catch (e) {
+      setStats({ ...stats, difficulty: previous });
+      toast.error("Tactical sync failed");
+    }
+  };
   const handleTimeout = useCallback(async () => {
     if (isSuccess || isSubmitting || !isMounted.current) return;
     setIsSubmitting(true);
@@ -90,7 +109,6 @@ export function SandboxPage() {
       if (timerRef.current) clearInterval(timerRef.current);
     };
   }, [isTimed, problem, isSuccess, isSubmitting]);
-  // Watch for timeout completion
   useEffect(() => {
     if (timeLeft === 0 && isTimed && !isSuccess && !isSubmitting) {
       handleTimeout();
@@ -112,18 +130,14 @@ export function SandboxPage() {
     setTimeLeft(20);
     setScorePopup(null);
   }, [stats]);
-  const triggerSpark = () => {
-    if (!isMounted.current) return;
+  const handleInputChange = (val: string) => {
+    if (isSuccess || isAnimating || isSubmitting || val.length > 3) return;
+    setAnswer(val);
     const id = Date.now();
     setSparks(prev => [...prev, { id, x: Math.random() * 40 - 20, y: Math.random() * 20 - 10 }]);
     setTimeout(() => {
       if (isMounted.current) setSparks(prev => prev.filter(s => s.id !== id));
     }, 600);
-  };
-  const handleInputChange = (val: string) => {
-    if (isSuccess || isAnimating || isSubmitting || val.length > 3) return;
-    setAnswer(val);
-    triggerSpark();
   };
   const checkAnswer = async () => {
     if (!answer || isSuccess || isAnimating || isSubmitting) return;
@@ -191,8 +205,6 @@ export function SandboxPage() {
   };
   const hintStrategy = useMemo(() => getHintStrategy(problem.num1, problem.num2), [problem]);
   const breakdown = useMemo(() => getMakeTenBreakdown(problem.num1, problem.num2), [problem]);
-  const DifficultyIcon = stats?.difficulty === 'easy' ? Shield : stats?.difficulty === 'medium' ? Zap : Skull;
-  const difficultyColor = stats?.difficulty === 'easy' ? 'text-green-400' : stats?.difficulty === 'medium' ? 'text-orange-400' : 'text-red-500';
   return (
     <div className={cn(
       "min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700",
@@ -200,32 +212,34 @@ export function SandboxPage() {
     )}>
       <LayoutGroup>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-          {/* Top Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-12">
+          {/* Tactical Header */}
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
               className="rounded-xl hover:bg-white/5 group border border-transparent hover:border-white/10"
               disabled={isAnimating || isSubmitting}
             >
-              <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Exit Mission
+              <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Exit
             </Button>
-            <div className="flex items-center gap-4 sm:gap-6 bg-black/60 backdrop-blur-2xl px-6 py-3 rounded-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
-              <div className="flex items-center space-x-3">
+            <div className="flex items-center gap-4 bg-black/60 backdrop-blur-2xl px-4 py-2 rounded-2xl border border-white/10 shadow-2xl">
+              <div className="flex items-center space-x-3 px-2">
                 <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess || isAnimating || isSubmitting} />
                 <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase tracking-widest cursor-pointer flex items-center gap-2">
                   <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo
                 </Label>
               </div>
               <div className="h-6 w-px bg-white/10" />
-              <div className={cn("flex items-center gap-2 font-black uppercase tracking-[0.2em] text-[10px]", difficultyColor)}>
-                <DifficultyIcon className="w-4 h-4" />
-                {stats?.difficulty}
-              </div>
+              <DifficultySelector 
+                variant="compact"
+                value={stats?.difficulty || 'easy'}
+                onValueChange={handleDifficultyChange}
+                disabled={isSuccess || isAnimating || isSubmitting}
+              />
               <div className="h-6 w-px bg-white/10" />
-              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] tracking-widest uppercase">
+              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] tracking-widest uppercase px-2">
                 <TrendingUp className="w-4 h-4" />
-                Streak: {stats?.streak ?? 0}
+                {stats?.streak ?? 0}
               </div>
             </div>
           </div>
@@ -360,41 +374,26 @@ export function SandboxPage() {
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, "C", 0, "DEL"].map((num) => (
                     <Button
-                      key={num}
+                      key={String(num)}
                       variant="outline"
-                      className="h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-90 transition-all"
-                      onClick={() => handleInputChange(answer + num)}
+                      className={cn(
+                        "h-20 text-3xl font-black rounded-xl border-white/5 transition-all",
+                        num === "C" ? "bg-red-950/20 text-red-400 hover:bg-red-600 hover:text-white" : 
+                        num === "DEL" ? "bg-black/40 hover:bg-indigo-600" :
+                        "bg-black/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-90"
+                      )}
+                      onClick={() => {
+                        if (num === "C") handleInputChange("");
+                        else if (num === "DEL") handleInputChange(answer.slice(0, -1));
+                        else handleInputChange(answer + num);
+                      }}
                       disabled={isSuccess || isAnimating || isSubmitting}
                     >
-                      {num}
+                      {num === "C" ? <RotateCcw className="w-8 h-8" /> : num === "DEL" ? <Delete className="w-8 h-8" /> : num}
                     </Button>
                   ))}
-                  <Button
-                    variant="outline"
-                    className="h-20 text-2xl font-black rounded-xl border-red-900/30 bg-red-950/20 hover:bg-red-600 text-red-400 hover:text-white transition-all"
-                    onClick={() => handleInputChange('')}
-                    disabled={isSuccess || isAnimating || isSubmitting}
-                  >
-                    <RotateCcw className="w-8 h-8" />
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white transition-all"
-                    onClick={() => handleInputChange(answer + "0")}
-                    disabled={isSuccess || isAnimating || isSubmitting}
-                  >
-                    0
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="h-20 rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white transition-all"
-                    onClick={() => handleInputChange(answer.slice(0, -1))}
-                    disabled={isSuccess || isAnimating || isSubmitting}
-                  >
-                    <Delete className="w-8 h-8" />
-                  </Button>
                 </div>
               </div>
             </div>

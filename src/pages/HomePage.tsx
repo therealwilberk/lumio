@@ -10,6 +10,7 @@ import type { StudentStats, DifficultyLevel } from '@shared/types';
 import { PowerGem } from '@/components/math/PowerGem';
 import { DifficultySelector } from '@/components/math/DifficultySelector';
 import { toast } from 'sonner';
+import { motion, AnimatePresence } from 'framer-motion';
 export function HomePage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<StudentStats | null>(null);
@@ -28,16 +29,17 @@ export function HomePage() {
   const handleDifficultyChange = async (val: DifficultyLevel) => {
     if (!stats) return;
     const previous = stats.difficulty;
+    const userId = localStorage.getItem('nexus_user_id');
     setStats({ ...stats, difficulty: val });
     try {
-      await api<StudentStats>(`/api/student/${stats.id}/settings`, {
+      await api<StudentStats>(`/api/student/${userId}/settings`, {
         method: 'PATCH',
         body: JSON.stringify({ difficulty: val })
       });
-      toast.success(`Mission parameters set to ${val.toUpperCase()}`);
+      toast.success(`SYSTEM: DIFF-LEVEL ${val.toUpperCase()} LOCKED`);
     } catch (e) {
       setStats({ ...stats, difficulty: previous });
-      toast.error("Failed to sync settings");
+      toast.error("Settings link corrupted");
     }
   };
   const getRank = (score: number) => {
@@ -53,7 +55,7 @@ export function HomePage() {
         <div className="w-24 h-24">
           <PowerGem isSuccess />
         </div>
-        <div className="animate-pulse text-xl font-black tracking-widest text-indigo-400 uppercase">Syncing Data...</div>
+        <div className="animate-pulse text-xl font-black tracking-widest text-indigo-400 uppercase">Connecting to Nexus...</div>
       </div>
     </div>
   );
@@ -75,78 +77,81 @@ export function HomePage() {
               <h1 className="text-6xl md:text-8xl font-black tracking-tighter italic">
                 NUMBER<span className="text-indigo-500 drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]">NEXUS</span>
               </h1>
-              <div className="flex items-center justify-center gap-3">
-                <rank.icon className={rank.color} />
-                <span className={`text-sm font-black tracking-[0.3em] uppercase ${rank.color}`}>
-                  RANK: {rank.name}
-                </span>
-              </div>
+              <AnimatePresence mode="wait">
+                <motion.div 
+                  key={rank.name}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center justify-center gap-3"
+                >
+                  <rank.icon className={rank.color} />
+                  <span className={`text-sm font-black tracking-[0.3em] uppercase ${rank.color}`}>
+                    RANK: {rank.name}
+                  </span>
+                </motion.div>
+              </AnimatePresence>
             </div>
             <div className="max-w-md mx-auto space-y-4">
               <div className="flex items-center justify-center gap-2 text-white/40 font-black text-[10px] tracking-[0.3em] uppercase">
                 <Activity className="w-3 h-3" /> Mission Parameters
               </div>
-              <DifficultySelector 
-                value={stats?.difficulty || 'easy'} 
-                onValueChange={handleDifficultyChange} 
+              <DifficultySelector
+                value={stats?.difficulty || 'easy'}
+                onValueChange={handleDifficultyChange}
               />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
               <Card className="bg-black/40 border-white/5 hover:border-orange-500/50 transition-all rounded-2xl group overflow-hidden">
-                <div className="absolute inset-0 bg-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <CardHeader className="p-6 pb-2">
                   <CardTitle className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
-                    <Flame className="w-4 h-4 text-orange-500" /> Current Streak
+                    <Flame className="w-4 h-4 text-orange-500" /> Streak
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="text-4xl font-black italic">{stats?.streak ?? 0}</div>
+                <CardContent className="p-6 pt-0 text-4xl font-black italic">
+                  {stats?.streak ?? 0}
                 </CardContent>
               </Card>
               <Card className="bg-black/40 border-white/5 hover:border-indigo-500/50 transition-all rounded-2xl group overflow-hidden">
-                <div className="absolute inset-0 bg-indigo-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <CardHeader className="p-6 pb-2">
                   <CardTitle className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
-                    <Trophy className="w-4 h-4 text-yellow-500" /> Record High
+                    <Trophy className="w-4 h-4 text-yellow-500" /> High
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="text-4xl font-black italic">{stats?.highScore ?? 0}</div>
+                <CardContent className="p-6 pt-0 text-4xl font-black italic">
+                  {stats?.highScore ?? 0}
                 </CardContent>
               </Card>
-              <Card className="bg-indigo-600/10 border-indigo-500/30 shadow-[0_0_30px_rgba(99,102,241,0.15)] transition-all rounded-2xl group relative overflow-hidden md:scale-110">
-                <div className="absolute inset-0 bg-indigo-500/10" />
+              <Card className="bg-indigo-600/10 border-indigo-500/30 shadow-primary transition-all rounded-2xl group md:scale-110">
                 <CardHeader className="p-6 pb-2">
                   <CardTitle className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
-                    <Star className="w-4 h-4 fill-indigo-500" /> Power Points
+                    <Star className="w-4 h-4 fill-indigo-500" /> Points
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="text-5xl font-black italic text-glow-primary">{stats?.totalScore ?? 0}</div>
+                <CardContent className="p-6 pt-0 text-5xl font-black italic text-glow-primary">
+                  {stats?.totalScore ?? 0}
                 </CardContent>
               </Card>
               <Card className="bg-black/40 border-white/5 hover:border-green-500/50 transition-all rounded-2xl group overflow-hidden">
-                <div className="absolute inset-0 bg-green-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
                 <CardHeader className="p-6 pb-2">
                   <CardTitle className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-2">
-                    <Target className="w-4 h-4 text-green-500" /> Units Cleared
+                    <Target className="w-4 h-4 text-green-500" /> Cleared
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-6 pt-0">
-                  <div className="text-4xl font-black italic">{stats?.totalSolved ?? 0}</div>
+                <CardContent className="p-6 pt-0 text-4xl font-black italic">
+                  {stats?.totalSolved ?? 0}
                 </CardContent>
               </Card>
             </div>
             <div className="pt-12">
               <Button
                 size="lg"
-                className="btn-gradient px-16 py-10 text-3xl font-black italic rounded-2xl shadow-[0_0_40px_rgba(99,102,241,0.4)] tracking-tight"
+                className="btn-gradient px-16 py-10 text-3xl font-black italic rounded-2xl shadow-glow tracking-tight"
                 onClick={() => navigate('/sandbox')}
               >
                 <Play className="mr-4 w-10 h-10 fill-current" /> START MISSION
               </Button>
               <p className="mt-6 text-white/20 font-black tracking-widest text-[10px] uppercase">
-                Ready for deployment... System nominal.
+                Network connection stable... Ready for deployment.
               </p>
             </div>
           </div>
