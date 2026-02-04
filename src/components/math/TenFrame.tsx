@@ -10,6 +10,7 @@ interface TenFrameProps {
   label?: string;
   isSuccess?: boolean;
   startIndex?: number;
+  pulseActive?: boolean;
 }
 export function TenFrame({
   id,
@@ -18,7 +19,8 @@ export function TenFrame({
   className,
   label,
   isSuccess,
-  startIndex = 0
+  startIndex = 0,
+  pulseActive = false
 }: TenFrameProps) {
   const cells = Array.from({ length: 10 });
   const count = Math.min(10, Math.max(0, value));
@@ -28,8 +30,9 @@ export function TenFrame({
     <div className={cn("space-y-4", className)}>
       <div className="flex justify-between items-center px-2">
         <span className={cn(
-          "text-xs font-black uppercase tracking-widest text-glow-primary transition-colors duration-500",
-          color === "orange" && "text-glow-secondary"
+          "text-xs font-black uppercase tracking-widest transition-colors duration-500",
+          color === "orange" ? "text-orange-400" : "text-indigo-400",
+          pulseActive && "animate-pulse"
         )}>
           {label || `Slot ${id.split('-')[1]}`}
         </span>
@@ -65,7 +68,11 @@ export function TenFrame({
                     layout: { type: "spring", stiffness: 200, damping: 25 },
                     scale: { type: "spring", stiffness: 400, damping: 20 }
                   }}
-                  className="w-8 h-8 sm:w-12 sm:h-12 relative z-10"
+                  className={cn(
+                    "w-8 h-8 sm:w-12 sm:h-12 relative z-10",
+                    pulseActive && "gem-pulse"
+                  )}
+                  style={pulseActive ? { animationDelay: `${i * 0.1}s` } : {}}
                 >
                   <PowerGem color={color} isSuccess={isSuccess} index={startIndex + i} />
                 </motion.div>
@@ -76,7 +83,7 @@ export function TenFrame({
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="w-1.5 h-1.5 rounded-full bg-white/10" 
+                className="w-1.5 h-1.5 rounded-full bg-white/10"
               />
             )}
           </div>

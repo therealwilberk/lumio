@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { TenFrame } from '@/components/math/TenFrame';
 import { NumberLine } from '@/components/math/NumberLine';
 import { CircularTimer } from '@/components/math/CircularTimer';
-import { generateProblem, getMakeTenBreakdown } from '@/lib/math-utils';
+import { generateProblem, getHintStrategy, getMakeTenBreakdown } from '@/lib/math-utils';
 import { api } from '@/lib/api-client';
 import { v4 as uuidv4 } from 'uuid';
 import confetti from 'canvas-confetti';
@@ -28,6 +28,7 @@ export function SandboxPage() {
   const [timeLeft, setTimeLeft] = useState(20);
   const [isShaking, setIsShaking] = useState(false);
   const [scorePopup, setScorePopup] = useState<number | null>(null);
+  const [sparks, setSparks] = useState<{ id: number; x: number; y: number }[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const userId = useMemo(() => {
     let id = localStorage.getItem('nexus_user_id');
@@ -96,6 +97,16 @@ export function SandboxPage() {
     setTimeLeft(20);
     setScorePopup(null);
   }, [stats]);
+  const triggerSpark = () => {
+    const id = Date.now();
+    setSparks(prev => [...prev, { id, x: Math.random() * 40 - 20, y: Math.random() * 20 - 10 }]);
+    setTimeout(() => setSparks(prev => prev.filter(s => s.id !== id)), 600);
+  };
+  const handleInputChange = (val: string) => {
+    if (isSuccess || isAnimating) return;
+    setAnswer(val);
+    triggerSpark();
+  };
   const checkAnswer = async () => {
     if (!answer || isSuccess || isAnimating) return;
     if (timerRef.current) clearInterval(timerRef.current);
@@ -115,10 +126,10 @@ export function SandboxPage() {
       const points = 10 * multiplier;
       setScorePopup(points);
       confetti({
-        particleCount: 150,
-        spread: 80,
+        particleCount: 200,
+        spread: 100,
         origin: { y: 0.6 },
-        colors: ['#6366F1', '#F97316', '#FFFFFF', '#4ADE80']
+        colors: ['#6366F1', '#F97316', '#FFFFFF', '#4ADE80', '#9333EA']
       });
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
@@ -126,7 +137,7 @@ export function SandboxPage() {
           body: JSON.stringify({ isCorrect: true, points })
         });
         setStats(updated);
-        setTimeout(nextProblem, 2800);
+        setTimeout(nextProblem, 3000);
       } catch (e) {
         console.error('Success API failure:', e);
       }
@@ -147,18 +158,22 @@ export function SandboxPage() {
       }
     }
   };
+  const hintStrategy = useMemo(() => getHintStrategy(problem.num1, problem.num2), [problem]);
   const breakdown = useMemo(() => getMakeTenBreakdown(problem.num1, problem.num2), [problem]);
   const DifficultyIcon = stats?.difficulty === 'easy' ? Shield : stats?.difficulty === 'medium' ? Zap : Skull;
   const difficultyColor = stats?.difficulty === 'easy' ? 'text-green-400' : stats?.difficulty === 'medium' ? 'text-orange-400' : 'text-red-500';
   return (
-    <div className="min-h-screen energy-grid-bg bg-background text-foreground selection:bg-indigo-500/30">
+    <div className={cn(
+      "min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700",
+      isSuccess && "bg-indigo-950/20"
+    )}>
       <LayoutGroup>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
           {/* Top Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-12">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')} 
+            <Button
+              variant="ghost"
+              onClick={() => navigate('/')}
               className="rounded-xl hover:bg-white/5 group border border-transparent hover:border-white/10"
               disabled={isAnimating}
             >
@@ -189,21 +204,22 @@ export function SandboxPage() {
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 <TenFrame
                   id="frame-1"
-                  value={showHint ? 10 : problem.num1}
+                  value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1}
                   color="indigo"
-                  label={showHint ? "COMPLETED TEN" : "BANK A"}
+                  label={showHint && hintStrategy.visualCues.bridgeActive ? "FULL 10" : "BANK A"}
                   isSuccess={isSuccess}
                   startIndex={0}
+                  pulseActive={showHint && hintStrategy.visualCues.pulseAddend1}
                 />
                 <motion.div layout className="text-4xl font-black text-white/10">+</motion.div>
                 <TenFrame
                   id="frame-2"
-                  value={showHint ? breakdown.remainder : problem.num2}
+                  value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2}
                   color="orange"
-                  label={showHint ? "OVERFLOW" : "BANK B"}
+                  label={showHint && hintStrategy.visualCues.bridgeActive ? "REMAINDER" : "BANK B"}
                   isSuccess={isSuccess}
-                  // When hint is active, tokens for Bank B shift starting index to ensure layoutId transition works
-                  startIndex={showHint ? 10 : problem.num1}
+                  startIndex={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1}
+                  pulseActive={showHint && hintStrategy.visualCues.pulseAddend2}
                 />
               </div>
               <div className="bg-black/60 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md relative group overflow-hidden">
@@ -218,9 +234,9 @@ export function SandboxPage() {
                   {scorePopup && (
                     <motion.div
                       initial={{ opacity: 0, y: 20, scale: 0.5 }}
-                      animate={{ opacity: 1, y: -100, scale: 1.8 }}
-                      exit={{ opacity: 0, scale: 2 }}
-                      className="absolute left-1/2 -translate-x-1/2 text-6xl font-black text-green-400 z-50 pointer-events-none drop-shadow-[0_0_20px_rgba(74,222,128,0.8)] italic"
+                      animate={{ opacity: 1, y: -150, scale: 2 }}
+                      exit={{ opacity: 0, scale: 3 }}
+                      className="absolute left-1/2 -translate-x-1/2 text-7xl font-black text-green-400 z-50 pointer-events-none drop-shadow-[0_0_30px_rgba(74,222,128,1)] italic"
                     >
                       +{scorePopup} XP
                     </motion.div>
@@ -239,60 +255,86 @@ export function SandboxPage() {
                 <AnimatePresence>
                   {showHint && (
                     <motion.div
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="p-6 bg-indigo-500/10 border-2 border-indigo-500/20 rounded-2xl text-left backdrop-blur-md mb-8 relative overflow-hidden group"
+                      initial={{ opacity: 0, x: 20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      className="p-6 bg-indigo-500/10 border-2 border-indigo-500/20 rounded-2xl text-left backdrop-blur-md mb-8 relative overflow-hidden group shadow-[0_0_30px_rgba(99,102,241,0.2)]"
                     >
                       <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <Sparkles className="w-12 h-12" />
+                        <BrainCircuit className="w-16 h-16" />
                       </div>
                       <p className="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
-                        <Zap className="w-4 h-4 fill-current" /> STRATEGY: MAKE TEN
+                        <Sparkles className="w-4 h-4 fill-current" /> {hintStrategy.title}
                       </p>
-                      <p className="text-xl font-bold leading-tight">
-                        Move {breakdown.needs} from Bank B to fill Bank A! <br/>
-                        <span className="text-indigo-400">{problem.num1} + {breakdown.needs} = 10</span>. <br/>
-                        Remaining: {breakdown.remainder}. <br/>
-                        <span className="text-3xl mt-2 block font-black italic">10 + {breakdown.remainder} = ?</span>
+                      <p className="text-lg font-bold leading-tight mb-4">
+                        {hintStrategy.description}
                       </p>
+                      <div className="space-y-2">
+                        {hintStrategy.steps.map((step, idx) => (
+                          <div key={idx} className="flex items-center gap-3 text-sm font-medium text-white/80">
+                            <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-black">{idx + 1}</div>
+                            {step}
+                          </div>
+                        ))}
+                      </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
               <div className="space-y-4">
-                <div className="flex gap-4">
-                  <Input
-                    type="number"
-                    value={answer}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    placeholder="?"
-                    className={cn(
-                      "text-5xl h-24 text-center rounded-2xl border-2 transition-all font-black bg-black/80",
-                      isSuccess ? "border-green-500 text-green-400 shadow-[0_0_30px_rgba(34,197,94,0.4)]" : "border-white/10 focus:border-indigo-500 shadow-2xl"
-                    )}
-                    onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
-                    disabled={isSuccess || isAnimating}
-                    autoFocus
-                  />
-                  <Button
-                    size="lg"
-                    onClick={checkAnswer}
-                    className={cn(
-                      "h-24 px-12 rounded-2xl text-2xl font-black transition-all shadow-xl",
-                      isSuccess ? "bg-green-500 text-white" : "btn-gradient"
-                    )}
-                    disabled={isSuccess || isAnimating || !answer}
-                  >
-                    {isSuccess ? <CheckCircle2 className="w-10 h-10" /> : "ENGAGE"}
-                  </Button>
+                <div className="relative group">
+                  <div className={cn(
+                    "absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20 transition duration-1000 group-hover:duration-200",
+                    (answer.length > 0 || isAnimating) && "opacity-60 power-pulse",
+                    isSuccess && "from-green-500 to-emerald-600 opacity-100"
+                  )} />
+                  <div className="relative flex gap-4">
+                    <div className="relative flex-1">
+                      <Input
+                        type="number"
+                        value={answer}
+                        onChange={(e) => handleInputChange(e.target.value)}
+                        placeholder="?"
+                        className={cn(
+                          "text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core",
+                          isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary"
+                        )}
+                        onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
+                        disabled={isSuccess || isAnimating}
+                        autoFocus
+                      />
+                      {/* Sparks container */}
+                      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
+                        {sparks.map(s => (
+                          <motion.div
+                            key={s.id}
+                            initial={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+                            animate={{ opacity: 0, scale: 0, x: s.x, y: s.y }}
+                            className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_10px_#818cf8]"
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="lg"
+                      onClick={checkAnswer}
+                      className={cn(
+                        "h-32 px-12 rounded-2xl text-3xl font-black italic transition-all shadow-2xl relative overflow-hidden group",
+                        isSuccess ? "bg-green-500 text-white" : "btn-gradient"
+                      )}
+                      disabled={isSuccess || isAnimating || !answer}
+                    >
+                      <span className="relative z-10">{isSuccess ? <CheckCircle2 className="w-12 h-12" /> : "ENGAGE"}</span>
+                      {!isSuccess && <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />}
+                    </Button>
+                  </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                     <Button
                       key={num}
                       variant="outline"
-                      className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-95 transition-all"
-                      onClick={() => setAnswer(prev => prev + num)}
+                      className="h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-90 transition-all"
+                      onClick={() => handleInputChange(answer + num)}
                       disabled={isSuccess || isAnimating}
                     >
                       {num}
@@ -301,23 +343,23 @@ export function SandboxPage() {
                   <Button
                     variant="outline"
                     className="h-20 text-2xl font-black rounded-xl border-red-900/30 bg-red-950/20 hover:bg-red-600 text-red-400 hover:text-white transition-all"
-                    onClick={() => setAnswer('')}
+                    onClick={() => handleInputChange('')}
                     disabled={isSuccess || isAnimating}
                   >
                     <RotateCcw className="w-8 h-8" />
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-600 hover:text-white transition-all"
-                    onClick={() => setAnswer(prev => prev + "0")}
+                    className="h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white transition-all"
+                    onClick={() => handleInputChange(answer + "0")}
                     disabled={isSuccess || isAnimating}
                   >
                     0
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-20 rounded-xl border-white/5 bg-white/5 hover:bg-indigo-600 hover:text-white transition-all"
-                    onClick={() => setAnswer(prev => prev.slice(0, -1))}
+                    className="h-20 rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white transition-all"
+                    onClick={() => handleInputChange(answer.slice(0, -1))}
                     disabled={isSuccess || isAnimating}
                   >
                     <Delete className="w-8 h-8" />
