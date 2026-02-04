@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -83,9 +83,17 @@ export function SandboxPage() {
     };
   }, [isTimed, problem, isSuccess, handleTimeout]);
   const nextProblem = useCallback(() => {
-    const currentStreak = stats?.streak ?? 0;
-    const max = currentStreak < 3 ? 10 : currentStreak < 8 ? 15 : 20;
-    setProblem(generateProblem(max));
+    const diff = stats?.difficulty || 'easy';
+    const streak = stats?.streak || 0;
+    // Base maxSum based on difficulty
+    let maxSum = diff === 'easy' ? 10 : diff === 'medium' ? 15 : 20;
+    // Dynamic scaling for high streaks
+    if (streak > 10) {
+      maxSum = Math.min(20, maxSum + 5);
+    } else if (streak > 5 && diff === 'easy') {
+      maxSum = 15;
+    }
+    setProblem(generateProblem(maxSum));
     setAnswer('');
     setMistakes(0);
     setIsSuccess(false);
@@ -107,6 +115,9 @@ export function SandboxPage() {
         if (timeLeft > 10) multiplier = 3;
         else if (timeLeft > 5) multiplier = 2;
       }
+      // Difficulty multiplier
+      if (stats?.difficulty === 'medium') multiplier += 1;
+      if (stats?.difficulty === 'hard') multiplier += 2;
       const points = 10 * multiplier;
       setScorePopup(points);
       confetti({
@@ -137,7 +148,6 @@ export function SandboxPage() {
           body: JSON.stringify({ isCorrect: false })
         });
         setStats(updated);
-        // Restart timer on mistake if timed mode
         if (isTimed) setTimeLeft(20);
       } catch (e) {
         console.error('Failure API failure:', e);
@@ -145,6 +155,8 @@ export function SandboxPage() {
     }
   };
   const breakdown = useMemo(() => getMakeTenBreakdown(problem.num1, problem.num2), [problem]);
+  const DifficultyIcon = stats?.difficulty === 'easy' ? Shield : stats?.difficulty === 'medium' ? Zap : Skull;
+  const difficultyColor = stats?.difficulty === 'easy' ? 'text-green-400' : stats?.difficulty === 'medium' ? 'text-orange-400' : 'text-red-500';
   return (
     <div className="min-h-screen energy-grid-bg bg-background text-foreground">
       <LayoutGroup>
@@ -162,6 +174,11 @@ export function SandboxPage() {
                 </Label>
               </div>
               <div className="h-6 w-px bg-white/10" />
+              <div className="flex items-center gap-2 font-black text-indigo-400 uppercase tracking-widest text-[10px]">
+                <DifficultyIcon className={cn("w-4 h-4", difficultyColor)} />
+                {stats?.difficulty}
+              </div>
+              <div className="h-6 w-px bg-white/10" />
               <div className="flex items-center gap-2 font-black text-indigo-400">
                 <TrendingUp className="w-4 h-4" />
                 STREAK: {stats?.streak ?? 0}
@@ -169,7 +186,6 @@ export function SandboxPage() {
             </div>
           </div>
           <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-start transition-all duration-300", isShaking && "animate-shake")}>
-            {/* Visual Stage */}
             <div className="space-y-12 order-2 lg:order-1">
               <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
                 <TenFrame
@@ -195,7 +211,6 @@ export function SandboxPage() {
                 <NumberLine target1={problem.num1} target2={problem.num2} isAnimating={isAnimating} />
               </div>
             </div>
-            {/* Input Side */}
             <div className="space-y-8 order-1 lg:order-2">
               <div className="text-center relative">
                 <AnimatePresence>
@@ -275,7 +290,6 @@ export function SandboxPage() {
                       className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 transition-all"
                       onClick={() => {
                         setAnswer((prev) => prev + num);
-                        confetti({ particleCount: 15, spread: 30, origin: { y: 0.85 }, colors: ['#6366F1'] });
                       }}
                       disabled={isSuccess}
                     >
@@ -295,13 +309,11 @@ export function SandboxPage() {
                     className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 transition-all"
                     onClick={() => {
                       setAnswer((prev) => prev + "0");
-                      confetti({ particleCount: 15, spread: 30, origin: { y: 0.85 }, colors: ['#6366F1'] });
                     }}
                     disabled={isSuccess}
                   >
                     0
                   </Button>
-                  <div className="h-20" /> {/* Empty Slot */}
                 </div>
               </div>
             </div>

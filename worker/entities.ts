@@ -10,7 +10,8 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
     highScore: 0,
     totalSolved: 0,
     totalScore: 0,
-    lastSolvedAt: 0
+    lastSolvedAt: 0,
+    difficulty: "easy"
   };
   async updateProgress(isCorrect: boolean, points: number = 1): Promise<StudentStats> {
     return this.mutate((s) => {
@@ -38,6 +39,13 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
         lastSolvedAt: now
       };
     });
+  }
+  async updateSettings(settings: Partial<StudentStats>): Promise<StudentStats> {
+    return this.mutate((s) => ({
+      ...s,
+      ...settings,
+      id: s.id // Ensure ID remains immutable
+    }));
   }
 }
 export class UserEntity extends IndexedEntity<User> {

@@ -18,6 +18,7 @@ export interface ChatMessage {
   text: string;
   ts: number;
 }
+export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export interface StudentStats {
   id: string;
   streak: number;
@@ -25,4 +26,5 @@ export interface StudentStats {
   totalSolved: number;
   totalScore: number;
   lastSolvedAt: number;
+  difficulty: DifficultyLevel;
 }
