@@ -62,6 +62,7 @@ export function PowerGem({ color = "indigo", className, isSuccess, layoutId, see
     </motion.div>
   );
 }
+
 function AnimateSparkles({ color, active, seed }: { color: string; active?: boolean; seed: number }) {
   const sparkles = useMemo(() => {
     const count = 4;
