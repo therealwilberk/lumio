@@ -10,7 +10,7 @@ interface CircularTimerProps {
 export function CircularTimer({ timeLeft, totalTime, className }: CircularTimerProps) {
   const radius = 40;
   const circumference = 2 * Math.PI * radius;
-  const progress = timeLeft / totalTime;
+  const progress = Math.max(0, Math.min(1, timeLeft / totalTime));
   const offset = circumference * (1 - progress);
   // Color mapping
   let colorClass = "text-green-500";
@@ -24,7 +24,7 @@ export function CircularTimer({ timeLeft, totalTime, className }: CircularTimerP
   }
   return (
     <div className={cn("relative flex items-center justify-center", className)}>
-      <svg className="w-24 h-24 transform -rotate-90 overflow-visible">
+      <svg viewBox="0 0 96 96" className="w-24 h-24 transform -rotate-90 overflow-visible">
         {/* Background Circle */}
         <circle
           cx="48"
@@ -52,7 +52,7 @@ export function CircularTimer({ timeLeft, totalTime, className }: CircularTimerP
       </svg>
       {/* Central Icon */}
       <motion.div
-        animate={{ 
+        animate={{
           scale: timeLeft <= 5 ? [1, 1.2, 1] : 1,
           rotate: timeLeft <= 5 ? [0, -5, 5, 0] : 0
         }}

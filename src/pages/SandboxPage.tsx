@@ -47,9 +47,11 @@ export function SandboxPage() {
   }, [userId]);
   const handleTimeout = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    setMistakes((m) => m + 1);
+    const newMistakes = mistakes + 1;
+    setMistakes(newMistakes);
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 500);
+    if (newMistakes >= 2) setShowHint(true);
     try {
       const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
         method: 'POST',
@@ -59,7 +61,7 @@ export function SandboxPage() {
     } catch (e) {
       console.error('Timeout API failure:', e);
     }
-  }, [userId]);
+  }, [userId, mistakes]);
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
@@ -124,16 +126,19 @@ export function SandboxPage() {
         console.error('Success API failure:', e);
       }
     } else {
-      setMistakes((m) => m + 1);
+      const newMistakes = mistakes + 1;
+      setMistakes(newMistakes);
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
-      if (mistakes + 1 >= 2) setShowHint(true);
+      if (newMistakes >= 2) setShowHint(true);
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
           method: 'POST',
           body: JSON.stringify({ isCorrect: false })
         });
         setStats(updated);
+        // Restart timer on mistake if timed mode
+        if (isTimed) setTimeLeft(20);
       } catch (e) {
         console.error('Failure API failure:', e);
       }
@@ -151,8 +156,8 @@ export function SandboxPage() {
             </Button>
             <div className="flex items-center gap-6 bg-black/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/10 shadow-2xl">
               <div className="flex items-center space-x-3">
-                <Switch id="timed-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess} />
-                <Label htmlFor="timed-mode" className="font-black text-xs uppercase tracking-tighter cursor-pointer flex items-center gap-2">
+                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess} />
+                <Label htmlFor="turbo-mode" className="font-black text-xs uppercase tracking-tighter cursor-pointer flex items-center gap-2">
                   <Zap className="w-4 h-4 text-yellow-400 fill-yellow-400" /> Turbo Mode
                 </Label>
               </div>
@@ -173,6 +178,7 @@ export function SandboxPage() {
                   color="indigo"
                   label={showHint ? "POWER CORE" : "PRIMARY"}
                   isSuccess={isSuccess}
+                  startIndex={0}
                 />
                 <motion.div layout className="text-4xl font-black text-white/20 animate-pulse">+</motion.div>
                 <TenFrame
@@ -181,6 +187,7 @@ export function SandboxPage() {
                   color="orange"
                   label={showHint ? "OVERFLOW" : "SECONDARY"}
                   isSuccess={isSuccess}
+                  startIndex={problem.num1}
                 />
               </div>
               <div className="bg-black/40 p-8 rounded-3xl border border-white/5 shadow-inner backdrop-blur-sm relative group overflow-hidden">
@@ -244,7 +251,7 @@ export function SandboxPage() {
                       "text-5xl h-24 text-center rounded-2xl border-2 transition-all font-black bg-black/60",
                       isSuccess ? "border-green-500 text-green-400 shadow-[0_0_20px_rgba(34,197,94,0.3)]" : "border-white/10 focus:border-indigo-500 shadow-2xl"
                     )}
-                    onKeyDown={(e) => e.key === 'Enter' && checkAnswer()}
+                    onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
                     disabled={isSuccess}
                     autoFocus
                   />
@@ -261,14 +268,14 @@ export function SandboxPage() {
                   </Button>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 0].map((num) => (
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                     <Button
                       key={num}
                       variant="outline"
                       className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 transition-all"
                       onClick={() => {
                         setAnswer((prev) => prev + num);
-                        confetti({ particleCount: 5, spread: 20, origin: { y: 0.8 }, colors: ['#6366F1'] });
+                        confetti({ particleCount: 15, spread: 30, origin: { y: 0.85 }, colors: ['#6366F1'] });
                       }}
                       disabled={isSuccess}
                     >
@@ -283,6 +290,18 @@ export function SandboxPage() {
                   >
                     <RotateCcw className="w-8 h-8" />
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 transition-all"
+                    onClick={() => {
+                      setAnswer((prev) => prev + "0");
+                      confetti({ particleCount: 15, spread: 30, origin: { y: 0.85 }, colors: ['#6366F1'] });
+                    }}
+                    disabled={isSuccess}
+                  >
+                    0
+                  </Button>
+                  <div className="h-20" /> {/* Empty Slot */}
                 </div>
               </div>
             </div>

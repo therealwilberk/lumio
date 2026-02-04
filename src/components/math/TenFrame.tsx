@@ -9,8 +9,17 @@ interface TenFrameProps {
   className?: string;
   label?: string;
   isSuccess?: boolean;
+  startIndex?: number;
 }
-export function TenFrame({ id, value, color = "indigo", className, label, isSuccess }: TenFrameProps) {
+export function TenFrame({ 
+  id, 
+  value, 
+  color = "indigo", 
+  className, 
+  label, 
+  isSuccess,
+  startIndex = 0
+}: TenFrameProps) {
   const cells = Array.from({ length: 10 });
   const count = Math.min(10, Math.max(0, value));
   const themeStyles = color === "indigo" ? "neon-border-indigo" : "neon-border-orange";
@@ -47,15 +56,15 @@ export function TenFrame({ id, value, color = "indigo", className, label, isSucc
             <AnimatePresence mode="popLayout">
               {i < count && (
                 <motion.div
-                  key={`${id}-gem-${i}`}
-                  layoutId={`${id}-token-${i}`}
+                  key={`token-${startIndex + i}`}
+                  layoutId={`token-${startIndex + i}`}
                   initial={{ scale: 0, y: 20, opacity: 0 }}
                   animate={{ scale: 1, y: 0, opacity: 1 }}
                   exit={{ scale: 0, filter: "brightness(2) blur(4px)", opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
                   className="w-8 h-8 sm:w-12 sm:h-12 relative z-10"
                 >
-                  <PowerGem color={color} isSuccess={isSuccess} />
+                  <PowerGem color={color} isSuccess={isSuccess} index={startIndex + i} />
                   {/* Trail effect when layout moves */}
                   <motion.div
                     className={cn(
