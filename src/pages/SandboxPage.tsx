@@ -17,12 +17,14 @@ import { cn } from '@/lib/utils';
 import type { StudentStats } from '@shared/types';
 export function SandboxPage() {
   const navigate = useNavigate();
+  const isMounted = useRef(true);
   const [stats, setStats] = useState<StudentStats | null>(null);
   const [problem, setProblem] = useState(() => generateProblem(10));
   const [answer, setAnswer] = useState('');
   const [mistakes, setMistakes] = useState(0);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [isTimed, setIsTimed] = useState(true);
   const [timeLeft, setTimeLeft] = useState(20);
@@ -41,49 +43,61 @@ export function SandboxPage() {
   const fetchStats = useCallback(async () => {
     try {
       const data = await api<StudentStats>(`/api/student/${userId}`);
-      setStats(data);
+      if (isMounted.current) setStats(data);
     } catch (e) {
       console.error('Failed to fetch stats:', e);
     }
   }, [userId]);
   const handleTimeout = useCallback(async () => {
-    if (timerRef.current) clearInterval(timerRef.current);
-    if (isSuccess) return;
-    setMistakes(prev => prev + 1);
+    if (isSuccess || isSubmitting || !isMounted.current) return;
+    setIsSubmitting(true);
     setIsShaking(true);
-    setTimeout(() => setIsShaking(false), 500);
+    setTimeout(() => {
+      if (isMounted.current) setIsShaking(false);
+    }, 500);
+    setMistakes(prev => prev + 1);
     if (mistakes >= 1) setShowHint(true);
     try {
       const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
         method: 'POST',
         body: JSON.stringify({ isCorrect: false })
       });
-      setStats(updated);
+      if (isMounted.current) {
+        setStats(updated);
+        setIsSubmitting(false);
+        setTimeLeft(20);
+      }
     } catch (e) {
       console.error('Timeout API failure:', e);
+      if (isMounted.current) setIsSubmitting(false);
     }
-  }, [userId, mistakes, isSuccess]);
+  }, [userId, mistakes, isSuccess, isSubmitting]);
   useEffect(() => {
+    isMounted.current = true;
     fetchStats();
+    return () => {
+      isMounted.current = false;
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
   }, [fetchStats]);
   useEffect(() => {
-    if (isTimed && !isSuccess) {
-      setTimeLeft(20);
+    if (isTimed && !isSuccess && !isSubmitting) {
       timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
-          if (prev <= 1) {
-            handleTimeout();
-            return 0;
-          }
-          return prev - 1;
-        });
+        setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isTimed, problem, isSuccess, handleTimeout]);
+  }, [isTimed, problem, isSuccess, isSubmitting]);
+  // Watch for timeout completion
+  useEffect(() => {
+    if (timeLeft === 0 && isTimed && !isSuccess && !isSubmitting) {
+      handleTimeout();
+    }
+  }, [timeLeft, isTimed, isSuccess, isSubmitting, handleTimeout]);
   const nextProblem = useCallback(() => {
+    if (!isMounted.current) return;
     const diff = stats?.difficulty || 'easy';
     const streak = stats?.streak || 0;
     let maxSum = diff === 'easy' ? 10 : diff === 'medium' ? 15 : 20;
@@ -93,28 +107,32 @@ export function SandboxPage() {
     setMistakes(0);
     setIsSuccess(false);
     setIsAnimating(false);
+    setIsSubmitting(false);
     setShowHint(false);
     setTimeLeft(20);
     setScorePopup(null);
   }, [stats]);
   const triggerSpark = () => {
+    if (!isMounted.current) return;
     const id = Date.now();
     setSparks(prev => [...prev, { id, x: Math.random() * 40 - 20, y: Math.random() * 20 - 10 }]);
-    setTimeout(() => setSparks(prev => prev.filter(s => s.id !== id)), 600);
+    setTimeout(() => {
+      if (isMounted.current) setSparks(prev => prev.filter(s => s.id !== id));
+    }, 600);
   };
   const handleInputChange = (val: string) => {
-    if (isSuccess || isAnimating) return;
+    if (isSuccess || isAnimating || isSubmitting || val.length > 3) return;
     setAnswer(val);
     triggerSpark();
   };
   const checkAnswer = async () => {
-    if (!answer || isSuccess || isAnimating) return;
-    if (timerRef.current) clearInterval(timerRef.current);
+    if (!answer || isSuccess || isAnimating || isSubmitting) return;
     const numericAnswer = parseInt(answer);
     const correct = numericAnswer === problem.num1 + problem.num2;
+    setIsSubmitting(true);
+    setIsAnimating(true);
     if (correct) {
       setIsSuccess(true);
-      setIsAnimating(true);
       let multiplier = 1;
       if (isTimed) {
         if (timeLeft > 15) multiplier = 4;
@@ -136,25 +154,38 @@ export function SandboxPage() {
           method: 'POST',
           body: JSON.stringify({ isCorrect: true, points })
         });
-        setStats(updated);
-        setTimeout(nextProblem, 3000);
+        if (isMounted.current) {
+          setStats(updated);
+          setTimeout(nextProblem, 2500);
+        }
       } catch (e) {
         console.error('Success API failure:', e);
+        if (isMounted.current) setIsSubmitting(false);
       }
     } else {
-      setMistakes(prev => prev + 1);
       setIsShaking(true);
-      setTimeout(() => setIsShaking(false), 500);
+      setTimeout(() => {
+        if (isMounted.current) setIsShaking(false);
+      }, 500);
+      setMistakes(prev => prev + 1);
       if (mistakes >= 1) setShowHint(true);
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
           method: 'POST',
           body: JSON.stringify({ isCorrect: false })
         });
-        setStats(updated);
-        if (isTimed) setTimeLeft(20);
+        if (isMounted.current) {
+          setStats(updated);
+          setIsSubmitting(false);
+          setIsAnimating(false);
+          if (isTimed) setTimeLeft(20);
+        }
       } catch (e) {
         console.error('Failure API failure:', e);
+        if (isMounted.current) {
+          setIsSubmitting(false);
+          setIsAnimating(false);
+        }
       }
     }
   };
@@ -175,13 +206,13 @@ export function SandboxPage() {
               variant="ghost"
               onClick={() => navigate('/')}
               className="rounded-xl hover:bg-white/5 group border border-transparent hover:border-white/10"
-              disabled={isAnimating}
+              disabled={isAnimating || isSubmitting}
             >
               <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Exit Mission
             </Button>
             <div className="flex items-center gap-4 sm:gap-6 bg-black/60 backdrop-blur-2xl px-6 py-3 rounded-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
               <div className="flex items-center space-x-3">
-                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess || isAnimating} />
+                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess || isAnimating || isSubmitting} />
                 <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase tracking-widest cursor-pointer flex items-center gap-2">
                   <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo
                 </Label>
@@ -284,13 +315,14 @@ export function SandboxPage() {
                 <div className="relative group">
                   <div className={cn(
                     "absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20 transition duration-1000 group-hover:duration-200",
-                    (answer.length > 0 || isAnimating) && "opacity-60 power-pulse",
+                    (answer.length > 0 || isAnimating || isSubmitting) && "opacity-60 power-pulse",
                     isSuccess && "from-green-500 to-emerald-600 opacity-100"
                   )} />
                   <div className="relative flex gap-4">
                     <div className="relative flex-1">
                       <Input
                         type="number"
+                        inputMode="numeric"
                         value={answer}
                         onChange={(e) => handleInputChange(e.target.value)}
                         placeholder="?"
@@ -299,10 +331,9 @@ export function SandboxPage() {
                           isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary"
                         )}
                         onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
-                        disabled={isSuccess || isAnimating}
+                        disabled={isSuccess || isAnimating || isSubmitting}
                         autoFocus
                       />
-                      {/* Sparks container */}
                       <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
                         {sparks.map(s => (
                           <motion.div
@@ -321,7 +352,7 @@ export function SandboxPage() {
                         "h-32 px-12 rounded-2xl text-3xl font-black italic transition-all shadow-2xl relative overflow-hidden group",
                         isSuccess ? "bg-green-500 text-white" : "btn-gradient"
                       )}
-                      disabled={isSuccess || isAnimating || !answer}
+                      disabled={isSuccess || isAnimating || isSubmitting || !answer}
                     >
                       <span className="relative z-10">{isSuccess ? <CheckCircle2 className="w-12 h-12" /> : "ENGAGE"}</span>
                       {!isSuccess && <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />}
@@ -335,7 +366,7 @@ export function SandboxPage() {
                       variant="outline"
                       className="h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-90 transition-all"
                       onClick={() => handleInputChange(answer + num)}
-                      disabled={isSuccess || isAnimating}
+                      disabled={isSuccess || isAnimating || isSubmitting}
                     >
                       {num}
                     </Button>
@@ -344,7 +375,7 @@ export function SandboxPage() {
                     variant="outline"
                     className="h-20 text-2xl font-black rounded-xl border-red-900/30 bg-red-950/20 hover:bg-red-600 text-red-400 hover:text-white transition-all"
                     onClick={() => handleInputChange('')}
-                    disabled={isSuccess || isAnimating}
+                    disabled={isSuccess || isAnimating || isSubmitting}
                   >
                     <RotateCcw className="w-8 h-8" />
                   </Button>
@@ -352,7 +383,7 @@ export function SandboxPage() {
                     variant="outline"
                     className="h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white transition-all"
                     onClick={() => handleInputChange(answer + "0")}
-                    disabled={isSuccess || isAnimating}
+                    disabled={isSuccess || isAnimating || isSubmitting}
                   >
                     0
                   </Button>
@@ -360,7 +391,7 @@ export function SandboxPage() {
                     variant="outline"
                     className="h-20 rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600 hover:text-white transition-all"
                     onClick={() => handleInputChange(answer.slice(0, -1))}
-                    disabled={isSuccess || isAnimating}
+                    disabled={isSuccess || isAnimating || isSubmitting}
                   >
                     <Delete className="w-8 h-8" />
                   </Button>
