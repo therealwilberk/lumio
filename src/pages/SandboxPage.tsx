@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete, BrainCircuit, Loader2 } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete, BrainCircuit, Loader2, BookOpen, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +9,7 @@ import { TenFrame } from '@/components/math/TenFrame';
 import { NumberLine } from '@/components/math/NumberLine';
 import { CircularTimer } from '@/components/math/CircularTimer';
 import { DifficultySelector } from '@/components/math/DifficultySelector';
+import { MissionBriefing } from '@/components/math/MissionBriefing';
 import { generateProblem, getHintStrategy, getMakeTenBreakdown } from '@/lib/math-utils';
 import { api } from '@/lib/api-client';
 import { v4 as uuidv4 } from 'uuid';
@@ -31,6 +32,7 @@ export function SandboxPage() {
   const [isTimed, setIsTimed] = useState(true);
   const [timeLeft, setTimeLeft] = useState(20);
   const [isShaking, setIsShaking] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [scorePopup, setScorePopup] = useState<number | null>(null);
   const [sparks, setSparks] = useState<{ id: number; x: number; y: number }[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
@@ -54,53 +56,40 @@ export function SandboxPage() {
     if (!stats || isSubmitting || isAnimating || isSuccess) return;
     const previous = stats.difficulty;
     setStats({ ...stats, difficulty: val });
+    setIsSyncing(true);
     try {
       await api<StudentStats>(`/api/student/${userId}/settings`, {
         method: 'PATCH',
         body: JSON.stringify({ difficulty: val })
       });
-      toast.success(`MISSION PARAMETERS: ${val.toUpperCase()}`, {
-        icon: val === 'hard' ? <Skull className="w-4 h-4 text-red-500" /> : <Zap className="w-4 h-4 text-orange-400" />
-      });
+      toast.success(`MISSION PARAMETERS: ${val.toUpperCase()}`);
     } catch (e) {
       setStats({ ...stats, difficulty: previous });
       toast.error("Tactical sync failed");
+    } finally {
+      setIsSyncing(false);
     }
   };
-  const handleTimeout = useCallback(async () => {
-    if (isSuccess || isSubmitting || !isMounted.current) return;
-    setIsSubmitting(true);
-    setIsShaking(true);
-    setTimeout(() => {
-      if (isMounted.current) setIsShaking(false);
-    }, 500);
-    setMistakes(prev => prev + 1);
-    if (mistakes >= 1) setShowHint(true);
-    try {
-      const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
-        method: 'POST',
-        body: JSON.stringify({ isCorrect: false })
-      });
-      if (isMounted.current) {
-        setStats(updated);
-        setIsSubmitting(false);
-        setTimeLeft(20);
-      }
-    } catch (e) {
-      console.error('Timeout API failure:', e);
-      if (isMounted.current) {
-        setIsSubmitting(false);
-        setTimeLeft(20);
-      }
-    }
-  }, [userId, mistakes, isSuccess, isSubmitting]);
+  const nextProblem = useCallback(() => {
+    if (!isMounted.current) return;
+    const diff = stats?.difficulty || 'easy';
+    const streak = stats?.streak || 0;
+    let baseMax = diff === 'easy' ? 10 : diff === 'medium' ? 20 : 40;
+    if (diff === 'hard' && streak > 10) baseMax = 60;
+    setProblem(generateProblem(baseMax));
+    setAnswer('');
+    setMistakes(0);
+    setIsSuccess(false);
+    setIsAnimating(false);
+    setIsSubmitting(false);
+    setShowHint(false);
+    setTimeLeft(diff === 'hard' ? 30 : 20);
+    setScorePopup(null);
+  }, [stats]);
   useEffect(() => {
     isMounted.current = true;
     fetchStats();
-    return () => {
-      isMounted.current = false;
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    return () => { isMounted.current = false; if (timerRef.current) clearInterval(timerRef.current); };
   }, [fetchStats]);
   useEffect(() => {
     if (isTimed && !isSuccess && !isSubmitting) {
@@ -108,41 +97,15 @@ export function SandboxPage() {
         setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
       }, 1000);
     }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [isTimed, problem, isSuccess, isSubmitting]);
-  useEffect(() => {
-    if (timeLeft === 0 && isTimed && !isSuccess && !isSubmitting) {
-      handleTimeout();
-    }
-  }, [timeLeft, isTimed, isSuccess, isSubmitting, handleTimeout]);
-  const nextProblem = useCallback(() => {
-    if (!isMounted.current) return;
-    const diff = stats?.difficulty || 'easy';
-    const streak = stats?.streak || 0;
-    let maxSum = diff === 'easy' ? 10 : diff === 'medium' ? 15 : 20;
-    if (streak > 10) maxSum = Math.min(20, maxSum + 5);
-    setProblem(generateProblem(maxSum));
-    setAnswer('');
-    setMistakes(0);
-    setIsSuccess(false);
-    setIsAnimating(false);
-    setIsSubmitting(false);
-    setShowHint(false);
-    setTimeLeft(20);
-    setScorePopup(null);
-  }, [stats]);
   const handleInputChange = (val: string) => {
     if (isSuccess || isAnimating || isSubmitting || val.length > 3) return;
-    // Prevent leading zeros unless the value is just "0"
     const sanitized = val.length > 1 && val.startsWith('0') ? val.replace(/^0+/, '') : val;
     setAnswer(sanitized);
     const id = Date.now();
     setSparks(prev => [...prev, { id, x: Math.random() * 40 - 20, y: Math.random() * 20 - 10 }]);
-    setTimeout(() => {
-      if (isMounted.current) setSparks(prev => prev.filter(s => s.id !== id));
-    }, 600);
+    setTimeout(() => { if (isMounted.current) setSparks(prev => prev.filter(s => s.id !== id)); }, 600);
   };
   const checkAnswer = async () => {
     if (!answer || isSuccess || isAnimating || isSubmitting) return;
@@ -150,7 +113,7 @@ export function SandboxPage() {
     const correct = numericAnswer === problem.num1 + problem.num2;
     setIsSubmitting(true);
     if (correct) {
-      setIsAnimating(true); // Only animate visuals on correct answers to prevent flickering on error
+      setIsAnimating(true);
       setIsSuccess(true);
       let multiplier = 1;
       if (isTimed) {
@@ -162,30 +125,17 @@ export function SandboxPage() {
       if (stats?.difficulty === 'hard') multiplier += 2;
       const points = 10 * multiplier;
       setScorePopup(points);
-      confetti({
-        particleCount: 200,
-        spread: 100,
-        origin: { y: 0.6 },
-        colors: ['#6366F1', '#F97316', '#FFFFFF', '#4ADE80', '#9333EA']
-      });
+      confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
           method: 'POST',
           body: JSON.stringify({ isCorrect: true, points })
         });
-        if (isMounted.current) {
-          setStats(updated);
-          setTimeout(nextProblem, 2500);
-        }
-      } catch (e) {
-        console.error('Success API failure:', e);
-        if (isMounted.current) setIsSubmitting(false);
-      }
+        if (isMounted.current) { setStats(updated); setTimeout(nextProblem, 2500); }
+      } catch (e) { console.error(e); setIsSubmitting(false); }
     } else {
       setIsShaking(true);
-      setTimeout(() => {
-        if (isMounted.current) setIsShaking(false);
-      }, 500);
+      setTimeout(() => { if (isMounted.current) setIsShaking(false); }, 500);
       setMistakes(prev => prev + 1);
       if (mistakes >= 1) setShowHint(true);
       try {
@@ -193,135 +143,92 @@ export function SandboxPage() {
           method: 'POST',
           body: JSON.stringify({ isCorrect: false })
         });
-        if (isMounted.current) {
-          setStats(updated);
-          setIsSubmitting(false);
-          if (isTimed) setTimeLeft(20);
-        }
-      } catch (e) {
-        console.error('Failure API failure:', e);
-        if (isMounted.current) {
-          setIsSubmitting(false);
-          if (isTimed) setTimeLeft(20);
-        }
-      }
+        if (isMounted.current) { setStats(updated); setIsSubmitting(false); setTimeLeft(20); }
+      } catch (e) { console.error(e); setIsSubmitting(false); }
     }
   };
   const hintStrategy = useMemo(() => getHintStrategy(problem.num1, problem.num2), [problem]);
   const breakdown = useMemo(() => getMakeTenBreakdown(problem.num1, problem.num2), [problem]);
+  const showTenFrames = problem.num1 <= 10 && problem.num2 <= 10;
   return (
-    <div className={cn(
-      "min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700",
-      isSuccess && "bg-indigo-950/20"
-    )}>
+    <div className={cn("min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700", isSuccess && "bg-indigo-950/20")}>
       <LayoutGroup>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-          {/* Tactical Header */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
-            <Button
-              variant="ghost"
-              onClick={() => navigate('/')}
-              className="rounded-xl hover:bg-white/5 group border border-transparent hover:border-white/10"
-              disabled={isAnimating || isSubmitting}
-            >
-              <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Exit
+            <Button variant="ghost" onClick={() => navigate('/')} className="rounded-xl border border-transparent hover:border-white/10" disabled={isAnimating || isSubmitting}>
+              <ArrowLeft className="mr-2 w-4 h-4" /> Exit
             </Button>
             <div className="flex items-center gap-4 bg-black/60 backdrop-blur-2xl px-4 py-2 rounded-2xl border border-white/10 shadow-2xl">
               <div className="flex items-center space-x-3 px-2">
-                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess || isAnimating || isSubmitting} />
-                <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase tracking-widest cursor-pointer flex items-center gap-2">
-                  <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo
-                </Label>
+                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess} />
+                <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase cursor-pointer flex items-center gap-2"><Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo</Label>
               </div>
               <div className="h-6 w-px bg-white/10" />
-              <DifficultySelector
-                variant="compact"
-                value={stats?.difficulty || 'easy'}
-                onValueChange={handleDifficultyChange}
-                disabled={isSuccess || isAnimating || isSubmitting}
-              />
-              <div className="h-6 w-px bg-white/10" />
-              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] tracking-widest uppercase px-2">
-                <TrendingUp className="w-4 h-4" />
-                {stats?.streak ?? 0}
+              <div className="flex items-center gap-2">
+                <DifficultySelector variant="compact" value={stats?.difficulty || 'easy'} onValueChange={handleDifficultyChange} disabled={isSuccess} />
+                {isSyncing && <RefreshCw className="w-3 h-3 animate-spin text-indigo-500" />}
               </div>
+              <div className="h-6 w-px bg-white/10" />
+              <MissionBriefing trigger={<Button variant="ghost" size="icon" className="h-8 w-8 text-indigo-400/60"><BookOpen className="w-4 h-4" /></Button>} />
+              <div className="h-6 w-px bg-white/10" />
+              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] uppercase px-2"><TrendingUp className="w-4 h-4" />{stats?.streak ?? 0}</div>
             </div>
           </div>
-          <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-start transition-all duration-300", isShaking && "animate-shake")}>
-            {/* Left: Visual Models */}
+          <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-start", isShaking && "animate-shake")}>
             <div className="space-y-10 order-2 lg:order-1">
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                <TenFrame
-                  id="frame-1"
-                  value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1}
-                  color="indigo"
-                  label={showHint && hintStrategy.visualCues.bridgeActive ? "FULL 10" : "BANK A"}
-                  isSuccess={isSuccess}
-                  startIndex={0}
-                  pulseActive={showHint && hintStrategy.visualCues.pulseAddend1}
-                />
-                <motion.div layout className="text-4xl font-black text-white/10">+</motion.div>
-                <TenFrame
-                  id="frame-2"
-                  value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2}
-                  color="orange"
-                  label={showHint && hintStrategy.visualCues.bridgeActive ? "REMAINDER" : "BANK B"}
-                  isSuccess={isSuccess}
-                  startIndex={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1}
-                  pulseActive={showHint && hintStrategy.visualCues.pulseAddend2}
-                />
+                {showTenFrames ? (
+                  <>
+                    <TenFrame id="frame-1" value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1} color="indigo" label="BANK A" isSuccess={isSuccess} />
+                    <div className="text-4xl font-black text-white/10">+</div>
+                    <TenFrame id="frame-2" value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2} color="orange" label="BANK B" isSuccess={isSuccess} />
+                  </>
+                ) : (
+                  <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full p-8 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-md">
+                    <div className="flex items-center gap-3 mb-6">
+                      <div className="p-2 bg-indigo-500/20 rounded-lg"><BrainCircuit className="w-6 h-6 text-indigo-400" /></div>
+                      <div>
+                        <h4 className="font-black text-xs text-white/40 tracking-widest uppercase">Strategy Intel</h4>
+                        <p className="text-sm font-bold text-white/80">Advanced Decomposition Active</p>
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="p-4 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-center">
+                        <div className="text-2xl font-black italic">{Math.floor(problem.num1 / 10) + Math.floor(problem.num2 / 10)}0</div>
+                        <div className="text-[10px] font-black text-indigo-400 uppercase">Combined Tens</div>
+                      </div>
+                      <div className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-center">
+                        <div className="text-2xl font-black italic">{ (problem.num1 % 10) + (problem.num2 % 10) }</div>
+                        <div className="text-[10px] font-black text-orange-400 uppercase">Combined Ones</div>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
               </div>
-              <div className="bg-black/60 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md relative group overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
-                <NumberLine target1={problem.num1} target2={problem.num2} isAnimating={isAnimating || isSuccess} />
+              <div className="bg-black/60 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md relative overflow-hidden">
+                <NumberLine max={stats?.difficulty === 'hard' ? 60 : 30} target1={problem.num1} target2={problem.num2} isAnimating={isAnimating || isSuccess} />
               </div>
             </div>
-            {/* Right: Problem & Input */}
             <div className="space-y-8 order-1 lg:order-2">
               <div className="text-center relative">
-                <AnimatePresence>
-                  {scorePopup && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 20, scale: 0.5 }}
-                      animate={{ opacity: 1, y: -150, scale: 2 }}
-                      exit={{ opacity: 0, scale: 3 }}
-                      className="absolute left-1/2 -translate-x-1/2 text-7xl font-black text-green-400 z-50 pointer-events-none drop-shadow-[0_0_30px_rgba(74,222,128,1)] italic"
-                    >
-                      +{scorePopup} XP
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                <AnimatePresence>{scorePopup && <motion.div initial={{ opacity: 0, y: 20, scale: 0.5 }} animate={{ opacity: 1, y: -150, scale: 2 }} exit={{ opacity: 0, scale: 3 }} className="absolute left-1/2 -translate-x-1/2 text-7xl font-black text-green-400 z-50 pointer-events-none italic">+{scorePopup} XP</motion.div>}</AnimatePresence>
                 <div className="flex justify-center items-center gap-8 mb-8">
                   <h2 className="text-8xl font-black tracking-tighter italic flex items-center gap-4">
                     <span className="text-glow-primary">{problem.num1}</span>
                     <span className="text-white/10 text-6xl">+</span>
                     <span className="text-glow-secondary">{problem.num2}</span>
                   </h2>
-                  {isTimed && !isSuccess && (
-                    <CircularTimer timeLeft={timeLeft} totalTime={20} className="scale-110" />
-                  )}
+                  {isTimed && !isSuccess && <CircularTimer timeLeft={timeLeft} totalTime={stats?.difficulty === 'hard' ? 30 : 20} className="scale-110" />}
                 </div>
                 <AnimatePresence>
                   {showHint && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      className="p-6 bg-indigo-500/10 border-2 border-indigo-500/20 rounded-2xl text-left backdrop-blur-md mb-8 relative overflow-hidden group shadow-[0_0_30px_rgba(99,102,241,0.2)]"
-                    >
-                      <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
-                        <BrainCircuit className="w-16 h-16" />
-                      </div>
-                      <p className="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
-                        <Sparkles className="w-4 h-4 fill-current" /> {hintStrategy.title}
-                      </p>
-                      <p className="text-lg font-bold leading-tight mb-4">
-                        {hintStrategy.description}
-                      </p>
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="p-6 bg-indigo-500/10 border-2 border-indigo-500/20 rounded-2xl text-left backdrop-blur-md mb-8 relative group shadow-[0_0_30px_rgba(99,102,241,0.2)]">
+                      <p className="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4 fill-current" /> {hintStrategy.title}</p>
+                      <p className="text-lg font-bold leading-tight mb-4">{hintStrategy.description}</p>
                       <div className="space-y-2">
                         {hintStrategy.steps.map((step, idx) => (
                           <div key={idx} className="flex items-center gap-3 text-sm font-medium text-white/80">
-                            <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-black">{idx + 1}</div>
-                            {step}
+                            <div className="w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center text-[10px] font-black">{idx + 1}</div>{step}
                           </div>
                         ))}
                       </div>
@@ -331,83 +238,19 @@ export function SandboxPage() {
               </div>
               <div className="space-y-4">
                 <div className="relative group">
-                  <div className={cn(
-                    "absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20 transition duration-1000 group-hover:duration-200",
-                    (answer.length > 0 || isAnimating || isSubmitting) && "opacity-60 power-pulse",
-                    isSuccess && "from-green-500 to-emerald-600 opacity-100"
-                  )} />
+                  <div className={cn("absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20", (answer.length > 0 || isAnimating) && "opacity-60 power-pulse", isSuccess && "from-green-500 to-emerald-600 opacity-100")} />
                   <div className="relative flex gap-4">
                     <div className="relative flex-1">
-                      <Input
-                        type="number"
-                        inputMode="numeric"
-                        value={answer}
-                        onChange={(e) => handleInputChange(e.target.value)}
-                        placeholder="?"
-                        className={cn(
-                          "text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core",
-                          isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary"
-                        )}
-                        onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
-                        disabled={isSuccess || isAnimating || isSubmitting}
-                        autoFocus
-                      />
-                      <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-2xl">
-                        {sparks.map(s => (
-                          <motion.div
-                            key={s.id}
-                            initial={{ opacity: 1, scale: 1, x: 0, y: 0 }}
-                            animate={{ opacity: 0, scale: 0, x: s.x, y: s.y }}
-                            className="absolute left-1/2 top-1/2 w-2 h-2 rounded-full bg-indigo-400 shadow-[0_0_10px_#818cf8]"
-                          />
-                        ))}
-                      </div>
+                      <Input type="number" inputMode="numeric" value={answer} onChange={(e) => handleInputChange(e.target.value)} placeholder="?" className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")} onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }} disabled={isSuccess || isAnimating} autoFocus />
                     </div>
-                    <Button
-                      size="lg"
-                      onClick={checkAnswer}
-                      className={cn(
-                        "h-32 px-12 rounded-2xl text-3xl font-black italic transition-all shadow-2xl relative overflow-hidden group",
-                        isSuccess ? "bg-green-500 text-white" : "btn-gradient"
-                      )}
-                      disabled={isSuccess || isAnimating || isSubmitting || !answer}
-                    >
-                      <span className="relative z-10 flex flex-col items-center">
-                        {isSubmitting && !isSuccess ? (
-                          <>
-                            <Loader2 className="w-8 h-8 animate-spin mb-1" />
-                            <span className="text-xs tracking-[0.2em]">SYNCING...</span>
-                          </>
-                        ) : isSuccess ? (
-                          <CheckCircle2 className="w-12 h-12" />
-                        ) : (
-                          "ENGAGE"
-                        )}
-                      </span>
-                      {!isSuccess && <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />}
+                    <Button size="lg" onClick={checkAnswer} className={cn("h-32 px-12 rounded-2xl text-3xl font-black italic transition-all", isSuccess ? "bg-green-500 text-white" : "btn-gradient")} disabled={isSuccess || isAnimating || !answer}>
+                      {isSubmitting && !isSuccess ? <Loader2 className="w-8 h-8 animate-spin" /> : isSuccess ? <CheckCircle2 className="w-12 h-12" /> : "ENGAGE"}
                     </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, "C", 0, "DEL"].map((num) => (
-                    <Button
-                      key={String(num)}
-                      variant="outline"
-                      className={cn(
-                        "h-20 text-3xl font-black rounded-xl border-white/5 transition-all",
-                        num === "C" ? "bg-red-950/20 text-red-400 hover:bg-red-600 hover:text-white" :
-                        num === "DEL" ? "bg-black/40 hover:bg-indigo-600" :
-                        "bg-black/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-90"
-                      )}
-                      onClick={() => {
-                        if (num === "C") handleInputChange("");
-                        else if (num === "DEL") handleInputChange(answer.slice(0, -1));
-                        else handleInputChange(answer + num);
-                      }}
-                      disabled={isSuccess || isAnimating || isSubmitting}
-                    >
-                      {num === "C" ? <RotateCcw className="w-8 h-8" /> : num === "DEL" ? <Delete className="w-8 h-8" /> : num}
-                    </Button>
+                    <Button key={String(num)} variant="outline" className={cn("h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")} onClick={() => { if (num === "C") handleInputChange(""); else if (num === "DEL") handleInputChange(answer.slice(0, -1)); else handleInputChange(answer + num); }} disabled={isSuccess || isAnimating}>{num === "C" ? <RotateCcw /> : num === "DEL" ? <Delete /> : num}</Button>
                   ))}
                 </div>
               </div>

@@ -9,15 +9,14 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { BookOpen, Shield, Zap, Skull, Target, TrendingUp, Cpu } from "lucide-react";
+import { motion } from "framer-motion";
 export function MissionBriefing({ trigger }: { trigger?: React.ReactNode }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" className="gap-2 border-indigo-500/50 hover:bg-indigo-500/10">
-            <BookOpen className="w-4 h-4" /> MISSION INTEL
-          </Button>
-        )}
+        {trigger || <Button variant="outline" className="gap-2 border-indigo-500/50 hover:bg-indigo-500/10">
+          <BookOpen className="w-4 h-4" /> MISSION INTEL
+        </Button>}
       </DialogTrigger>
       <DialogContent className="max-w-2xl bg-black/95 border-indigo-500/30 text-white backdrop-blur-xl">
         <DialogHeader>
@@ -65,11 +64,11 @@ export function MissionBriefing({ trigger }: { trigger?: React.ReactNode }) {
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                <span className="font-bold text-white">Hardcore Streak:</span> Streak &gt; 10 in Hard Mode expands problem limit to 60.
+                <span className="font-bold text-white">Hardcore Streak:</span> Streak > 10 in Hard Mode expands problem limit to 60.
               </li>
               <li className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-indigo-500" />
-                <span className="font-bold text-white">Strategy Intel:</span> Problems &gt; 20 activate the Advanced Decomposition View.
+                <span className="font-bold text-white">Strategy Intel:</span> Problems > 20 activate the Advanced Decomposition View.
               </li>
             </ul>
           </section>
