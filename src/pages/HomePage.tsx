@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, Flame, Play, Target, Sparkles } from 'lucide-react';
+import { Trophy, Flame, Play, Target, Sparkles, Star } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { api } from '@/lib/api-client';
 import { v4 as uuidv4 } from 'uuid';
-import type { StudentStats } from '../../worker/entities';
+import type { StudentStats } from '@shared/types';
 export function HomePage() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<StudentStats | null>(null);
@@ -45,44 +45,51 @@ export function HomePage() {
               Master math through visual mental models and interactive play.
             </p>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
             <Card className="rounded-3xl border-2 hover:border-orange-400 transition-colors">
-              <CardHeader className="pb-2">
+              <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-orange-500" /> Current Streak
+                  <Flame className="w-4 h-4 text-orange-500" /> Streak
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{stats?.streak ?? 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">Days on fire!</p>
+              <CardContent className="p-4 pt-0">
+                <div className="text-3xl font-bold">{stats?.streak ?? 0}</div>
               </CardContent>
             </Card>
             <Card className="rounded-3xl border-2 hover:border-indigo-400 transition-colors">
-              <CardHeader className="pb-2">
+              <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Trophy className="w-4 h-4 text-yellow-500" /> High Score
+                  <Trophy className="w-4 h-4 text-yellow-500" /> Best
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{stats?.highScore ?? 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">Personal best</p>
+              <CardContent className="p-4 pt-0">
+                <div className="text-3xl font-bold">{stats?.highScore ?? 0}</div>
+              </CardContent>
+            </Card>
+            <Card className="rounded-3xl border-2 hover:border-pink-400 transition-colors shadow-glow">
+              <CardHeader className="p-4 pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
+                  <Star className="w-4 h-4 text-pink-500" /> Points
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-4 pt-0">
+                <div className="text-3xl font-bold">{stats?.totalScore ?? 0}</div>
               </CardContent>
             </Card>
             <Card className="rounded-3xl border-2 hover:border-green-400 transition-colors">
-              <CardHeader className="pb-2">
+              <CardHeader className="p-4 pb-2">
                 <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                  <Target className="w-4 h-4 text-green-500" /> Total Solved
+                  <Target className="w-4 h-4 text-green-500" /> Solved
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-4xl font-bold">{stats?.totalSolved ?? 0}</div>
-                <p className="text-xs text-muted-foreground mt-1">Problems completed</p>
+              <CardContent className="p-4 pt-0">
+                <div className="text-3xl font-bold">{stats?.totalSolved ?? 0}</div>
               </CardContent>
             </Card>
           </div>
           <div className="pt-8">
-            <Button 
-              size="lg" 
+            <Button
+              size="lg"
               className="btn-gradient px-12 py-8 text-2xl font-bold rounded-3xl shadow-glow-lg"
               onClick={() => navigate('/sandbox')}
             >

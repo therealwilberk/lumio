@@ -1,13 +1,6 @@
 import { IndexedEntity } from "./core-utils";
-import type { User } from "@shared/types";
+import type { User, StudentStats } from "@shared/types";
 import { MOCK_USERS } from "@shared/mock-data";
-export interface StudentStats {
-  id: string;
-  streak: number;
-  highScore: number;
-  totalSolved: number;
-  lastSolvedAt: number;
-}
 export class StudentEntity extends IndexedEntity<StudentStats> {
   static readonly entityName = "student";
   static readonly indexName = "students";
@@ -16,17 +9,20 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
     streak: 0,
     highScore: 0,
     totalSolved: 0,
+    totalScore: 0,
     lastSolvedAt: 0
   };
-  async updateProgress(isCorrect: boolean): Promise<StudentStats> {
+  async updateProgress(isCorrect: boolean, points: number = 1): Promise<StudentStats> {
     return this.mutate((s) => {
       const now = Date.now();
       let newStreak = s.streak;
       let newHighScore = s.highScore;
       let newTotalSolved = s.totalSolved;
+      let newTotalScore = s.totalScore;
       if (isCorrect) {
         newStreak += 1;
         newTotalSolved += 1;
+        newTotalScore += points;
         if (newStreak > newHighScore) {
           newHighScore = newStreak;
         }
@@ -38,6 +34,7 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
         streak: newStreak,
         highScore: newHighScore,
         totalSolved: newTotalSolved,
+        totalScore: newTotalScore,
         lastSolvedAt: now
       };
     });

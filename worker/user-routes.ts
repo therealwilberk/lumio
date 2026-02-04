@@ -7,13 +7,13 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     const id = c.req.param('id');
     const student = new StudentEntity(c.env, id);
     if (!await student.exists()) {
-      // Create on the fly if doesn't exist
-      const initial = await StudentEntity.create(c.env, { 
-        id, 
-        streak: 0, 
-        highScore: 0, 
-        totalSolved: 0, 
-        lastSolvedAt: 0 
+      const initial = await StudentEntity.create(c.env, {
+        id,
+        streak: 0,
+        highScore: 0,
+        totalSolved: 0,
+        totalScore: 0,
+        lastSolvedAt: 0
       });
       return ok(c, initial);
     }
@@ -21,10 +21,10 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
   });
   app.post('/api/student/:id/progress', async (c) => {
     const id = c.req.param('id');
-    const { isCorrect } = (await c.req.json()) as { isCorrect: boolean };
+    const { isCorrect, points } = (await c.req.json()) as { isCorrect: boolean; points?: number };
     const student = new StudentEntity(c.env, id);
     if (!await student.exists()) return notFound(c, 'student not found');
-    const updated = await student.updateProgress(isCorrect);
+    const updated = await student.updateProgress(isCorrect, points ?? 1);
     return ok(c, updated);
   });
 }
