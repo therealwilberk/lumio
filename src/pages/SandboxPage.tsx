@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete, BrainCircuit } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete, BrainCircuit, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -51,7 +51,7 @@ export function SandboxPage() {
     }
   }, [userId]);
   const handleDifficultyChange = async (val: DifficultyLevel) => {
-    if (!stats) return;
+    if (!stats || isSubmitting || isAnimating || isSuccess) return;
     const previous = stats.difficulty;
     setStats({ ...stats, difficulty: val });
     try {
@@ -88,7 +88,10 @@ export function SandboxPage() {
       }
     } catch (e) {
       console.error('Timeout API failure:', e);
-      if (isMounted.current) setIsSubmitting(false);
+      if (isMounted.current) {
+        setIsSubmitting(false);
+        setTimeLeft(20);
+      }
     }
   }, [userId, mistakes, isSuccess, isSubmitting]);
   useEffect(() => {
@@ -132,7 +135,9 @@ export function SandboxPage() {
   }, [stats]);
   const handleInputChange = (val: string) => {
     if (isSuccess || isAnimating || isSubmitting || val.length > 3) return;
-    setAnswer(val);
+    // Prevent leading zeros unless the value is just "0"
+    const sanitized = val.length > 1 && val.startsWith('0') ? val.replace(/^0+/, '') : val;
+    setAnswer(sanitized);
     const id = Date.now();
     setSparks(prev => [...prev, { id, x: Math.random() * 40 - 20, y: Math.random() * 20 - 10 }]);
     setTimeout(() => {
@@ -144,8 +149,8 @@ export function SandboxPage() {
     const numericAnswer = parseInt(answer);
     const correct = numericAnswer === problem.num1 + problem.num2;
     setIsSubmitting(true);
-    setIsAnimating(true);
     if (correct) {
+      setIsAnimating(true); // Only animate visuals on correct answers to prevent flickering on error
       setIsSuccess(true);
       let multiplier = 1;
       if (isTimed) {
@@ -191,14 +196,13 @@ export function SandboxPage() {
         if (isMounted.current) {
           setStats(updated);
           setIsSubmitting(false);
-          setIsAnimating(false);
           if (isTimed) setTimeLeft(20);
         }
       } catch (e) {
         console.error('Failure API failure:', e);
         if (isMounted.current) {
           setIsSubmitting(false);
-          setIsAnimating(false);
+          if (isTimed) setTimeLeft(20);
         }
       }
     }
@@ -230,7 +234,7 @@ export function SandboxPage() {
                 </Label>
               </div>
               <div className="h-6 w-px bg-white/10" />
-              <DifficultySelector 
+              <DifficultySelector
                 variant="compact"
                 value={stats?.difficulty || 'easy'}
                 onValueChange={handleDifficultyChange}
@@ -368,7 +372,18 @@ export function SandboxPage() {
                       )}
                       disabled={isSuccess || isAnimating || isSubmitting || !answer}
                     >
-                      <span className="relative z-10">{isSuccess ? <CheckCircle2 className="w-12 h-12" /> : "ENGAGE"}</span>
+                      <span className="relative z-10 flex flex-col items-center">
+                        {isSubmitting && !isSuccess ? (
+                          <>
+                            <Loader2 className="w-8 h-8 animate-spin mb-1" />
+                            <span className="text-xs tracking-[0.2em]">SYNCING...</span>
+                          </>
+                        ) : isSuccess ? (
+                          <CheckCircle2 className="w-12 h-12" />
+                        ) : (
+                          "ENGAGE"
+                        )}
+                      </span>
                       {!isSuccess && <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-300" />}
                     </Button>
                   </div>
@@ -380,7 +395,7 @@ export function SandboxPage() {
                       variant="outline"
                       className={cn(
                         "h-20 text-3xl font-black rounded-xl border-white/5 transition-all",
-                        num === "C" ? "bg-red-950/20 text-red-400 hover:bg-red-600 hover:text-white" : 
+                        num === "C" ? "bg-red-950/20 text-red-400 hover:bg-red-600 hover:text-white" :
                         num === "DEL" ? "bg-black/40 hover:bg-indigo-600" :
                         "bg-black/40 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-90"
                       )}

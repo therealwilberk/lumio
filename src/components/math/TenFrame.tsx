@@ -42,7 +42,9 @@ export function TenFrame({
       </div>
       <div className={cn(
         "grid grid-cols-5 grid-rows-2 gap-2 p-3 rounded-xl border-2 relative overflow-hidden bg-black/40 backdrop-blur-md transition-all duration-500",
-        themeStyles
+        themeStyles,
+        isSuccess && color === "indigo" && "shadow-[0_0_20px_rgba(99,102,241,0.3)]",
+        isSuccess && color === "orange" && "shadow-[0_0_20px_rgba(249,115,22,0.3)]"
       )}>
         {/* Tech Grid Pattern */}
         <div className="absolute inset-0 opacity-10 pointer-events-none energy-grid-bg" />
@@ -55,22 +57,23 @@ export function TenFrame({
             )}
           >
             {/* Slot Bevel Corner Effect */}
-            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 rounded-tl" />
+            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 rounded-tl pointer-events-none" />
             <AnimatePresence mode="popLayout">
               {i < count && (
                 <motion.div
-                  key={`token-${startIndex + i}`}
-                  layoutId={`token-${startIndex + i}`}
+                  key={`token-${id}-${startIndex + i}`}
+                  layoutId={`token-${id}-${startIndex + i}`}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
-                  transition={{ 
+                  transition={{
                     layout: { type: "spring", stiffness: 200, damping: 25 },
                     scale: { type: "spring", stiffness: 400, damping: 20 }
                   }}
                   className={cn(
                     "w-8 h-8 sm:w-12 sm:h-12 relative z-10",
-                    pulseActive && "gem-pulse"
+                    pulseActive && "gem-pulse",
+                    isSuccess && "gem-shimmer"
                   )}
                   style={pulseActive ? { animationDelay: `${i * 0.1}s` } : {}}
                 >
@@ -80,7 +83,7 @@ export function TenFrame({
             </AnimatePresence>
             {/* Empty Slot Dot */}
             {i >= count && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 className="w-1.5 h-1.5 rounded-full bg-white/10"
