@@ -59,7 +59,6 @@ export function SandboxPage() {
     const streak = stats?.streak || 0;
     let baseMax = diff === 'easy' ? 10 : diff === 'medium' ? 20 : 40;
     if (diff === 'hard' && streak > 10) baseMax = 60;
-    // Guard against duplicates
     const nextProb = generateProblem(baseMax, problem);
     setProblem(nextProb);
     setAnswer('');
@@ -73,12 +72,10 @@ export function SandboxPage() {
   }, [stats, problem]);
   const handleDifficultyChange = async (val: DifficultyLevel) => {
     if (!stats || isSubmitting || isAnimating || isSuccess) return;
-    // Optimistic UI Update
     const previous = stats.difficulty;
     const updatedStats = { ...stats, difficulty: val };
     setStats(updatedStats);
     setIsSyncing(true);
-    // Instantly trigger new problem logic
     nextProblem();
     try {
       await api<StudentStats>(`/api/student/${userId}/settings`, {
@@ -134,7 +131,6 @@ export function SandboxPage() {
       if (stats?.difficulty === 'hard') multiplier += 2;
       const points = 10 * multiplier;
       setScorePopup(points);
-      // Update Session Log
       const newEntry: LogEntry = {
         id: uuidv4(),
         problem: `${problem.num1} + ${problem.num2} = ${numericAnswer}`,
@@ -154,9 +150,9 @@ export function SandboxPage() {
           setStats(updated);
           setTimeout(nextProblem, 2500);
         }
-      } catch (e) { 
-        console.error(e); 
-        setIsSubmitting(false); 
+      } catch (e) {
+        console.error(e);
+        setIsSubmitting(false);
       }
     } else {
       setIsShaking(true);
@@ -173,20 +169,24 @@ export function SandboxPage() {
           setIsSubmitting(false);
           setTimeLeft(stats?.difficulty === 'hard' ? 30 : 20);
         }
-      } catch (e) { 
-        console.error(e); 
-        setIsSubmitting(false); 
+      } catch (e) {
+        console.error(e);
+        setIsSubmitting(false);
       }
     }
   };
   const hintStrategy = useMemo(() => getHintStrategy(problem.num1, problem.num2), [problem]);
   const breakdown = useMemo(() => getMakeTenBreakdown(problem.num1, problem.num2), [problem]);
   const showTenFrames = problem.num1 <= 10 && problem.num2 <= 10;
+  const secondFrameStartIndex = useMemo(() => {
+    // If bridging, tokens are effectively moving from frame 2 into frame 1.
+    // To ensure unique layoutIds for tokens that move, we adjust the index.
+    return showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1;
+  }, [showHint, hintStrategy, problem]);
   return (
     <div className={cn("min-h-screen energy-grid-bg bg-background text-foreground transition-all duration-700", isSuccess && "bg-indigo-950/20")}>
       <LayoutGroup>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-          {/* Header Dashboard */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-12">
             <Button
               variant="ghost"
@@ -222,7 +222,6 @@ export function SandboxPage() {
             </div>
           </div>
           <div className={cn("grid grid-cols-1 lg:grid-cols-12 gap-12 items-start", isShaking && "animate-shake")}>
-            {/* Visual Column */}
             <div className="lg:col-span-7 space-y-10">
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 {showTenFrames ? (
@@ -242,7 +241,7 @@ export function SandboxPage() {
                       color="orange"
                       label="BANK B"
                       isSuccess={isSuccess}
-                      startIndex={problem.num1}
+                      startIndex={secondFrameStartIndex}
                     />
                   </>
                 ) : (
@@ -270,12 +269,10 @@ export function SandboxPage() {
               <div className="bg-black/60 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md relative overflow-hidden">
                 <NumberLine max={stats?.difficulty === 'hard' ? 60 : 30} target1={problem.num1} target2={problem.num2} isAnimating={isAnimating || isSuccess} />
               </div>
-              {/* Tactical Feed Mobile Overlay */}
               <div className="lg:hidden">
                  <MissionLog history={missionHistory} className="h-64" />
               </div>
             </div>
-            {/* Input & Logging Column */}
             <div className="lg:col-span-5 space-y-8">
               <div className="text-center relative">
                 <AnimatePresence>
@@ -325,10 +322,11 @@ export function SandboxPage() {
                         value={answer}
                         onChange={(e) => handleInputChange(e.target.value)}
                         placeholder="?"
-                        className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")}
+                        className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core no-spinner", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")}
                         onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
                         disabled={isSuccess || isAnimating}
                         autoFocus
+                        tabIndex={0}
                       />
                     </div>
                     <Button
@@ -341,7 +339,6 @@ export function SandboxPage() {
                     </Button>
                   </div>
                 </div>
-                {/* Tactical Mission Log Desktop */}
                 <div className="hidden lg:block">
                   <MissionLog history={missionHistory} className="h-64" />
                 </div>

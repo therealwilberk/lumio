@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Trophy, Flame, Play, Target, Star, Zap, ShieldCheck, Activity, BookOpen, RefreshCw, Cpu, Server, Wifi } from 'lucide-react';
+import { Trophy, Flame, Play, Target, Star, Zap, ShieldCheck, Cpu, Server, Wifi, BookOpen } from 'lucide-react';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { api } from '@/lib/api-client';
+import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
 import type { StudentStats, DifficultyLevel } from '@shared/types';
 import { PowerGem } from '@/components/math/PowerGem';
@@ -58,9 +59,9 @@ export function HomePage() {
   }, [stats?.totalScore]);
   const progressValue = useMemo(() => {
     const score = stats?.totalScore ?? 0;
-    const prevThreshold = rankData.name === "RECRUIT" ? 0 : 
-                          rankData.name === "ADEPT" ? 100 : 
-                          rankData.name === "ELITE" ? 500 : 
+    const prevThreshold = rankData.name === "RECRUIT" ? 0 :
+                          rankData.name === "ADEPT" ? 100 :
+                          rankData.name === "ELITE" ? 500 :
                           rankData.name === "LEGEND" ? 1000 : 5000;
     const range = rankData.next - prevThreshold;
     const current = score - prevThreshold;
@@ -80,7 +81,6 @@ export function HomePage() {
         <div className="py-8 md:py-10 lg:py-12">
           <ThemeToggle />
           <div className="text-center space-y-12 animate-fade-in">
-            {/* Hero Section */}
             <div className="flex justify-center mb-6">
               <div className="w-32 h-32 relative floating">
                 <PowerGem isSuccess color="indigo" layoutId="hero-gem" />
@@ -95,10 +95,10 @@ export function HomePage() {
               </h1>
               <div className="flex flex-col items-center gap-4 max-w-sm mx-auto">
                 <AnimatePresence mode="wait">
-                  <motion.div 
-                    key={rankData.name} 
-                    initial={{ opacity: 0, scale: 0.9, y: 10 }} 
-                    animate={{ opacity: 1, scale: 1, y: 0 }} 
+                  <motion.div
+                    key={rankData.name}
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
                     className="flex items-center justify-center gap-3"
                   >
                     <rankData.icon className={rankData.color} />
@@ -114,7 +114,6 @@ export function HomePage() {
                 </div>
               </div>
             </div>
-            {/* Config & Mission Control */}
             <div className="max-w-md mx-auto space-y-6">
               <div className="flex items-center justify-center gap-4">
                 <div className="flex items-center gap-2 text-white/40 font-black text-[10px] tracking-[0.3em] uppercase">
@@ -145,7 +144,6 @@ export function HomePage() {
                 } />
               </div>
             </div>
-            {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
               <Card className="bg-black/40 border-white/5 hover:border-orange-500/50 transition-all rounded-2xl group overflow-hidden">
                 <CardHeader className="p-6 pb-2"><CardTitle className="text-xs font-black text-white/40 uppercase tracking-widest flex items-center gap-2"><Flame className="w-4 h-4 text-orange-500" /> Current Streak</CardTitle></CardHeader>
@@ -167,7 +165,6 @@ export function HomePage() {
                 <CardContent className="p-6 pt-0 text-4xl font-black italic">{stats?.totalSolved ?? 0}</CardContent>
               </Card>
             </div>
-            {/* Launch Action */}
             <div className="pt-12">
               <Button size="lg" className="btn-gradient px-16 py-10 text-3xl font-black italic rounded-2xl shadow-glow tracking-tight" onClick={() => navigate('/sandbox')}>
                 <Play className="mr-4 w-10 h-10 fill-current" /> START MISSION
