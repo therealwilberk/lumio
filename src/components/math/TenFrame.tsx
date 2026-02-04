@@ -3,13 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { HelpCircle } from 'lucide-react';
 interface TenFrameProps {
+  id: string;
   value: number;
   color?: string;
   className?: string;
   label?: string;
   hideLabel?: boolean;
 }
-export function TenFrame({ value, color = "bg-indigo-500", className, label, hideLabel }: TenFrameProps) {
+export function TenFrame({ id, value, color = "bg-indigo-500", className, label, hideLabel }: TenFrameProps) {
   const cells = Array.from({ length: 10 });
   const count = Math.min(10, Math.max(0, value));
   return (
@@ -28,12 +29,13 @@ export function TenFrame({ value, color = "bg-indigo-500", className, label, hid
         {cells.map((_, i) => (
           <div
             key={i}
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-dashed border-muted-foreground/20 flex items-center justify-center bg-background/40"
+            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-dashed border-muted-foreground/10 flex items-center justify-center bg-background/40"
           >
             <AnimatePresence mode="popLayout">
               {i < count && (
                 <motion.div
-                  layoutId={`token-${i}`}
+                  key={`${id}-token-${i}`}
+                  layoutId={`${id}-token-${i}`}
                   initial={{ scale: 0, rotate: -45, y: -20 }}
                   animate={{
                     scale: 1,
@@ -44,14 +46,15 @@ export function TenFrame({ value, color = "bg-indigo-500", className, label, hid
                   transition={{
                     type: "spring",
                     stiffness: 400,
-                    damping: 20,
-                    boxShadow: { repeat: Infinity, duration: 2.5 }
+                    damping: 25,
+                    boxShadow: { repeat: Infinity, duration: 3 }
                   }}
                   exit={{ scale: 0, opacity: 0 }}
                   className={cn(
                     "w-10 h-10 sm:w-14 sm:h-14 rounded-full border-b-4 border-black/10 bounce-subtle",
                     color,
-                    hideLabel && "shimmer-bg opacity-70"
+                    hideLabel && "shimmer-bg opacity-70",
+                    "dark:border-white/5"
                   )}
                 />
               )}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, AlertCircle, Timer, ShieldQuestion, Zap } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Timer, ShieldQuestion, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -9,6 +9,7 @@ import { TenFrame } from '@/components/math/TenFrame';
 import { NumberLine } from '@/components/math/NumberLine';
 import { generateProblem, getMakeTenBreakdown } from '@/lib/math-utils';
 import { api } from '@/lib/api-client';
+import { v4 as uuidv4 } from 'uuid';
 import confetti from 'canvas-confetti';
 import { motion, AnimatePresence, LayoutGroup } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -26,17 +27,26 @@ export function SandboxPage() {
   const [timeLeft, setTimeLeft] = useState(20);
   const [isShaking, setIsShaking] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
-  const userId = useMemo(() => localStorage.getItem('nexus_user_id') || 'guest', []);
+  const userId = useMemo(() => {
+    let id = localStorage.getItem('nexus_user_id');
+    if (!id) {
+      id = uuidv4();
+      localStorage.setItem('nexus_user_id', id);
+    }
+    return id;
+  }, []);
   const fetchStats = useCallback(async () => {
     try {
       const data = await api<StudentStats>(`/api/student/${userId}`);
       setStats(data);
-      const initialMax = data.streak < 3 ? 10 : data.streak < 8 ? 15 : 20;
-      setProblem(generateProblem(initialMax));
+      if (!isSuccess) {
+        const initialMax = data.streak < 3 ? 10 : data.streak < 8 ? 15 : 20;
+        setProblem(generateProblem(initialMax));
+      }
     } catch (e) {
-      console.error(e);
+      console.error('Failed to fetch stats:', e);
     }
-  }, [userId]);
+  }, [userId, isSuccess]);
   const handleTimeout = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
     setMistakes((m) => m + 1);
@@ -49,7 +59,7 @@ export function SandboxPage() {
       });
       setStats(updated);
     } catch (e) {
-      console.error(e);
+      console.error('Timeout API failure:', e);
     }
   }, [userId]);
   useEffect(() => {
@@ -84,16 +94,16 @@ export function SandboxPage() {
     setTimeLeft(20);
   }, [stats]);
   const checkAnswer = async () => {
-    if (!answer) return;
+    if (!answer || isSuccess) return;
     if (timerRef.current) clearInterval(timerRef.current);
     const numericAnswer = parseInt(answer);
     const correct = numericAnswer === problem.num1 + problem.num2;
     if (correct) {
       setIsSuccess(true);
       setIsAnimating(true);
-      confetti({ 
-        particleCount: 150, 
-        spread: 70, 
+      confetti({
+        particleCount: 150,
+        spread: 70,
         origin: { y: 0.6 },
         colors: ['#4F46E5', '#F97316', '#84CC16']
       });
@@ -111,7 +121,7 @@ export function SandboxPage() {
         setStats(updated);
         setTimeout(nextProblem, 3000);
       } catch (e) {
-        console.error(e);
+        console.error('Success API failure:', e);
       }
     } else {
       setMistakes((m) => m + 1);
@@ -124,8 +134,14 @@ export function SandboxPage() {
           body: JSON.stringify({ isCorrect: false })
         });
         setStats(updated);
+        if (isTimed) {
+          setTimeLeft(20); // Reset timer on mistake in timed mode to give a second chance
+          timerRef.current = setInterval(() => {
+            setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+          }, 1000);
+        }
       } catch (e) {
-        console.error(e);
+        console.error('Failure API failure:', e);
       }
     }
   };
@@ -140,7 +156,10 @@ export function SandboxPage() {
           </Button>
           <div className="flex items-center gap-6 bg-card px-6 py-2 rounded-full border shadow-sm">
             <div className="flex items-center space-x-3">
-              <Switch id="timed-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess} />
+              <Switch id="timed-mode" checked={isTimed} onCheckedChange={(val) => {
+                setIsTimed(val);
+                if (!val && timerRef.current) clearInterval(timerRef.current);
+              }} disabled={isSuccess} />
               <Label htmlFor="timed-mode" className="font-bold flex items-center gap-2 cursor-pointer">
                 <Timer className="w-4 h-4 text-primary" /> Timed Mode
               </Label>
@@ -151,24 +170,23 @@ export function SandboxPage() {
             </div>
           </div>
         </div>
-        <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-center transition-transform", isShaking && "animate-shake")}>
+        <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-center transition-all duration-300", isShaking && "animate-shake")}>
           <div className="space-y-10 order-2 lg:order-1">
             <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
               <TenFrame
+                id="frame-1"
                 value={showHint ? 10 : problem.num1}
                 color="bg-indigo-500"
                 label={isTimed ? undefined : (showHint ? "Full 10" : `Value: ${problem.num1}`)}
-                hideLabel={isTimed}
+                hideLabel={isTimed && !showHint}
               />
-              <motion.div 
-                layout
-                className="text-4xl font-bold text-muted-foreground"
-              >+</motion.div>
+              <motion.div layout className="text-4xl font-bold text-muted-foreground/50">+</motion.div>
               <TenFrame
+                id="frame-2"
                 value={showHint ? breakdown.remainder : problem.num2}
                 color="bg-orange-500"
                 label={isTimed ? undefined : (showHint ? "Leftover" : `Value: ${problem.num2}`)}
-                hideLabel={isTimed}
+                hideLabel={isTimed && !showHint}
               />
             </div>
             <div className="bg-card p-6 rounded-3xl border shadow-soft">
@@ -178,7 +196,7 @@ export function SandboxPage() {
           <div className="space-y-8 order-1 lg:order-2">
             <div className="text-center space-y-4">
               <h2 className="text-6xl font-black tracking-tighter text-balance">
-                {isTimed && !showHint ? (
+                {isTimed && !showHint && !isSuccess ? (
                   <span className="flex items-center justify-center gap-2">
                     <ShieldQuestion className="w-12 h-12 text-indigo-400/40" />
                     +
@@ -188,11 +206,11 @@ export function SandboxPage() {
                 <span className="ml-2 text-primary">= ?</span>
               </h2>
               {isTimed && !isSuccess && (
-                <div className="flex justify-center items-center gap-4">
+                <div className="flex flex-col items-center gap-2">
                   <div className={`text-4xl font-mono font-bold ${timerColor} tabular-nums transition-colors duration-300`}>
                     {timeLeft}s
                   </div>
-                  <div className="w-48 h-3 bg-secondary rounded-full overflow-hidden border">
+                  <div className="w-64 h-3 bg-secondary rounded-full overflow-hidden border">
                     <motion.div
                       className={cn("h-full", timeLeft > 10 ? 'bg-green-500' : timeLeft > 5 ? 'bg-yellow-500' : 'bg-red-500')}
                       initial={{ width: "100%" }}
@@ -204,21 +222,22 @@ export function SandboxPage() {
               )}
               <AnimatePresence>
                 {showHint && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: 10 }} 
-                    animate={{ opacity: 1, y: 0 }} 
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.9, y: 10 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.9 }}
                     className="p-5 bg-indigo-50 dark:bg-indigo-950/30 text-indigo-700 dark:text-indigo-300 rounded-3xl border-2 border-indigo-200 dark:border-indigo-800 text-left shadow-sm"
                   >
                     <div className="flex gap-3">
-                      <div className="bg-indigo-500 p-2 rounded-xl text-white">
+                      <div className="bg-indigo-500 p-2 rounded-xl text-white h-fit">
                         <Zap className="w-5 h-5" />
                       </div>
                       <div>
                         <p className="font-bold text-lg mb-1">Make Ten Strategy!</p>
-                        <p className="text-sm font-medium opacity-90">
-                          {problem.num1} needs {breakdown.needs} more to hit 10. 
-                          Then we have {breakdown.remainder} left over. 
-                          10 + {breakdown.remainder} = ?
+                        <p className="text-sm font-medium opacity-90 leading-relaxed">
+                          {problem.num1} needs {breakdown.needs} to make 10. <br/>
+                          Then we add the remaining {breakdown.remainder}. <br/>
+                          <span className="font-black">10 + {breakdown.remainder} = ?</span>
                         </p>
                       </div>
                     </div>
@@ -233,9 +252,10 @@ export function SandboxPage() {
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
                   placeholder="?"
-                  className="text-4xl h-24 text-center rounded-3xl border-4 border-muted focus-visible:ring-primary focus-visible:border-primary font-bold shadow-sm transition-all"
+                  className="text-4xl h-24 text-center rounded-3xl border-4 border-muted focus-visible:ring-primary focus-visible:border-primary font-bold shadow-sm transition-all bg-secondary/50"
                   onKeyDown={(e) => e.key === 'Enter' && checkAnswer()}
                   disabled={isSuccess}
+                  autoFocus
                 />
                 <Button
                   size="lg"
@@ -251,7 +271,7 @@ export function SandboxPage() {
                   <Button
                     key={num}
                     variant="secondary"
-                    className="h-20 text-3xl font-bold rounded-2xl border-b-4 border-muted hover:translate-y-1 hover:border-b-0 active:scale-90 transition-all"
+                    className="h-20 text-3xl font-bold rounded-2xl border-b-4 border-muted hover:translate-y-1 hover:border-b-0 active:scale-95 transition-all bg-background"
                     onClick={() => setAnswer((prev) => prev + num)}
                     disabled={isSuccess}
                   >
@@ -260,7 +280,7 @@ export function SandboxPage() {
                 ))}
                 <Button
                   variant="destructive"
-                  className="h-20 text-2xl font-bold rounded-2xl border-b-4 border-red-700 hover:translate-y-1 hover:border-b-0 active:scale-90 transition-all"
+                  className="h-20 text-2xl font-bold rounded-2xl border-b-4 border-red-700 hover:translate-y-1 hover:border-b-0 active:scale-95 transition-all"
                   onClick={() => setAnswer('')}
                   disabled={isSuccess}
                 >
