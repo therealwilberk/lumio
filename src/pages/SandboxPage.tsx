@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -47,11 +47,11 @@ export function SandboxPage() {
   }, [userId]);
   const handleTimeout = useCallback(async () => {
     if (timerRef.current) clearInterval(timerRef.current);
-    const newMistakes = mistakes + 1;
-    setMistakes(newMistakes);
+    if (isSuccess) return;
+    setMistakes(prev => prev + 1);
     setIsShaking(true);
     setTimeout(() => setIsShaking(false), 500);
-    if (newMistakes >= 2) setShowHint(true);
+    if (mistakes >= 1) setShowHint(true);
     try {
       const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
         method: 'POST',
@@ -61,7 +61,7 @@ export function SandboxPage() {
     } catch (e) {
       console.error('Timeout API failure:', e);
     }
-  }, [userId, mistakes]);
+  }, [userId, mistakes, isSuccess]);
   useEffect(() => {
     fetchStats();
   }, [fetchStats]);
@@ -85,14 +85,8 @@ export function SandboxPage() {
   const nextProblem = useCallback(() => {
     const diff = stats?.difficulty || 'easy';
     const streak = stats?.streak || 0;
-    // Base maxSum based on difficulty
     let maxSum = diff === 'easy' ? 10 : diff === 'medium' ? 15 : 20;
-    // Dynamic scaling for high streaks
-    if (streak > 10) {
-      maxSum = Math.min(20, maxSum + 5);
-    } else if (streak > 5 && diff === 'easy') {
-      maxSum = 15;
-    }
+    if (streak > 10) maxSum = Math.min(20, maxSum + 5);
     setProblem(generateProblem(maxSum));
     setAnswer('');
     setMistakes(0);
@@ -103,7 +97,7 @@ export function SandboxPage() {
     setScorePopup(null);
   }, [stats]);
   const checkAnswer = async () => {
-    if (!answer || isSuccess) return;
+    if (!answer || isSuccess || isAnimating) return;
     if (timerRef.current) clearInterval(timerRef.current);
     const numericAnswer = parseInt(answer);
     const correct = numericAnswer === problem.num1 + problem.num2;
@@ -112,19 +106,19 @@ export function SandboxPage() {
       setIsAnimating(true);
       let multiplier = 1;
       if (isTimed) {
-        if (timeLeft > 10) multiplier = 3;
+        if (timeLeft > 15) multiplier = 4;
+        else if (timeLeft > 10) multiplier = 3;
         else if (timeLeft > 5) multiplier = 2;
       }
-      // Difficulty multiplier
       if (stats?.difficulty === 'medium') multiplier += 1;
       if (stats?.difficulty === 'hard') multiplier += 2;
       const points = 10 * multiplier;
       setScorePopup(points);
       confetti({
         particleCount: 150,
-        spread: 70,
+        spread: 80,
         origin: { y: 0.6 },
-        colors: ['#6366F1', '#F97316', '#FFFFFF']
+        colors: ['#6366F1', '#F97316', '#FFFFFF', '#4ADE80']
       });
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
@@ -132,16 +126,15 @@ export function SandboxPage() {
           body: JSON.stringify({ isCorrect: true, points })
         });
         setStats(updated);
-        setTimeout(nextProblem, 2500);
+        setTimeout(nextProblem, 2800);
       } catch (e) {
         console.error('Success API failure:', e);
       }
     } else {
-      const newMistakes = mistakes + 1;
-      setMistakes(newMistakes);
+      setMistakes(prev => prev + 1);
       setIsShaking(true);
       setTimeout(() => setIsShaking(false), 500);
-      if (newMistakes >= 2) setShowHint(true);
+      if (mistakes >= 1) setShowHint(true);
       try {
         const updated = await api<StudentStats>(`/api/student/${userId}/progress`, {
           method: 'POST',
@@ -158,126 +151,137 @@ export function SandboxPage() {
   const DifficultyIcon = stats?.difficulty === 'easy' ? Shield : stats?.difficulty === 'medium' ? Zap : Skull;
   const difficultyColor = stats?.difficulty === 'easy' ? 'text-green-400' : stats?.difficulty === 'medium' ? 'text-orange-400' : 'text-red-500';
   return (
-    <div className="min-h-screen energy-grid-bg bg-background text-foreground">
+    <div className="min-h-screen energy-grid-bg bg-background text-foreground selection:bg-indigo-500/30">
       <LayoutGroup>
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-          {/* Header */}
+          {/* Top Bar */}
           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-12">
-            <Button variant="ghost" onClick={() => navigate('/')} className="rounded-xl hover:bg-white/5 group border border-transparent hover:border-white/10">
-              <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Back to Base
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate('/')} 
+              className="rounded-xl hover:bg-white/5 group border border-transparent hover:border-white/10"
+              disabled={isAnimating}
+            >
+              <ArrowLeft className="mr-2 w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Exit Mission
             </Button>
-            <div className="flex items-center gap-6 bg-black/40 backdrop-blur-xl px-6 py-3 rounded-2xl border border-white/10 shadow-2xl">
+            <div className="flex items-center gap-4 sm:gap-6 bg-black/60 backdrop-blur-2xl px-6 py-3 rounded-2xl border border-white/10 shadow-[0_0_40px_rgba(0,0,0,0.5)]">
               <div className="flex items-center space-x-3">
-                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess} />
-                <Label htmlFor="turbo-mode" className="font-black text-xs uppercase tracking-tighter cursor-pointer flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-yellow-400 fill-yellow-400" /> Turbo Mode
+                <Switch id="turbo-mode" checked={isTimed} onCheckedChange={setIsTimed} disabled={isSuccess || isAnimating} />
+                <Label htmlFor="turbo-mode" className="font-black text-[10px] uppercase tracking-widest cursor-pointer flex items-center gap-2">
+                  <Zap className="w-3 h-3 text-yellow-400 fill-yellow-400" /> Turbo
                 </Label>
               </div>
               <div className="h-6 w-px bg-white/10" />
-              <div className="flex items-center gap-2 font-black text-indigo-400 uppercase tracking-widest text-[10px]">
-                <DifficultyIcon className={cn("w-4 h-4", difficultyColor)} />
+              <div className={cn("flex items-center gap-2 font-black uppercase tracking-[0.2em] text-[10px]", difficultyColor)}>
+                <DifficultyIcon className="w-4 h-4" />
                 {stats?.difficulty}
               </div>
               <div className="h-6 w-px bg-white/10" />
-              <div className="flex items-center gap-2 font-black text-indigo-400">
+              <div className="flex items-center gap-2 font-black text-indigo-400 text-[10px] tracking-widest uppercase">
                 <TrendingUp className="w-4 h-4" />
-                STREAK: {stats?.streak ?? 0}
+                Streak: {stats?.streak ?? 0}
               </div>
             </div>
           </div>
           <div className={cn("grid grid-cols-1 lg:grid-cols-2 gap-12 items-start transition-all duration-300", isShaking && "animate-shake")}>
-            <div className="space-y-12 order-2 lg:order-1">
-              <div className="flex flex-col sm:flex-row gap-8 justify-center items-center">
+            {/* Left: Visual Models */}
+            <div className="space-y-10 order-2 lg:order-1">
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 <TenFrame
                   id="frame-1"
                   value={showHint ? 10 : problem.num1}
                   color="indigo"
-                  label={showHint ? "POWER CORE" : "PRIMARY"}
+                  label={showHint ? "COMPLETED TEN" : "BANK A"}
                   isSuccess={isSuccess}
                   startIndex={0}
                 />
-                <motion.div layout className="text-4xl font-black text-white/20 animate-pulse">+</motion.div>
+                <motion.div layout className="text-4xl font-black text-white/10">+</motion.div>
                 <TenFrame
                   id="frame-2"
                   value={showHint ? breakdown.remainder : problem.num2}
                   color="orange"
-                  label={showHint ? "OVERFLOW" : "SECONDARY"}
+                  label={showHint ? "OVERFLOW" : "BANK B"}
                   isSuccess={isSuccess}
-                  startIndex={problem.num1}
+                  // When hint is active, tokens for Bank B shift starting index to ensure layoutId transition works
+                  startIndex={showHint ? 10 : problem.num1}
                 />
               </div>
-              <div className="bg-black/40 p-8 rounded-3xl border border-white/5 shadow-inner backdrop-blur-sm relative group overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <NumberLine target1={problem.num1} target2={problem.num2} isAnimating={isAnimating} />
+              <div className="bg-black/60 p-8 rounded-3xl border border-white/5 shadow-2xl backdrop-blur-md relative group overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+                <NumberLine target1={problem.num1} target2={problem.num2} isAnimating={isAnimating || isSuccess} />
               </div>
             </div>
+            {/* Right: Problem & Input */}
             <div className="space-y-8 order-1 lg:order-2">
               <div className="text-center relative">
                 <AnimatePresence>
                   {scorePopup && (
                     <motion.div
-                      initial={{ opacity: 0, y: 0, scale: 0.5 }}
-                      animate={{ opacity: 1, y: -80, scale: 1.5 }}
-                      exit={{ opacity: 0 }}
-                      className="absolute left-1/2 -translate-x-1/2 text-5xl font-black text-green-400 z-50 pointer-events-none drop-shadow-[0_0_15px_rgba(74,222,128,0.5)]"
+                      initial={{ opacity: 0, y: 20, scale: 0.5 }}
+                      animate={{ opacity: 1, y: -100, scale: 1.8 }}
+                      exit={{ opacity: 0, scale: 2 }}
+                      className="absolute left-1/2 -translate-x-1/2 text-6xl font-black text-green-400 z-50 pointer-events-none drop-shadow-[0_0_20px_rgba(74,222,128,0.8)] italic"
                     >
-                      +{scorePopup}
+                      +{scorePopup} XP
                     </motion.div>
                   )}
                 </AnimatePresence>
-                <div className="flex justify-center items-center gap-8 mb-6">
-                  <h2 className="text-7xl font-black tracking-tighter flex items-center gap-4">
+                <div className="flex justify-center items-center gap-8 mb-8">
+                  <h2 className="text-8xl font-black tracking-tighter italic flex items-center gap-4">
                     <span className="text-glow-primary">{problem.num1}</span>
-                    <span className="text-white/20">+</span>
+                    <span className="text-white/10 text-6xl">+</span>
                     <span className="text-glow-secondary">{problem.num2}</span>
                   </h2>
                   {isTimed && !isSuccess && (
-                    <CircularTimer timeLeft={timeLeft} totalTime={20} />
+                    <CircularTimer timeLeft={timeLeft} totalTime={20} className="scale-110" />
                   )}
                 </div>
                 <AnimatePresence>
                   {showHint && (
                     <motion.div
-                      initial={{ opacity: 0, scale: 0.9 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="p-6 bg-indigo-500/10 border border-indigo-500/30 rounded-2xl text-left backdrop-blur-md mb-6"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-6 bg-indigo-500/10 border-2 border-indigo-500/20 rounded-2xl text-left backdrop-blur-md mb-8 relative overflow-hidden group"
                     >
-                      <p className="text-indigo-400 font-black text-sm uppercase tracking-widest mb-2 flex items-center gap-2">
-                        <Sparkles className="w-4 h-4" /> Tactical Hint
+                      <div className="absolute top-0 right-0 p-2 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <Sparkles className="w-12 h-12" />
+                      </div>
+                      <p className="text-indigo-400 font-black text-xs uppercase tracking-[0.3em] mb-3 flex items-center gap-2">
+                        <Zap className="w-4 h-4 fill-current" /> STRATEGY: MAKE TEN
                       </p>
-                      <p className="text-lg font-bold">
-                        Fill the primary bank! <br/>
-                        {problem.num1} + {breakdown.needs} = <span className="text-indigo-400">10</span>. <br/>
+                      <p className="text-xl font-bold leading-tight">
+                        Move {breakdown.needs} from Bank B to fill Bank A! <br/>
+                        <span className="text-indigo-400">{problem.num1} + {breakdown.needs} = 10</span>. <br/>
                         Remaining: {breakdown.remainder}. <br/>
-                        <span className="text-2xl">10 + {breakdown.remainder} = ?</span>
+                        <span className="text-3xl mt-2 block font-black italic">10 + {breakdown.remainder} = ?</span>
                       </p>
                     </motion.div>
                   )}
                 </AnimatePresence>
               </div>
-              <div className="space-y-6">
-                <div className="flex gap-4 relative">
+              <div className="space-y-4">
+                <div className="flex gap-4">
                   <Input
                     type="number"
                     value={answer}
                     onChange={(e) => setAnswer(e.target.value)}
                     placeholder="?"
                     className={cn(
-                      "text-5xl h-24 text-center rounded-2xl border-2 transition-all font-black bg-black/60",
-                      isSuccess ? "border-green-500 text-green-400 shadow-[0_0_20px_rgba(34,197,94,0.3)]" : "border-white/10 focus:border-indigo-500 shadow-2xl"
+                      "text-5xl h-24 text-center rounded-2xl border-2 transition-all font-black bg-black/80",
+                      isSuccess ? "border-green-500 text-green-400 shadow-[0_0_30px_rgba(34,197,94,0.4)]" : "border-white/10 focus:border-indigo-500 shadow-2xl"
                     )}
                     onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }}
-                    disabled={isSuccess}
+                    disabled={isSuccess || isAnimating}
                     autoFocus
                   />
                   <Button
                     size="lg"
                     onClick={checkAnswer}
                     className={cn(
-                      "h-24 px-10 rounded-2xl text-2xl font-black transition-all",
-                      isSuccess ? "bg-green-500" : "btn-gradient"
+                      "h-24 px-12 rounded-2xl text-2xl font-black transition-all shadow-xl",
+                      isSuccess ? "bg-green-500 text-white" : "btn-gradient"
                     )}
-                    disabled={isSuccess || !answer}
+                    disabled={isSuccess || isAnimating || !answer}
                   >
                     {isSuccess ? <CheckCircle2 className="w-10 h-10" /> : "ENGAGE"}
                   </Button>
@@ -287,32 +291,36 @@ export function SandboxPage() {
                     <Button
                       key={num}
                       variant="outline"
-                      className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 transition-all"
-                      onClick={() => {
-                        setAnswer((prev) => prev + num);
-                      }}
-                      disabled={isSuccess}
+                      className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-600 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)] active:scale-95 transition-all"
+                      onClick={() => setAnswer(prev => prev + num)}
+                      disabled={isSuccess || isAnimating}
                     >
                       {num}
                     </Button>
                   ))}
                   <Button
-                    variant="destructive"
-                    className="h-20 text-2xl font-black rounded-xl border-2 border-red-900/50 bg-red-950/20 hover:bg-red-600 active:scale-95 transition-all"
+                    variant="outline"
+                    className="h-20 text-2xl font-black rounded-xl border-red-900/30 bg-red-950/20 hover:bg-red-600 text-red-400 hover:text-white transition-all"
                     onClick={() => setAnswer('')}
-                    disabled={isSuccess}
+                    disabled={isSuccess || isAnimating}
                   >
                     <RotateCcw className="w-8 h-8" />
                   </Button>
                   <Button
                     variant="outline"
-                    className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-500 hover:text-white hover:border-indigo-400 hover:shadow-[0_0_15px_rgba(99,102,241,0.4)] active:scale-95 transition-all"
-                    onClick={() => {
-                      setAnswer((prev) => prev + "0");
-                    }}
-                    disabled={isSuccess}
+                    className="h-20 text-3xl font-black rounded-xl border-white/5 bg-white/5 hover:bg-indigo-600 hover:text-white transition-all"
+                    onClick={() => setAnswer(prev => prev + "0")}
+                    disabled={isSuccess || isAnimating}
                   >
                     0
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="h-20 rounded-xl border-white/5 bg-white/5 hover:bg-indigo-600 hover:text-white transition-all"
+                    onClick={() => setAnswer(prev => prev.slice(0, -1))}
+                    disabled={isSuccess || isAnimating}
+                  >
+                    <Delete className="w-8 h-8" />
                   </Button>
                 </div>
               </div>

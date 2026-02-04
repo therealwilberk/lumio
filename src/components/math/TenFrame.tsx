@@ -11,12 +11,12 @@ interface TenFrameProps {
   isSuccess?: boolean;
   startIndex?: number;
 }
-export function TenFrame({ 
-  id, 
-  value, 
-  color = "indigo", 
-  className, 
-  label, 
+export function TenFrame({
+  id,
+  value,
+  color = "indigo",
+  className,
+  label,
   isSuccess,
   startIndex = 0
 }: TenFrameProps) {
@@ -28,17 +28,17 @@ export function TenFrame({
     <div className={cn("space-y-4", className)}>
       <div className="flex justify-between items-center px-2">
         <span className={cn(
-          "text-xs font-black uppercase tracking-widest text-glow-primary",
+          "text-xs font-black uppercase tracking-widest text-glow-primary transition-colors duration-500",
           color === "orange" && "text-glow-secondary"
         )}>
           {label || `Slot ${id.split('-')[1]}`}
         </span>
-        <span className="font-mono font-bold text-lg tabular-nums">
+        <span className="font-mono font-bold text-lg tabular-nums opacity-60">
           {count}/10
         </span>
       </div>
       <div className={cn(
-        "grid grid-cols-5 grid-rows-2 gap-2 p-3 rounded-xl border-2 relative overflow-hidden bg-black/40 backdrop-blur-md",
+        "grid grid-cols-5 grid-rows-2 gap-2 p-3 rounded-xl border-2 relative overflow-hidden bg-black/40 backdrop-blur-md transition-all duration-500",
         themeStyles
       )}>
         {/* Tech Grid Pattern */}
@@ -47,8 +47,8 @@ export function TenFrame({
           <div
             key={i}
             className={cn(
-              "w-10 h-10 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center relative border border-white/5 transition-colors",
-              bgStyles
+              "w-10 h-10 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center relative border border-white/5 transition-colors duration-300",
+              i < count && color === "indigo" ? "bg-indigo-500/10" : i < count && color === "orange" ? "bg-orange-500/10" : bgStyles
             )}
           >
             {/* Slot Bevel Corner Effect */}
@@ -58,29 +58,26 @@ export function TenFrame({
                 <motion.div
                   key={`token-${startIndex + i}`}
                   layoutId={`token-${startIndex + i}`}
-                  initial={{ scale: 0, y: 20, opacity: 0 }}
-                  animate={{ scale: 1, y: 0, opacity: 1 }}
-                  exit={{ scale: 0, filter: "brightness(2) blur(4px)", opacity: 0 }}
-                  transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                  initial={{ scale: 0, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  exit={{ scale: 0, opacity: 0 }}
+                  transition={{ 
+                    layout: { type: "spring", stiffness: 200, damping: 25 },
+                    scale: { type: "spring", stiffness: 400, damping: 20 }
+                  }}
                   className="w-8 h-8 sm:w-12 sm:h-12 relative z-10"
                 >
                   <PowerGem color={color} isSuccess={isSuccess} index={startIndex + i} />
-                  {/* Trail effect when layout moves */}
-                  <motion.div
-                    className={cn(
-                      "absolute inset-0 rounded-full filter blur-md opacity-50",
-                      color === "indigo" ? "bg-indigo-400" : "bg-orange-400"
-                    )}
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 0.4, 0] }}
-                    transition={{ duration: 0.5 }}
-                  />
                 </motion.div>
               )}
             </AnimatePresence>
-            {/* Empty Slot Glow */}
+            {/* Empty Slot Dot */}
             {i >= count && (
-              <div className="w-2 h-2 rounded-full bg-white/5" />
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="w-1.5 h-1.5 rounded-full bg-white/10" 
+              />
             )}
           </div>
         ))}
