@@ -1,64 +1,78 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
-import { HelpCircle } from 'lucide-react';
+import { PowerGem } from './PowerGem';
 interface TenFrameProps {
   id: string;
   value: number;
-  color?: string;
+  color?: "indigo" | "orange";
   className?: string;
   label?: string;
-  hideLabel?: boolean;
+  isSuccess?: boolean;
 }
-export function TenFrame({ id, value, color = "bg-indigo-500", className, label, hideLabel }: TenFrameProps) {
+export function TenFrame({ id, value, color = "indigo", className, label, isSuccess }: TenFrameProps) {
   const cells = Array.from({ length: 10 });
   const count = Math.min(10, Math.max(0, value));
+  const themeStyles = color === "indigo" ? "neon-border-indigo" : "neon-border-orange";
+  const bgStyles = color === "indigo" ? "bg-indigo-950/20" : "bg-orange-950/20";
   return (
-    <div className={cn("space-y-3", className)}>
-      {label && !hideLabel && (
-        <div className="text-center font-bold text-lg text-muted-foreground animate-fade-in uppercase tracking-wider">
-          {label}
-        </div>
-      )}
-      {hideLabel && (
-        <div className="flex justify-center mb-1">
-          <HelpCircle className="w-5 h-5 text-muted-foreground/30 animate-pulse" />
-        </div>
-      )}
-      <div className="grid grid-cols-5 grid-rows-2 gap-3 p-3 bg-secondary/80 backdrop-blur-sm rounded-3xl border-4 border-muted relative overflow-hidden shadow-inner">
+    <div className={cn("space-y-4", className)}>
+      <div className="flex justify-between items-center px-2">
+        <span className={cn(
+          "text-xs font-black uppercase tracking-widest text-glow-primary",
+          color === "orange" && "text-glow-secondary"
+        )}>
+          {label || `Slot ${id.split('-')[1]}`}
+        </span>
+        <span className="font-mono font-bold text-lg tabular-nums">
+          {count}/10
+        </span>
+      </div>
+      <div className={cn(
+        "grid grid-cols-5 grid-rows-2 gap-2 p-3 rounded-xl border-2 relative overflow-hidden bg-black/40 backdrop-blur-md",
+        themeStyles
+      )}>
+        {/* Tech Grid Pattern */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none energy-grid-bg" />
         {cells.map((_, i) => (
           <div
             key={i}
-            className="w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 border-dashed border-muted-foreground/10 flex items-center justify-center bg-background/40"
+            className={cn(
+              "w-10 h-10 sm:w-14 sm:h-14 rounded-lg flex items-center justify-center relative border border-white/5 transition-colors",
+              bgStyles
+            )}
           >
+            {/* Slot Bevel Corner Effect */}
+            <div className="absolute top-0 left-0 w-2 h-2 border-t border-l border-white/20 rounded-tl" />
             <AnimatePresence mode="popLayout">
               {i < count && (
                 <motion.div
-                  key={`${id}-token-${i}`}
+                  key={`${id}-gem-${i}`}
                   layoutId={`${id}-token-${i}`}
-                  initial={{ scale: 0, rotate: -45, y: -20 }}
-                  animate={{
-                    scale: 1,
-                    rotate: 0,
-                    y: 0,
-                    boxShadow: hideLabel ? ["0 0 0px transparent", "0 0 12px currentColor", "0 0 0px transparent"] : "0 4px 6px -1px rgb(0 0 0 / 0.1)"
-                  }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 400,
-                    damping: 25,
-                    boxShadow: { repeat: Infinity, duration: 3 }
-                  }}
-                  exit={{ scale: 0, opacity: 0 }}
-                  className={cn(
-                    "w-10 h-10 sm:w-14 sm:h-14 rounded-full border-b-4 border-black/10 bounce-subtle",
-                    color,
-                    hideLabel && "shimmer-bg opacity-70",
-                    "dark:border-white/5"
-                  )}
-                />
+                  initial={{ scale: 0, y: 20, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  exit={{ scale: 0, filter: "brightness(2) blur(4px)", opacity: 0 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                  className="w-8 h-8 sm:w-12 sm:h-12 relative z-10"
+                >
+                  <PowerGem color={color} isSuccess={isSuccess} />
+                  {/* Trail effect when layout moves */}
+                  <motion.div
+                    className={cn(
+                      "absolute inset-0 rounded-full filter blur-md opacity-50",
+                      color === "indigo" ? "bg-indigo-400" : "bg-orange-400"
+                    )}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.4, 0] }}
+                    transition={{ duration: 0.5 }}
+                  />
+                </motion.div>
               )}
             </AnimatePresence>
+            {/* Empty Slot Glow */}
+            {i >= count && (
+              <div className="w-2 h-2 rounded-full bg-white/5" />
+            )}
           </div>
         ))}
       </div>
