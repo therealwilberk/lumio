@@ -59,6 +59,9 @@
   .text-glow-primary {
     text-shadow: 0 0 10px rgba(99, 102, 241, 0.8), 0 0 20px rgba(99, 102, 241, 0.4), 0 0 30px rgba(99, 102, 241, 0.2);
   }
+  .text-glow-secondary {
+    text-shadow: 0 0 10px rgba(249, 115, 22, 0.8), 0 0 20px rgba(249, 115, 22, 0.4), 0 0 30px rgba(249, 115, 22, 0.2);
+  }
   .data-glow {
     text-shadow: 0 0 10px currentColor, 0 0 20px currentColor;
   }
@@ -94,12 +97,51 @@
     0% { bottom: 100%; }
     100% { bottom: -100px; }
   }
-  .no-spinner::-webkit-inner-spin-button, .no-spinner::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  .no-spinner { -moz-appearance: textfield; }
+  .no-spinner::-webkit-inner-spin-button, 
+  .no-spinner::-webkit-outer-spin-button { 
+    -webkit-appearance: none; 
+    margin: 0; 
+  }
+  .no-spinner { 
+    -moz-appearance: textfield; 
+    appearance: none;
+  }
   .custom-scrollbar::-webkit-scrollbar { width: 6px; }
   .custom-scrollbar::-webkit-scrollbar-track { background: rgba(255, 255, 255, 0.05); border-radius: 10px; }
   .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(99, 102, 241, 0.4); border-radius: 10px; }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
   .power-pulse { animation: power-pulse 2s infinite ease-in-out; }
-  @keyframes power-pulse { 0%, 100% { transform: scale(1); opacity: 0.6; } 50% { transform: scale(1.02); opacity: 1; } }
+  @keyframes power-pulse { 
+    0%, 100% { transform: scale(1); opacity: 0.6; } 
+    50% { transform: scale(1.02); opacity: 1; } 
+  }
+  .gem-pulse {
+    animation: gem-pulse 1.5s infinite ease-in-out;
+  }
+  @keyframes gem-pulse {
+    0%, 100% { transform: scale(1); filter: brightness(1); }
+    50% { transform: scale(1.1); filter: brightness(1.4); }
+  }
+  .gem-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+  .gem-shimmer::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 45%,
+      rgba(255, 255, 255, 0.5) 50%,
+      rgba(255, 255, 255, 0.1) 55%,
+      transparent 100%
+    );
+    transform: rotate(45deg);
+    animation: shimmer 2s infinite;
+  }
 }

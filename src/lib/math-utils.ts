@@ -73,13 +73,13 @@ export function generateProblem(maxSum: number = 20, exclude?: { num1: number, n
     const n1 = Math.floor(Math.random() * (maxSum - 2)) + 2;
     const n2 = Math.floor(Math.random() * (maxSum - n1)) + 1;
     const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
-    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * 0.3) {
+    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * 0.2) { // Allow smaller sums slightly
       if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
         return potential;
       }
     }
   }
-  return { num1: Math.floor(maxSum / 1.5), num2: 1 };
+  return { num1: Math.max(1, Math.floor(maxSum / 1.5)), num2: 1 };
 }
 export function getProblemCategory(sum: number): string {
   if (sum <= 10) return 'Foundation';
@@ -87,6 +87,13 @@ export function getProblemCategory(sum: number): string {
   return 'Decomposition';
 }
 export function calculatePerformanceSummary(logs: any[]) {
+  if (!logs || logs.length === 0) {
+    return [
+      { name: 'Foundation', accuracy: 0, avgTime: 0, total: 0 },
+      { name: 'Bridge', accuracy: 0, avgTime: 0, total: 0 },
+      { name: 'Decomposition', accuracy: 0, avgTime: 0, total: 0 }
+    ];
+  }
   const summary: Record<string, { count: number; correct: number; totalTime: number }> = {
     'Foundation': { count: 0, correct: 0, totalTime: 0 },
     'Bridge': { count: 0, correct: 0, totalTime: 0 },
