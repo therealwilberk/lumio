@@ -80,7 +80,9 @@ function runSetupCommands() {
     const commands = [
     "bun add canvas-confetti@^1.9.0",
     "bun add canvas-confetti uuid",
-    "bun add lucide-react framer-motion clsx tailwind-merge canvas-confetti uuid"
+    "bun add lucide-react framer-motion clsx tailwind-merge canvas-confetti uuid",
+    "bun remove lucide-react",
+    "bun add lucide-react@0.441.0"
 ];
     
     if (commands.length === 0) {
