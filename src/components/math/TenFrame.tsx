@@ -61,8 +61,8 @@ export function TenFrame({
             <AnimatePresence mode="popLayout">
               {i < count && (
                 <motion.div
-                  key={`token-${id}-${startIndex + i}`}
-                  layoutId={`token-${id}-${startIndex + i}`}
+                  key={`token-container-${startIndex + i}`}
+                  layoutId={`token-${startIndex + i}`}
                   initial={{ scale: 0, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   exit={{ scale: 0, opacity: 0 }}
@@ -76,7 +76,7 @@ export function TenFrame({
                     isSuccess && "gem-shimmer"
                   )}
                 >
-                  <PowerGem color={color} isSuccess={isSuccess} index={startIndex + i} />
+                  <PowerGem color={color} isSuccess={isSuccess} />
                 </motion.div>
               )}
             </AnimatePresence>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Shield, Skull, Delete, BrainCircuit, Loader2, BookOpen, RefreshCw } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, RotateCcw, Zap, Sparkles, TrendingUp, Delete, BrainCircuit, Loader2, BookOpen, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
@@ -34,7 +34,6 @@ export function SandboxPage() {
   const [isShaking, setIsShaking] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [scorePopup, setScorePopup] = useState<number | null>(null);
-  const [sparks, setSparks] = useState<{ id: number; x: number; y: number }[]>([]);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
   const userId = useMemo(() => {
     let id = localStorage.getItem('nexus_user_id');
@@ -103,9 +102,6 @@ export function SandboxPage() {
     if (isSuccess || isAnimating || isSubmitting || val.length > 3) return;
     const sanitized = val.length > 1 && val.startsWith('0') ? val.replace(/^0+/, '') : val;
     setAnswer(sanitized);
-    const id = Date.now();
-    setSparks(prev => [...prev, { id, x: Math.random() * 40 - 20, y: Math.random() * 20 - 10 }]);
-    setTimeout(() => { if (isMounted.current) setSparks(prev => prev.filter(s => s.id !== id)); }, 600);
   };
   const checkAnswer = async () => {
     if (!answer || isSuccess || isAnimating || isSubmitting) return;
@@ -131,7 +127,10 @@ export function SandboxPage() {
           method: 'POST',
           body: JSON.stringify({ isCorrect: true, points })
         });
-        if (isMounted.current) { setStats(updated); setTimeout(nextProblem, 2500); }
+        if (isMounted.current) { 
+          setStats(updated); 
+          setTimeout(nextProblem, 2500); 
+        }
       } catch (e) { console.error(e); setIsSubmitting(false); }
     } else {
       setIsShaking(true);
@@ -143,7 +142,11 @@ export function SandboxPage() {
           method: 'POST',
           body: JSON.stringify({ isCorrect: false })
         });
-        if (isMounted.current) { setStats(updated); setIsSubmitting(false); setTimeLeft(20); }
+        if (isMounted.current) { 
+          setStats(updated); 
+          setIsSubmitting(false); 
+          setTimeLeft(stats?.difficulty === 'hard' ? 30 : 20); 
+        }
       } catch (e) { console.error(e); setIsSubmitting(false); }
     }
   };
@@ -179,9 +182,23 @@ export function SandboxPage() {
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
                 {showTenFrames ? (
                   <>
-                    <TenFrame id="frame-1" value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1} color="indigo" label="BANK A" isSuccess={isSuccess} />
+                    <TenFrame 
+                      id="frame-1" 
+                      value={showHint && hintStrategy.visualCues.bridgeActive ? 10 : problem.num1} 
+                      color="indigo" 
+                      label="BANK A" 
+                      isSuccess={isSuccess} 
+                      startIndex={0}
+                    />
                     <div className="text-4xl font-black text-white/10">+</div>
-                    <TenFrame id="frame-2" value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2} color="orange" label="BANK B" isSuccess={isSuccess} />
+                    <TenFrame 
+                      id="frame-2" 
+                      value={showHint && hintStrategy.visualCues.bridgeActive ? breakdown.remainder : problem.num2} 
+                      color="orange" 
+                      label="BANK B" 
+                      isSuccess={isSuccess} 
+                      startIndex={problem.num1}
+                    />
                   </>
                 ) : (
                   <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="w-full p-8 bg-black/40 border border-white/10 rounded-3xl backdrop-blur-md">
@@ -211,7 +228,18 @@ export function SandboxPage() {
             </div>
             <div className="space-y-8 order-1 lg:order-2">
               <div className="text-center relative">
-                <AnimatePresence>{scorePopup && <motion.div initial={{ opacity: 0, y: 20, scale: 0.5 }} animate={{ opacity: 1, y: -150, scale: 2 }} exit={{ opacity: 0, scale: 3 }} className="absolute left-1/2 -translate-x-1/2 text-7xl font-black text-green-400 z-50 pointer-events-none italic">+{scorePopup} XP</motion.div>}</AnimatePresence>
+                <AnimatePresence>
+                  {scorePopup && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20, scale: 0.5 }} 
+                      animate={{ opacity: 1, y: -150, scale: 2 }} 
+                      exit={{ opacity: 0, scale: 3 }} 
+                      className="absolute left-1/2 -translate-x-1/2 text-7xl font-black text-green-400 z-50 pointer-events-none italic"
+                    >
+                      +{scorePopup} XP
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 <div className="flex justify-center items-center gap-8 mb-8">
                   <h2 className="text-8xl font-black tracking-tighter italic flex items-center gap-4">
                     <span className="text-glow-primary">{problem.num1}</span>
@@ -241,16 +269,43 @@ export function SandboxPage() {
                   <div className={cn("absolute -inset-1 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-2xl blur opacity-20", (answer.length > 0 || isAnimating) && "opacity-60 power-pulse", isSuccess && "from-green-500 to-emerald-600 opacity-100")} />
                   <div className="relative flex gap-4">
                     <div className="relative flex-1">
-                      <Input type="number" inputMode="numeric" value={answer} onChange={(e) => handleInputChange(e.target.value)} placeholder="?" className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")} onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }} disabled={isSuccess || isAnimating} autoFocus />
+                      <Input 
+                        type="number" 
+                        inputMode="numeric" 
+                        value={answer} 
+                        onChange={(e) => handleInputChange(e.target.value)} 
+                        placeholder="?" 
+                        className={cn("text-7xl h-32 text-center rounded-2xl border-4 transition-all font-black italic bg-black/90 input-power-core", isSuccess ? "border-green-500 text-green-400" : "border-white/10 text-glow-primary")} 
+                        onKeyDown={(e) => { if (e.key === 'Enter') checkAnswer(); }} 
+                        disabled={isSuccess || isAnimating} 
+                        autoFocus 
+                      />
                     </div>
-                    <Button size="lg" onClick={checkAnswer} className={cn("h-32 px-12 rounded-2xl text-3xl font-black italic transition-all", isSuccess ? "bg-green-500 text-white" : "btn-gradient")} disabled={isSuccess || isAnimating || !answer}>
+                    <Button 
+                      size="lg" 
+                      onClick={checkAnswer} 
+                      className={cn("h-32 px-12 rounded-2xl text-3xl font-black italic transition-all", isSuccess ? "bg-green-500 text-white" : "btn-gradient")} 
+                      disabled={isSuccess || isAnimating || !answer}
+                    >
                       {isSubmitting && !isSuccess ? <Loader2 className="w-8 h-8 animate-spin" /> : isSuccess ? <CheckCircle2 className="w-12 h-12" /> : "ENGAGE"}
                     </Button>
                   </div>
                 </div>
                 <div className="grid grid-cols-3 gap-3">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, "C", 0, "DEL"].map((num) => (
-                    <Button key={String(num)} variant="outline" className={cn("h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")} onClick={() => { if (num === "C") handleInputChange(""); else if (num === "DEL") handleInputChange(answer.slice(0, -1)); else handleInputChange(answer + num); }} disabled={isSuccess || isAnimating}>{num === "C" ? <RotateCcw /> : num === "DEL" ? <Delete /> : num}</Button>
+                    <Button 
+                      key={String(num)} 
+                      variant="outline" 
+                      className={cn("h-20 text-3xl font-black rounded-xl border-white/5 bg-black/40 hover:bg-indigo-600", num === "C" && "text-red-400")} 
+                      onClick={() => { 
+                        if (num === "C") handleInputChange(""); 
+                        else if (num === "DEL") handleInputChange(answer.slice(0, -1)); 
+                        else handleInputChange(answer + num); 
+                      }} 
+                      disabled={isSuccess || isAnimating}
+                    >
+                      {num === "C" ? <RotateCcw /> : num === "DEL" ? <Delete /> : num}
+                    </Button>
                   ))}
                 </div>
               </div>

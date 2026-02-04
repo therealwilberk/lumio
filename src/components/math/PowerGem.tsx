@@ -5,13 +5,13 @@ interface PowerGemProps {
   color?: "indigo" | "orange";
   className?: string;
   isSuccess?: boolean;
-  index?: number;
+  layoutId?: string;
+  seed?: number;
 }
-export function PowerGem({ color = "indigo", className, isSuccess, index = 0 }: PowerGemProps) {
+export function PowerGem({ color = "indigo", className, isSuccess, layoutId, seed = 0 }: PowerGemProps) {
   const baseColor = color === "indigo" ? "#6366f1" : "#f97316";
   const lightColor = color === "indigo" ? "#818cf8" : "#fb923c";
   const darkColor = color === "indigo" ? "#4338ca" : "#c2410c";
-  const layoutId = `gem-${index}`;
   return (
     <motion.div
       layoutId={layoutId}
@@ -21,21 +21,19 @@ export function PowerGem({ color = "indigo", className, isSuccess, index = 0 }: 
         rotate: 0,
         filter: isSuccess ? `drop-shadow(0 0 15px ${baseColor})` : `drop-shadow(0 0 5px ${baseColor}44)`
       }}
-      transition={{ 
+      transition={{
         layout: { type: "spring", stiffness: 200, damping: 25 },
-        scale: { type: "spring", stiffness: 300, damping: 15 } 
+        scale: { type: "spring", stiffness: 300, damping: 15 }
       }}
       className={cn("relative w-full h-full flex items-center justify-center", className)}
     >
       <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-lg overflow-visible" preserveAspectRatio="xMidYMid meet">
-        {/* Main Gem Body */}
         <path
           d="M50 5 L85 25 L85 75 L50 95 L15 75 L15 25 Z"
           fill={baseColor}
           stroke={lightColor}
           strokeWidth="2"
         />
-        {/* Facets with individual shimmer */}
         <motion.path
           animate={{ opacity: [0.3, 0.7, 0.3] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
@@ -55,20 +53,17 @@ export function PowerGem({ color = "indigo", className, isSuccess, index = 0 }: 
           fill={darkColor}
           fillOpacity="0.4"
         />
-        {/* Core Glow */}
         <circle cx="50" cy="50" r="10" fill="white" fillOpacity="0.6">
           <animate attributeName="r" values="8;12;8" dur="2s" repeatCount="indefinite" />
           <animate attributeName="fill-opacity" values="0.4;0.8;0.4" dur="2s" repeatCount="indefinite" />
         </circle>
       </svg>
-      {/* Sparkles using deterministic positions */}
-      <AnimateSparkles color={baseColor} active={isSuccess} seed={index} />
+      <AnimateSparkles color={baseColor} active={isSuccess} seed={seed} />
     </motion.div>
   );
 }
 function AnimateSparkles({ color, active, seed }: { color: string; active?: boolean; seed: number }) {
   const sparkles = useMemo(() => {
-    // Deterministic pseudo-random generation based on seed
     const count = 4;
     return Array.from({ length: count }).map((_, i) => {
       const angle = (seed + i * (360 / count)) % 360;
@@ -95,18 +90,18 @@ function AnimateSparkles({ color, active, seed }: { color: string; active?: bool
               x: s.x,
               y: s.y,
             }}
-            transition={{ 
-              duration: 1.2, 
-              repeat: Infinity, 
+            transition={{
+              duration: 1.2,
+              repeat: Infinity,
               delay: s.delay,
               ease: "easeOut"
             }}
             className="absolute left-1/2 top-1/2 rounded-full"
-            style={{ 
-              width: s.size, 
-              height: s.size, 
-              backgroundColor: color, 
-              boxShadow: `0 0 10px ${color}` 
+            style={{
+              width: s.size,
+              height: s.size,
+              backgroundColor: color,
+              boxShadow: `0 0 10px ${color}`
             }}
           />
         ))}

@@ -71,7 +71,7 @@ export function HomePage() {
           <div className="text-center space-y-12 animate-fade-in">
             <div className="flex justify-center mb-6">
               <div className="w-32 h-32 relative floating">
-                <PowerGem isSuccess color="indigo" />
+                <PowerGem isSuccess color="indigo" layoutId="hero-gem" />
                 <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 bg-indigo-500 px-4 py-1 rounded-full text-[10px] font-black tracking-[0.2em] shadow-[0_0_15px_rgba(99,102,241,0.5)]">
                   NEXUS-CORE
                 </div>
@@ -124,7 +124,7 @@ export function HomePage() {
                 <Play className="mr-4 w-10 h-10 fill-current" /> START MISSION
               </Button>
               <footer className="mt-8 flex flex-col items-center gap-2">
-                <p className="text-white/20 font-black tracking-widest text-[10px] uppercase">Nexus Sync Stable: {stats?.id.slice(0, 8)}...</p>
+                <p className="text-white/20 font-black tracking-widest text-[10px] uppercase">Nexus Sync Stable: {stats?.id?.slice(0, 8) ?? 'OFFLINE'}...</p>
                 <div className="flex gap-4 text-[9px] font-black text-indigo-500/40 uppercase tracking-tighter">
                   <span>Grade 6 Addition</span>
                   <span>•</span>
