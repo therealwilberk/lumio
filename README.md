@@ -1,6 +1,6 @@
 # Number Nexus
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/therealwilberk/numbernexus)
 
 A production-ready full-stack chat application powered by Cloudflare Workers and Durable Objects. Features real-time chat boards, user management, and scalable storage using a single Global Durable Object with indexed entities. Built with React, TypeScript, shadcn/ui, and Tailwind CSS for a modern, responsive UI.
 
@@ -92,7 +92,7 @@ Or manually:
 
 Assets (`dist/`) auto-serve as Pages SPA via `assets` config in `wrangler.jsonc`.
 
-[cloudflarebutton]
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/therealwilberk/numbernexus)
 
 **Custom Domain**: Update `wrangler.jsonc` and run `wrangler deploy`.
 
