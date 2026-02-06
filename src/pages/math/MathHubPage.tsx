@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import type { StudentStats } from '@shared/types';
 import { api } from '@/lib/api-client';
+import { calculateTopicProgress } from '@/lib/progression';
 import { Navbar } from '@/components/layout/Navbar';
 import { RocketLoader } from '@/components/ui/LoadingStates';
 import { 
@@ -54,74 +55,59 @@ export function MathHubPage() {
       setStats(userStats);
       
       // Calculate topic progress and unlock states
-      const calculatedTopics = calculateTopicProgress(userStats);
+      const progressionData = calculateTopicProgress(userStats);
+      const calculatedTopics = enrichTopicData(progressionData);
       setTopics(calculatedTopics);
     } catch (error) {
       console.error('Failed to fetch stats:', error);
       // Set default topics on error
-      setTopics(calculateTopicProgress(null));
+      const progressionData = calculateTopicProgress(null);
+      setTopics(enrichTopicData(progressionData));
     } finally {
       setLoading(false);
     }
   };
 
-  const calculateTopicProgress = (userStats: StudentStats | null): MathTopic[] => {
-    // Mock progress data - in real app, this would come from backend
-    const additionProgress = userStats?.totalScore ? Math.min((userStats.totalScore / 100) * 100, 100) : 35;
-    const subtractionProgress = additionProgress >= 80 ? Math.min((additionProgress - 60) * 0.8, 100) : 0;
-    const multiplicationProgress = subtractionProgress >= 80 ? Math.min((subtractionProgress - 60) * 0.7, 100) : 0;
-    const divisionProgress = multiplicationProgress >= 80 ? Math.min((multiplicationProgress - 60) * 0.6, 100) : 0;
-
-    return [
-      {
-        id: 'addition',
+  const enrichTopicData = (progressionData: any[]): MathTopic[] => {
+    const topicMetadata: Record<string, any> = {
+      addition: {
         name: 'Addition',
         icon: Plus,
         symbol: '+',
-        progress: additionProgress,
-        isUnlocked: true,
-        level: Math.floor(additionProgress / 20) + 1,
         color: 'text-blue-600',
         bgColor: 'bg-blue-100',
         description: 'Master basic addition with fun challenges'
       },
-      {
-        id: 'subtraction',
+      subtraction: {
         name: 'Subtraction',
         icon: Minus,
         symbol: '-',
-        progress: subtractionProgress,
-        isUnlocked: additionProgress >= 80,
-        level: subtractionProgress > 0 ? Math.floor(subtractionProgress / 20) + 1 : 1,
         color: 'text-green-600',
         bgColor: 'bg-green-100',
         description: 'Build confidence with subtraction problems'
       },
-      {
-        id: 'multiplication',
+      multiplication: {
         name: 'Multiplication',
         icon: X,
         symbol: '×',
-        progress: multiplicationProgress,
-        isUnlocked: subtractionProgress >= 80,
-        level: multiplicationProgress > 0 ? Math.floor(multiplicationProgress / 20) + 1 : 1,
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
         description: 'Learn multiplication patterns and tables'
       },
-      {
-        id: 'division',
+      division: {
         name: 'Division',
         icon: Divide,
         symbol: '÷',
-        progress: divisionProgress,
-        isUnlocked: multiplicationProgress >= 80,
-        level: divisionProgress > 0 ? Math.floor(divisionProgress / 20) + 1 : 1,
         color: 'text-orange-600',
         bgColor: 'bg-orange-100',
         description: 'Master division step by step'
       }
-    ];
+    };
+
+    return progressionData.map(topic => ({
+      ...topic,
+      ...topicMetadata[topic.id]
+    }));
   };
 
   const handleTopicClick = (topic: MathTopic) => {

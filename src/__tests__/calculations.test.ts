@@ -1,6 +1,4 @@
 import { describe, it, expect } from 'vitest';
-
-// Import your calculation functions
 import { 
   calculateAccuracy, 
   calculateStreak, 
@@ -20,17 +18,49 @@ describe('Progress Calculations', () => {
     expect(accuracy).toBe(0.75); // 3/4 = 75%
   });
 
-  it('calculates streak correctly', () => {
-    const sessions = [
-      { date: '2026-02-01' },
-      { date: '2026-02-02' },
-      { date: '2026-02-03' },
-      // Gap here
-      { date: '2026-02-06' },
-    ];
+  describe('calculateStreak', () => {
+    const today = new Date().toISOString().split('T')[0];
+    const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+    const dayBefore = new Date(Date.now() - 172800000).toISOString().split('T')[0];
+    const fourDaysAgo = new Date(Date.now() - 345600000).toISOString().split('T')[0];
 
-    const streak = calculateStreak(sessions);
-    expect(streak).toBe(1); // Only today counts
+    it('returns 0 for no sessions', () => {
+      expect(calculateStreak([])).toBe(0);
+    });
+
+    it('counts 1 day streak for today only', () => {
+      expect(calculateStreak([{ date: today }])).toBe(1);
+    });
+
+    it('counts 1 day streak for yesterday only', () => {
+      expect(calculateStreak([{ date: yesterday }])).toBe(1);
+    });
+
+    it('counts multi-day streaks', () => {
+      const sessions = [
+        { date: today },
+        { date: yesterday },
+        { date: dayBefore }
+      ];
+      expect(calculateStreak(sessions)).toBe(3);
+    });
+
+    it('breaks streak when there is a gap', () => {
+      const sessions = [
+        { date: today },
+        { date: yesterday },
+        // Gap here
+        { date: fourDaysAgo }
+      ];
+      expect(calculateStreak(sessions)).toBe(2);
+    });
+
+    it('returns 0 when no practice today or yesterday', () => {
+      const sessions = [
+        { date: dayBefore }
+      ];
+      expect(calculateStreak(sessions)).toBe(0);
+    });
   });
 
   it('calculates total practice time', () => {
