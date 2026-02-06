@@ -18,7 +18,8 @@ import {
   Target,
   ArrowLeft,
   Sparkles,
-  BrainCircuit
+  BrainCircuit,
+  Zap
 } from 'lucide-react';
 
 interface Problem {
@@ -175,14 +176,13 @@ export function AdditionPage() {
             Back to Dashboard
           </Button>
           
-          <div className="flex items-center gap-4">
-            <div className="text-sm text-gray-600">
-              Time: <span className="font-semibold">{formatTime(sessionTime)}</span>
-            </div>
-            <div className="text-sm text-gray-600">
-              Score: <span className="font-semibold text-blue-600">{score}</span>
-            </div>
-          </div>
+          <Button
+            onClick={() => navigate('/math/speed-drill')}
+            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
+          >
+            <Zap className="h-5 w-5" />
+            Lightning Round
+          </Button>
         </motion.div>
 
         {/* Main Content */}
