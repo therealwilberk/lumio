@@ -308,7 +308,6 @@ export function MathHubPage() {
                         Locked 🔒
                       </div>
                     )}
-                  </div>
                 </CardContent>
               </Card>
             </motion.div>

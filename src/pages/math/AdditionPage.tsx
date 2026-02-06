@@ -174,7 +174,7 @@ export function AdditionPage() {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Dashboard
+            Go Back
           </Button>
           
           <Button
@@ -207,7 +207,7 @@ export function AdditionPage() {
                 <div className="flex items-center justify-center gap-2 mb-4">
                   <Calculator className="h-8 w-8 text-blue-600" />
                   <CardTitle className="text-2xl font-bold text-gray-900">
-                    Addition Practice
+                    Adding Numbers! ➕
                   </CardTitle>
                 </div>
                 
@@ -277,7 +277,7 @@ export function AdditionPage() {
                           disabled={!userAnswer.trim()}
                           className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          Check Answer
+                          Check It!
                         </Button>
                       </motion.div>
                     )}
@@ -297,12 +297,12 @@ export function AdditionPage() {
                             {isCorrect ? (
                               <>
                                 <CheckCircle className="h-8 w-8" />
-                                <span>Correct!</span>
+                                <span>You got it! 🎉</span>
                               </>
                             ) : (
                               <>
                                 <XCircle className="h-8 w-8" />
-                                <span>Not quite!</span>
+                                <span>Oops! Try again! 💪</span>
                               </>
                             )}
                           </div>
@@ -318,7 +318,7 @@ export function AdditionPage() {
                             onClick={handleNext}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-all"
                           >
-                            Next Problem
+                            Next One!
                             <RotateCcw className="h-4 w-4 ml-2" />
                           </Button>
                         </motion.div>
@@ -339,17 +339,17 @@ export function AdditionPage() {
             {/* Streak Card */}
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Current Streak</CardTitle>
+                <CardTitle className="text-lg font-semibold text-gray-900">Streak 🔥</CardTitle>
                 <Target className="h-5 w-5 text-orange-500" />
               </div>
               <div className="text-3xl font-bold text-orange-500">{streak}</div>
-              <p className="text-sm text-gray-600">Problems in a row</p>
+              <p className="text-sm text-gray-600">in a row</p>
             </Card>
 
             {/* Accuracy Card */}
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Accuracy</CardTitle>
+                <CardTitle className="text-lg font-semibold text-gray-900">How Often Right</CardTitle>
                 <BrainCircuit className="h-5 w-5 text-green-500" />
               </div>
               <div className="text-3xl font-bold text-green-500">{accuracy}%</div>
@@ -359,12 +359,12 @@ export function AdditionPage() {
             {/* Session Stats */}
             <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-6">
               <div className="flex items-center justify-between mb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Session Stats</CardTitle>
+                <CardTitle className="text-lg font-semibold text-gray-900">This Session</CardTitle>
                 <Timer className="h-5 w-5 text-blue-500" />
               </div>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Problems</span>
+                  <span className="text-sm text-gray-600">Problems Done</span>
                   <span className="font-semibold">{totalAttempts}</span>
                 </div>
                 <div className="flex justify-between">
