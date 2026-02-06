@@ -21,6 +21,7 @@ import { DashboardPage } from '@/pages/DashboardPage';
 import { AdditionPage } from '@/pages/math/AdditionPage';
 import { MathHubPage } from '@/pages/math/MathHubPage';
 import { SpeedDrillPage } from '@/pages/math/SpeedDrillPage';
+import { RegularPracticePage } from '@/pages/math/RegularPracticePage';
 import { SubjectsPage } from '@/pages/SubjectsPage';
 
 const queryClient = new QueryClient();
@@ -82,6 +83,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <SpeedDrillPage />
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/math/regular-practice",
+    element: (
+      <ProtectedRoute>
+        <RegularPracticePage />
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,

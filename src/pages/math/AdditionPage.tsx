@@ -19,7 +19,8 @@ import {
   ArrowLeft,
   Sparkles,
   BrainCircuit,
-  Zap
+  Zap,
+  BookOpen
 } from 'lucide-react';
 
 interface Problem {
@@ -182,6 +183,14 @@ export function AdditionPage() {
           >
             <Zap className="h-5 w-5" />
             Lightning Round
+          </Button>
+          
+          <Button
+            onClick={() => navigate('/math/regular-practice')}
+            className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
+          >
+            <BookOpen className="h-5 w-5" />
+            Regular Practice
           </Button>
         </motion.div>
 
