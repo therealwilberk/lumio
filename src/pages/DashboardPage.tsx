@@ -1,39 +1,69 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LazyMotion, domAnimation, m as motion } from 'framer-motion';
-
-// Temporary default stats - will be replaced with real user data from AuthContext
-const defaultStats = {
-  streak: 0,
-  highScore: 0,
-  totalScore: 0,
-  totalSolved: 0,
-}; 
+import { useAuth } from '@/contexts/AuthContext';
+import type { StudentStats } from '@shared/types';
+import { api } from '@/lib/api-client';
 
 export function DashboardPage() {
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
+  const [stats, setStats] = useState<StudentStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // TODO: Replace with real user data from AuthContext
-  const displayStats = defaultStats;
+  useEffect(() => {
+    if (user) {
+      api<StudentStats>(`/api/student/${user.id}`)
+        .then(setStats)
+        .catch(console.error)
+        .finally(() => setLoading(false));
+    }
+  }, [user]);
+
+  const displayStats = stats || {
+    streak: 0,
+    highScore: 0,
+    totalScore: 0,
+    totalSolved: 0,
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background energy-grid-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="text-xl font-black tracking-widest text-indigo-400 uppercase">Loading Dashboard...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <LazyMotion features={domAnimation}>
       <div className="min-h-screen energy-grid-bg bg-background text-foreground overflow-x-hidden">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="py-8 md:py-10 lg:py-12">
-            {/* ThemeToggle can remain or be moved to a layout component later */}
-            {/* <ThemeToggle /> */} 
+            {/* Logout button */}
+            <div className="flex justify-end mb-4">
+              <Button 
+                variant="outline" 
+                onClick={logout}
+                className="border-white/20 text-white hover:bg-white/10"
+              >
+                Logout
+              </Button>
+            </div>
+            
             <div className="text-center space-y-12 animate-fade-in">
-              <h1 className="text-6xl md:text-8xl font-black tracking-tighter italic text-center">LUMIO<span className="text-indigo-500 drop-shadow-[0_0_20px_rgba(99,102,241,0.5)]">CORE</span></h1>
-
-              <div className="max-w-md mx-auto space-y-6">
-                <div className="pt-2 text-center">
-                  {/* Placeholder for future mission intel */}
-                </div>
-              </div>
+              <h1 className="text-6xl md:text-8xl font-black tracking-tighter italic text-center">
+                LUMIO
+              </h1>
               
+              <div className="text-center">
+                <p className="text-2xl text-indigo-400 font-medium">Welcome back, {user?.username}!</p>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
                 <Card className="bg-black/40 border-white/5 hover:border-orange-500/50 transition-all rounded-2xl group overflow-hidden">
                   <CardHeader className="p-6 pb-2">
@@ -52,7 +82,6 @@ export function DashboardPage() {
                   <CardContent className="p-6 pt-0 text-4xl font-black italic">{displayStats.highScore ?? 0}</CardContent>
                 </Card>
                 <Card className="bg-indigo-600/10 border-indigo-500/30 shadow-primary transition-all rounded-2xl group md:scale-110 relative overflow-hidden">
-                  {/* Removed absolute star icon */}
                   <CardHeader className="p-6 pb-2">
                     <CardTitle className="text-xs font-black text-indigo-400 uppercase tracking-widest flex items-center gap-2">
                        Total XP

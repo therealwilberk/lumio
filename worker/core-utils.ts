@@ -83,6 +83,23 @@ export class GlobalDurableObject extends DurableObject<Env, unknown> {
   }  
 
   async indexDrop(_rootKey: string): Promise<void> { await this.ctx.storage.deleteAll(); }
+
+  // User management methods for authentication
+  async createUser(user: { id: string; username: string; pinHash: string; createdAt: string }): Promise<void> {
+    await this.ctx.storage.put(`user:${user.id}`, user);
+    await this.ctx.storage.put(`username:${user.username}`, user.id);
+  }
+
+  async getUser(userId: string): Promise<{ id: string; username: string; pinHash: string; createdAt: string } | null> {
+    const user = await this.ctx.storage.get(`user:${userId}`) as { id: string; username: string; pinHash: string; createdAt: string } | undefined;
+    return user || null;
+  }
+
+  async getUserByUsername(username: string): Promise<{ id: string; username: string; pinHash: string; createdAt: string } | null> {
+    const userId = await this.ctx.storage.get(`username:${username}`) as string;
+    if (!userId) return null;
+    return await this.getUser(userId);
+  }
 }
 
 export interface EntityStatics<S, T extends Entity<S>> {
