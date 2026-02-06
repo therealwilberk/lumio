@@ -84,3 +84,20 @@ export function CelebrationFloatingElements({ className = '' }: { className?: st
 
   return <FloatingElements elements={celebrationElements} className={className} />;
 }
+
+export function PlayfulFloatingElements({ className = '' }: { className?: string }) {
+  const playfulElements: FloatingElement[] = [
+    { emoji: '➕', delay: 0, duration: 4, x: 10, y: 15, scale: 0.8 },
+    { emoji: '✖️', delay: 1, duration: 5, x: 85, y: 20, scale: 0.9 },
+    { emoji: '➗', delay: 2, duration: 4.5, x: 15, y: 75, scale: 0.7 },
+    { emoji: '🟰', delay: 0.5, duration: 5.5, x: 80, y: 80, scale: 1 },
+    { emoji: '🧊', delay: 1.5, duration: 6, x: 5, y: 45, scale: 1.1 },
+    { emoji: '⭐', delay: 2.5, duration: 3.5, x: 90, y: 55, scale: 0.8 },
+    { emoji: '🎈', delay: 0.8, duration: 7, x: 25, y: 10, scale: 1.2 },
+    { emoji: '💖', delay: 3, duration: 4.8, x: 70, y: 12, scale: 0.9 },
+    { emoji: '✨', delay: 1.2, duration: 3, x: 40, y: 85, scale: 0.7 },
+    { emoji: '🚀', delay: 4, duration: 8, x: 60, y: 90, scale: 1.3 },
+  ];
+
+  return <FloatingElements elements={playfulElements} className={className} />;
+}

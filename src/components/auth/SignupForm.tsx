@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,6 +8,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, Eye, EyeOff, Check, X } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { MascotDuck } from '@/components/ui/MascotDuck';
+import { PlayfulFloatingElements } from '@/components/ui/FloatingElements';
 
 export function SignupForm() {
   const [username, setUsername] = useState('');
@@ -22,7 +25,7 @@ export function SignupForm() {
 
   // Password strength indicators
   const pinRequirements = [
-    { test: (pin: string) => pin.length >= 4, text: 'At least 4 characters' },
+    { test: (pin: string) => pin.length >= 4, text: 'At least 4 numbers' },
     { test: (pin: string) => /\d/.test(pin), text: 'Contains numbers' }
   ];
 
@@ -49,162 +52,147 @@ export function SignupForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-indigo-900 to-purple-900 p-4">
-      {/* Animated background blobs */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl animate-pulse delay-2000"></div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-400 via-blue-400 to-indigo-400 p-4 relative overflow-hidden">
+      {/* Playful background elements */}
+      <PlayfulFloatingElements className="opacity-60" />
+
+      {/* Mascot Duck Peeking */}
+      <div className="absolute -bottom-6 -right-6 z-20 pointer-events-none">
+        <MascotDuck className="scale-75 md:scale-100 opacity-80 scale-x-[-1]" delay={0.6} />
       </div>
 
-      <Card className="w-full max-w-md backdrop-blur-xl bg-white/10 border-white/20 shadow-2xl relative z-10">
-        <CardHeader className="text-center pb-6">
-          <CardTitle className="text-3xl font-bold text-white mb-2">
-            Join <span className="text-blue-400">Lumio</span>
-          </CardTitle>
-          <p className="text-blue-200">Create your account to start learning</p>
-        </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {error && (
-            <Alert className="border-red-500/50 bg-red-500/10 text-red-200">
-              <AlertDescription>{error}</AlertDescription>
-            </Alert>
-          )}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9, y: 20 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        transition={{ type: "spring", stiffness: 260, damping: 20 }}
+        className="w-full max-w-md z-10"
+      >
+        <Card className="backdrop-blur-md bg-white/90 border-white/50 shadow-2xl overflow-hidden rounded-3xl">
+          <CardHeader className="text-center pb-6 bg-teal-50/50">
+            <CardTitle className="text-4xl font-extrabold text-teal-600 mb-2 tracking-tight">
+              Join Lumio
+            </CardTitle>
+            <p className="text-teal-500 font-medium">Create your hero profile! 🌟</p>
+          </CardHeader>
           
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="username" className="text-blue-200 text-sm">Username</Label>
-              <Input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="Choose a username"
-                className="bg-white/5 border-white/20 text-white placeholder-blue-300/50 focus:border-blue-400"
-                required
-                disabled={loading}
-              />
-              <div className="space-y-1 mt-2">
-                {usernameRequirements.map((req, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs">
-                    {req.test(username) ? (
-                      <Check className="h-3 w-3 text-green-400" />
-                    ) : (
-                      <X className="h-3 w-3 text-red-400" />
-                    )}
-                    <span className={req.test(username) ? 'text-green-400' : 'text-red-400'}>
-                      {req.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <CardContent className="space-y-6 pt-6">
+            {error && (
+              <Alert className="border-red-500/50 bg-red-50 text-red-600 rounded-xl">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             
-            <div className="space-y-2">
-              <Label htmlFor="pin" className="text-blue-200 text-sm">PIN</Label>
-              <div className="relative">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-gray-600 text-sm font-semibold ml-1">Hero Name</Label>
                 <Input
-                  id="pin"
-                  type={showPin ? 'text' : 'password'}
-                  value={pin}
-                  onChange={(e) => setPin(e.target.value)}
-                  placeholder="Create a PIN"
-                  className="bg-white/5 border-white/20 text-white placeholder-blue-300/50 focus:border-blue-400 pr-10"
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Choose your hero name"
+                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl"
                   required
                   disabled={loading}
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPin(!showPin)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-300/70 hover:text-blue-300"
-                >
-                  {showPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              <div className="space-y-1 mt-2">
-                {pinRequirements.map((req, index) => (
-                  <div key={index} className="flex items-center gap-2 text-xs">
-                    {req.test(pin) ? (
-                      <Check className="h-3 w-3 text-green-400" />
-                    ) : (
-                      <X className="h-3 w-3 text-red-400" />
-                    )}
-                    <span className={req.test(pin) ? 'text-green-400' : 'text-red-400'}>
-                      {req.text}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="confirmPin" className="text-blue-200 text-sm">Confirm PIN</Label>
-              <div className="relative">
-                <Input
-                  id="confirmPin"
-                  type={showConfirmPin ? 'text' : 'password'}
-                  value={confirmPin}
-                  onChange={(e) => setConfirmPin(e.target.value)}
-                  placeholder="Confirm your PIN"
-                  className="bg-white/5 border-white/20 text-white placeholder-blue-300/50 focus:border-blue-400 pr-10"
-                  required
-                  disabled={loading}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPin(!showConfirmPin)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-blue-300/70 hover:text-blue-300"
-                >
-                  {showConfirmPin ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
-              </div>
-              {confirmPin && (
-                <div className="flex items-center gap-2 text-xs mt-2">
-                  {pin === confirmPin ? (
-                    <>
-                      <Check className="h-3 w-3 text-green-400" />
-                      <span className="text-green-400">PINs match</span>
-                    </>
-                  ) : (
-                    <>
-                      <X className="h-3 w-3 text-red-400" />
-                      <span className="text-red-400">PINs do not match</span>
-                    </>
-                  )}
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 ml-1">
+                  {usernameRequirements.map((req, index) => (
+                    <div key={index} className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold">
+                      {req.test(username) ? (
+                        <Check className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <div className="h-3 w-3 rounded-full border border-gray-300" />
+                      )}
+                      <span className={req.test(username) ? 'text-green-600' : 'text-gray-400'}>
+                        {req.text}
+                      </span>
+                    </div>
+                  ))}
                 </div>
-              )}
-            </div>
-            
-            <Button
-              type="submit"
-              className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl transition-all transform hover:scale-[1.02] disabled:opacity-50"
-              disabled={loading || !usernameRequirements.every(req => req.test(username)) || !pinRequirements.every(req => req.test(pin)) || pin !== confirmPin}
-            >
-              {loading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                'Create Account'
-              )}
-            </Button>
-          </form>
-          
-          <div className="text-center">
-            <p className="text-blue-300/60 text-sm">
-              Already have an account?{' '}
-              <button 
-                onClick={() => navigate('/login')}
-                className="text-blue-400 hover:text-blue-300 underline"
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="pin" className="text-gray-600 text-sm font-semibold ml-1">Secret PIN</Label>
+                <div className="relative">
+                  <Input
+                    id="pin"
+                    type={showPin ? 'text' : 'password'}
+                    value={pin}
+                    onChange={(e) => setPin(e.target.value)}
+                    placeholder="Set a secret PIN"
+                    className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl pr-10"
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPin(!showPin)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                  >
+                    {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="confirmPin" className="text-gray-600 text-sm font-semibold ml-1">Repeat PIN</Label>
+                <div className="relative">
+                  <Input
+                    id="confirmPin"
+                    type={showConfirmPin ? 'text' : 'password'}
+                    value={confirmPin}
+                    onChange={(e) => setConfirmPin(e.target.value)}
+                    placeholder="Repeat secret PIN"
+                    className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl pr-10"
+                    required
+                    disabled={loading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPin(!showConfirmPin)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                  >
+                    {showConfirmPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
+                </div>
+              </div>
+
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="pt-2"
               >
-                Sign in
-              </button>
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+                <Button
+                  type="submit"
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 rounded-2xl text-lg font-bold transition-all shadow-lg hover:shadow-teal-500/40 disabled:opacity-50"
+                  disabled={loading || !usernameRequirements.every(req => req.test(username)) || !pinRequirements.every(req => req.test(pin)) || pin !== confirmPin}
+                >
+                  {loading ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="h-5 w-5 animate-spin" />
+                      Creating...
+                    </div>
+                  ) : (
+                    'Start Adventure! ✨'
+                  )}
+                </Button>
+              </motion.div>
+            </form>
+            
+            <div className="text-center pt-2">
+              <p className="text-gray-400 text-sm">
+                Already a member?{' '}
+                <button
+                  onClick={() => navigate('/login')}
+                  className="text-teal-500 hover:text-teal-600 font-bold underline"
+                >
+                  Sign in here
+                </button>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
   );
 }

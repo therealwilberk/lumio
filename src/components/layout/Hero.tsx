@@ -1,4 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';import { motion } from 'framer-motion';import { ChevronDown, Sparkles } from 'lucide-react';import { useAuth } from '@/hooks/useAuth';import { Navbar } from './Navbar';import { FloatingElements } from '@/components/ui/FloatingElements';import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { ChevronDown, Sparkles } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { Navbar } from './Navbar';
+import { PlayfulFloatingElements } from '@/components/ui/FloatingElements';
+import { useNavigate } from 'react-router-dom';
+import { MascotDuck } from '@/components/ui/MascotDuck';
+import { BouncyText } from '@/components/ui/BouncyText';
 
 export function Hero() {
   const { user } = useAuth();
@@ -25,25 +33,24 @@ export function Hero() {
 
     if (hour < 12) {
       greeting = 'Good morning';
-      timeMsg = 'Ready to start your day with some math?';
     } else if (hour < 17) {
       greeting = 'Good afternoon';
-      timeMsg = 'Perfect time for some problem-solving!';
     } else {
       greeting = 'Good evening';
-      timeMsg = 'Wind down with a fun math challenge?';
     }
 
     // Add progress-based messages
     if (user) {
-      // You could fetch user stats here for more dynamic messages
       const progressMessages = [
         "Let's continue your learning journey!",
         "Ready to beat your high score?",
         "Time to master new skills!",
-        "Let's make today count!"
+        "Let's make today count!",
+        "Ready for math adventure? 🚀"
       ];
       timeMsg = progressMessages[Math.floor(Math.random() * progressMessages.length)];
+    } else {
+      timeMsg = "Ready for math adventure? 🚀";
     }
 
     setGreetingMessage(greeting);
@@ -65,7 +72,34 @@ export function Hero() {
       <Navbar />
 
       {/* Floating Background Elements */}
-      <FloatingElements />
+      <PlayfulFloatingElements />
+
+      {/* Drifting Clouds */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute opacity-40"
+            style={{
+              top: `${10 + i * 15}%`,
+              left: `-10%`,
+            }}
+            animate={{
+              x: ['0vw', '120vw'],
+            }}
+            transition={{
+              duration: 40 + i * 10,
+              repeat: Infinity,
+              ease: "linear",
+              delay: i * 5,
+            }}
+          >
+            <svg width="120" height="60" viewBox="0 0 120 60" fill="white">
+              <path d="M20,40 Q20,20 40,20 Q45,10 60,10 Q75,10 80,20 Q100,20 100,40 Q100,55 80,55 L40,55 Q20,55 20,40 Z" />
+            </svg>
+          </motion.div>
+        ))}
+      </div>
 
       {/* Mountain Background */}
       <div className="absolute inset-0">
@@ -119,29 +153,10 @@ export function Hero() {
         <div className="absolute inset-0 bg-gradient-to-t from-white/20 dark:from-black/20 via-transparent to-transparent" />
       </div>
 
-      {/* Floating particles/shapes */}
-      <div className="absolute inset-0">
-        {[...Array(6)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-4 h-4 bg-white/20 rounded-full"
-            style={{
-              left: `${20 + i * 15}%`,
-              top: `${30 + (i % 3) * 20}%`,
-            }}
-            animate={{
-              y: [0, -30, 0],
-              x: [0, 10, 0],
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: 4 + i,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.5,
-            }}
-          />
-        ))}
+
+      {/* Mascot Duck */}
+      <div className="absolute bottom-4 -right-4 md:bottom-10 md:right-10 z-20 pointer-events-auto">
+        <MascotDuck className="w-32 h-32 md:w-48 md:h-48 drop-shadow-xl scale-x-[-1]" delay={0.8} />
       </div>
 
       {/* Hero Content */}
@@ -153,55 +168,44 @@ export function Hero() {
         }}
       >
         {/* Animated greeting */}
-        <motion.div
-          initial={{ opacity: 0, y: 50 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="mb-6"
-        >
-          <h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-bold text-gray-800 dark:text-white mb-4"
-            style={{
-              fontFamily: "'Playfair Display', serif",
-              fontWeight: 700,
-              lineHeight: 1.2,
-            }}
-          >
-            {greetingMessage}, {user?.username || 'Student'}!{' '}
-            <motion.span
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-              className="inline-block"
-            >
-              👋
-            </motion.span>
-          </h1>
-        </motion.div>
+        <div className="mb-6">
+          <BouncyText
+            text={`${greetingMessage}, ${user?.username || 'Student'}!`}
+            className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-gray-900 dark:text-white mb-4 tracking-tight"
+          />
+        </div>
 
         {/* Dynamic subheading */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-          className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto"
-          style={{
-            fontFamily: "'Inter', sans-serif",
-          }}
-        >
-          {timeMessage}
-        </motion.p>
+        <div className="mb-12">
+          <BouncyText
+            text={timeMessage}
+            delay={0.5}
+            className="text-xl md:text-3xl font-medium text-gray-700 dark:text-gray-200 max-w-2xl mx-auto"
+          />
+        </div>
 
         {/* Call-to-action buttons */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.6 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 20,
+            delay: 1.2
+          }}
+          className="flex flex-col sm:flex-row gap-6 justify-center items-center"
         >
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
+            whileHover={{ scale: 1.1, rotate: 2 }}
+            whileTap={{ scale: 0.9 }}
+            animate={{
+              boxShadow: ["0px 0px 0px rgba(59, 130, 246, 0)", "0px 0px 20px rgba(59, 130, 246, 0.4)", "0px 0px 0px rgba(59, 130, 246, 0)"]
+            }}
+            transition={{
+              boxShadow: { duration: 2, repeat: Infinity }
+            }}
+            className="bg-pink-500 hover:bg-pink-600 text-white px-10 py-5 text-xl font-bold rounded-2xl transition-colors shadow-lg hover:shadow-pink-500/50"
             onClick={() => {
               if (user) {
                 navigate('/dashboard');
@@ -215,9 +219,9 @@ export function Hero() {
           </motion.button>
           
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all hover:bg-white hover:shadow-lg"
+            whileHover={{ scale: 1.1, rotate: -2 }}
+            whileTap={{ scale: 0.9 }}
+            className="bg-white/90 backdrop-blur-sm border-2 border-teal-400 text-teal-600 px-10 py-5 text-xl font-bold rounded-2xl transition-all hover:bg-white hover:shadow-teal-500/30 shadow-lg"
             onClick={() => navigate('/dashboard')}
           >
             Check My Progress
