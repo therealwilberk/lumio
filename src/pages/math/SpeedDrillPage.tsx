@@ -294,22 +294,22 @@ export function SpeedDrillPage() {
                 </div>
                 
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-                  Lightning Round
+                  Lightning Round! ⚡
                 </h1>
                 
                 <p className="text-gray-600 dark:text-gray-300 mb-8">
-                  Test your speed with 20 addition problems. No pressure, just practice!
+                  How fast can you solve 20 math problems? Let's find out!
                 </p>
                 
                 <div className="space-y-4">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    <strong>Range:</strong> {PROBLEM_RANGE.min}-{PROBLEM_RANGE.max}
+                    <strong>Numbers:</strong> {PROBLEM_RANGE.min} to {PROBLEM_RANGE.max}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     <strong>Problems:</strong> {TOTAL_PROBLEMS}
                   </div>
                   <div className="text-sm text-gray-500 dark:text-gray-400">
-                    <strong>Goal:</strong> Build muscle memory for 1-10 addition
+                    <strong>Mission:</strong> Get faster at adding 1-10!
                   </div>
                 </div>
                 
@@ -318,7 +318,7 @@ export function SpeedDrillPage() {
                   className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white py-4 text-lg font-semibold rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
                 >
                   <Zap className="h-5 w-5" />
-                  Start Challenge
+                  Start!
                 </Button>
                 
                 <Button
@@ -327,7 +327,7 @@ export function SpeedDrillPage() {
                   className="w-full border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 py-4 text-lg font-semibold rounded-xl transition-all"
                 >
                   <ArrowLeft className="h-5 w-5 mr-2" />
-                  Back to Math Hub
+                  Back
                 </Button>
               </div>
             </Card>
@@ -444,19 +444,19 @@ export function SpeedDrillPage() {
                     {/* Stats */}
                     <div className="space-y-3 text-left">
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Total Time:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Time Spent:</span>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {formatTime(drillResult.totalTime)}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Accuracy:</span>
+                        <span className="text-gray-600 dark:text-gray-400">How Many Right:</span>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {Math.round(drillResult.accuracy * 100)}% ({Math.round(drillResult.accuracy * TOTAL_PROBLEMS)}/{TOTAL_PROBLEMS})
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-gray-600 dark:text-gray-400">Avg Time:</span>
+                        <span className="text-gray-600 dark:text-gray-400">Avg Time Per Problem:</span>
                         <span className="font-semibold text-gray-900 dark:text-white">
                           {drillResult.averageTime.toFixed(2)}s
                         </span>
@@ -486,7 +486,7 @@ export function SpeedDrillPage() {
                     {/* Previous Attempts Comparison */}
                     {previousAttempts.length > 0 && (
                       <div className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                        <p className="font-medium mb-2">Previous Attempts:</p>
+                        <p className="font-medium mb-2">Your Past Runs:</p>
                         <div className="space-y-1">
                           {previousAttempts.map((attempt, index) => (
                             <div key={attempt.drillId} className="flex justify-between text-xs">

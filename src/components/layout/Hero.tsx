@@ -211,7 +211,7 @@ export function Hero() {
               element?.scrollIntoView({ behavior: 'smooth' });
             }}
           >
-            Start Learning
+            Let's Play!
           </motion.button>
           
           <motion.button
@@ -219,7 +219,7 @@ export function Hero() {
             whileTap={{ scale: 0.95 }}
             className="bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all hover:bg-white hover:shadow-lg"
           >
-            View Progress
+            Check My Progress
           </motion.button>
         </motion.div>
       </motion.div>

@@ -56,10 +56,10 @@ export function SubjectsSection() {
           className="text-center mb-16"
         >
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
-            Choose Your Learning Path
+            Pick Your Adventure! 🚀
           </h2>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-            Master fundamental skills through engaging, interactive challenges designed for Grade 6 students.
+            Choose a subject and start leveling up your skills!
           </p>
         </motion.div>
 

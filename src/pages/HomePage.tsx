@@ -28,10 +28,10 @@ export function HomePage() {
             className="text-center mb-16"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-              Why Students Love Lumio
+              Why Lumio is Awesome! 🚀
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
-              Our gamified approach makes learning math fun and effective.
+              Math practice that feels like playing a game!
             </p>
           </motion.div>
 
@@ -39,21 +39,21 @@ export function HomePage() {
             {[
               {
                 icon: Target,
-                title: "Personalized Learning",
-                description: "Adaptive challenges that grow with your child's skill level and learning pace.",
-                stats: "95% improvement rate"
+                title: "Challenges That Grow With You! 🌱",
+                description: "Start easy and watch yourself get better every day. The more you play, the smarter you get!",
+                stats: "Most kids improve in one week!"
               },
               {
                 icon: BrainCircuit,
-                title: "Real-time Feedback",
-                description: "Instant insights help students understand concepts and learn from mistakes.",
-                stats: "Instant responses"
+                title: "Know Right Away! ⚡",
+                description: "Find out instantly if you got it right - no waiting around! Learn from your mistakes super fast!",
+                stats: "Instant feedback!"
               },
               {
                 icon: Award,
-                title: "Achievement System",
-                description: "Earn badges, streaks, and rewards that motivate continued learning.",
-                stats: "50+ achievements"
+                title: "Collect Cool Badges! 🏆",
+                description: "Earn awesome rewards as you level up. Show off your streaks and achievements to your friends!",
+                stats: "50+ badges to unlock!"
               }
             ].map((feature, index) => (
               <motion.div
@@ -88,10 +88,10 @@ export function HomePage() {
             className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl p-12 rounded-3xl"
           >
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-              Ready to Begin Your Math Adventure?
+              Ready to Become a Math Champion? 🎯
             </h2>
             <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Join thousands of students discovering the joy of mathematics through interactive learning.
+              Join thousands of kids who are getting better at math every day. Your adventure starts now!
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -101,7 +101,7 @@ export function HomePage() {
                 className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
               >
                 <ArrowRight className="h-5 w-5" />
-                Get Started Free
+                Let's Go!
               </Button>
               
               <Button 

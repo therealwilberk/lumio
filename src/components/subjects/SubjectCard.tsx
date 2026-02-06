@@ -126,7 +126,9 @@ export function SubjectCard({
           {isUnlocked && !isComingSoon && (
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 font-medium">Progress</span>
+                <span className="text-sm text-gray-600 font-medium">
+                  {progress === 0 ? "Let's get started!" : progress < 50 ? "Keep going!" : progress < 100 ? "Almost there!" : "You did it!"}
+                </span>
                 <span className="text-sm font-semibold" style={{ color: config.primary }}>
                   {progress}%
                 </span>
@@ -154,7 +156,7 @@ export function SubjectCard({
               className="w-full"
             >
               <span className="flex items-center justify-center gap-2">
-                Continue Learning
+                Let's Practice!
                 <ChevronRight className="h-4 w-4" />
               </span>
             </AnimatedButton>
