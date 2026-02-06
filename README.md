@@ -1,19 +1,18 @@
 # Lumio 🎓
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-username/lumio)
-
-A modern gamified learning platform designed for Grade 6 students, focusing on math fundamentals with beautiful animations, progress tracking, and engaging challenges. Built with React, Cloudflare Workers, and modern web technologies.
+A modern gamified learning platform designed for Grade 6 students, with **Mathematics as the primary focus** and additional subjects planned. Features beautiful animations, progress tracking, and engaging challenges. Built with React and modern web technologies.
 
 ## 🎯 What Lumio Does
 
-**Lumio transforms learning into an adventure!** Students master mathematics through:
+**Lumio transforms learning into an adventure!** Students master subjects through:
 
-- 🧮 **Interactive Math Practice** - Addition, Subtraction, Multiplication, Division
-- ⚡ **Lightning Round Speed Drills** - Build muscle memory for 1-10 addition
+- 🧮 **Mathematics (Primary Focus)** - Addition, Subtraction, Multiplication, Division
+- ⚡ **Lightning Round Speed Drills** - Build muscle memory for quick math
 - 🏆 **Progress Tracking & Achievements** - Unlock new topics as you advance
 - 🎨 **Beautiful Modern UI** - Glassmorphic design with dark mode support
 - 📊 **Personalized Learning** - Adaptive challenges based on skill level
 - 🔓 **Topic Unlock System** - Progress through subjects at your own pace
+- 📚 **More Subjects Coming** - Kiswahili, Agriculture, and English planned
 
 ## ✨ Key Features
 
@@ -33,7 +32,7 @@ A modern gamified learning platform designed for Grade 6 students, focusing on m
 
 ### 🔐 Authentication & Progress
 - **Secure Authentication**: PIN-based login/signup with JWT tokens
-- **Progress Persistence**: All progress saved to Cloudflare Durable Objects
+- **Progress Persistence**: All progress saved securely
 - **User Profiles**: Personalized learning journeys
 - **Performance Analytics**: Detailed stats and improvement tracking
 
@@ -55,16 +54,15 @@ A modern gamified learning platform designed for Grade 6 students, focusing on m
 - **TanStack Query** for data management
 
 ### Backend
-- **Cloudflare Workers** for serverless deployment
+- **Serverless API** - Fast and scalable backend
 - **Hono** framework for fast API development
-- **Durable Objects** for persistent storage
+- **Persistent Storage** - Reliable data storage
 - **JWT Authentication** for secure sessions
 
 ### Infrastructure
-- **Cloudflare Pages** for frontend hosting
-- **Cloudflare Workers** for backend API
-- **Durable Objects** for database storage
-- **Global CDN** for fast content delivery
+- **Modern Hosting** - Deploy anywhere
+- **CDN** for fast content delivery
+- **SSL Certificates** for security
 
 ## 🚀 Quick Start
 
@@ -147,7 +145,7 @@ A modern gamified learning platform designed for Grade 6 students, focusing on m
 bun dev          # Start development server
 bun lint         # Lint code
 bun build        # Build for production
-bun deploy       # Deploy to Cloudflare
+bun test         # Run tests
 ```
 
 ### API Structure
@@ -192,17 +190,12 @@ bun deploy       # Deploy to Cloudflare
 
 ## 🚀 Deployment
 
-Deploy to Cloudflare Workers + Pages:
+Build for production:
 ```bash
-bun deploy
+bun run build
 ```
 
-**Features:**
-- Global CDN for fast loading
-- Serverless architecture for scalability
-- Durable Objects for persistent storage
-- Automatic SSL certificates
-- Custom domain support
+Deploy to your preferred hosting platform (Vercel, Netlify, AWS, etc.)
 
 ## 📱 Responsive Design
 
