@@ -70,7 +70,7 @@ export function Hero() {
       {/* Mountain Background */}
       <div className="absolute inset-0">
         {/* Sky gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-300 to-orange-200" />
+        <div className="absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-300 to-orange-200 dark:from-blue-900 dark:via-blue-800 dark:to-orange-300" />
         
         {/* Mountain layers - Parallax effect */}
         <motion.div
@@ -116,7 +116,7 @@ export function Hero() {
         </motion.div>
 
         {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/20 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-white/20 dark:from-black/20 via-transparent to-transparent" />
       </div>
 
       {/* Floating particles/shapes */}
@@ -160,7 +160,7 @@ export function Hero() {
           className="mb-6"
         >
           <h1 
-            className="text-5xl md:text-7xl lg:text-8xl font-bold text-gray-800 mb-4"
+            className="text-5xl md:text-7xl lg:text-8xl font-bold text-gray-800 dark:text-white mb-4"
             style={{
               fontFamily: "'Playfair Display', serif",
               fontWeight: 700,
@@ -183,7 +183,7 @@ export function Hero() {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: "easeOut", delay: 0.3 }}
-          className="text-xl md:text-2xl text-gray-600 mb-12 max-w-2xl mx-auto"
+          className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 mb-12 max-w-2xl mx-auto"
           style={{
             fontFamily: "'Inter', sans-serif",
           }}
