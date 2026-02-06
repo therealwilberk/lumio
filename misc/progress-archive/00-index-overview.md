@@ -2,8 +2,8 @@
 
 **Original File:** `misc/progress.md`  
 **Archive Created:** February 6, 2026 at 8:56 PM UTC+03:00  
-**Total Sections:** 20  
-**Total Lines:** 992
+**Total Sections:** 21
+**Total Lines:** 1010
 
 ---
 
@@ -48,6 +48,11 @@
 | Feature | [18-feature-timer-ring.md](./18-feature-timer-ring.md) | Speed Drill Timer Ring | ✅ Complete |
 | Infrastructure | [19-milestone-testing-infrastructure.md](./19-milestone-testing-infrastructure.md) | Testing Infrastructure with Vitest | ✅ Complete |
 
+### Phase 6: Testing & Quality Assurance
+| Section | File | Description | Status |
+|---------|------|-------------|--------|
+| M20 | [20-milestone-math-test-coverage.md](./20-milestone-math-test-coverage.md) | Core Math Test Coverage | ✅ Complete |
+
 ---
 
 ## File Naming Convention
@@ -61,6 +66,7 @@
 | Version | Date | Description |
 |---------|------|-------------|
 | v1.0.0 | 2026-02-06 | Initial archive creation from progress.md |
+| v1.1.0 | 2026-02-06 | Added Core Math Test Coverage milestone |
 
 ---
 
