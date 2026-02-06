@@ -1,13 +1,8 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BrainCircuit, Target, BookOpen, Calculator, TrendingUp, Award } from 'lucide-react';
-import { Hero } from '@/components/layout/Hero';
-import { SubjectsSection } from '@/components/subjects/SubjectsSection';
+import React from 'react';import { Button } from '@/components/ui/button';import { useNavigate } from 'react-router-dom';import { motion } from 'framer-motion';import { ArrowRight, Sparkles, BrainCircuit, Target, BookOpen, Calculator, TrendingUp, Award } from 'lucide-react';import { Hero } from '@/components/layout/Hero';import { SubjectsSection } from '@/components/subjects/SubjectsSection';import { useAuth } from '@/hooks/useAuth';
 
 export function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900 overflow-hidden">
@@ -78,44 +73,46 @@ export function HomePage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-20 px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            viewport={{ once: true }}
-            className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl p-12 rounded-3xl"
-          >
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
-              Ready to Become a Math Champion? 🎯
-            </h2>
-            <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
-              Join thousands of kids who are getting better at math every day. Your adventure starts now!
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button 
-                size="lg"
-                onClick={() => navigate('/signup')}
-                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
-              >
-                <ArrowRight className="h-5 w-5" />
-                Let's Go!
-              </Button>
+      {!user && (
+        <section className="py-20 px-6">
+          <div className="max-w-4xl mx-auto text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8 }}
+              viewport={{ once: true }}
+              className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl p-12 rounded-3xl"
+            >
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 dark:text-white mb-6">
+                Ready to Become a Math Champion? 🎯
+              </h2>
+              <p className="text-xl text-gray-600 dark:text-gray-300 mb-8">
+                Join thousands of kids who are getting better at math every day. Your adventure starts now!
+              </p>
               
-              <Button 
-                variant="outline"
-                size="lg"
-                onClick={() => navigate('/login')}
-                className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-8 py-4 text-lg rounded-xl transition-all"
-              >
-                Sign In
-              </Button>
-            </div>
-          </motion.div>
-        </div>
-      </section>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Button 
+                  size="lg"
+                  onClick={() => navigate('/signup')}
+                  className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
+                >
+                  <ArrowRight className="h-5 w-5" />
+                  Let's Go!
+                </Button>
+                
+                <Button 
+                  variant="outline"
+                  size="lg"
+                  onClick={() => navigate('/login')}
+                  className="border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 px-8 py-4 text-lg rounded-xl transition-all"
+                >
+                  Sign In
+                </Button>
+              </div>
+            </motion.div>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

@@ -1,12 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
-import { ChevronDown, Sparkles } from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { Navbar } from './Navbar';
-import { FloatingElements } from '@/components/ui/FloatingElements';
+import React, { useState, useEffect, useRef } from 'react';import { motion } from 'framer-motion';import { ChevronDown, Sparkles } from 'lucide-react';import { useAuth } from '@/hooks/useAuth';import { Navbar } from './Navbar';import { FloatingElements } from '@/components/ui/FloatingElements';import { useNavigate } from 'react-router-dom';
 
 export function Hero() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [greetingMessage, setGreetingMessage] = useState('');
   const [timeMessage, setTimeMessage] = useState('');
@@ -207,8 +203,12 @@ export function Hero() {
             whileTap={{ scale: 0.95 }}
             className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg font-semibold rounded-xl transition-all shadow-lg hover:shadow-xl"
             onClick={() => {
-              const element = document.getElementById('subjects-section');
-              element?.scrollIntoView({ behavior: 'smooth' });
+              if (user) {
+                navigate('/dashboard');
+              } else {
+                const element = document.getElementById('subjects-section');
+                element?.scrollIntoView({ behavior: 'smooth' });
+              }
             }}
           >
             Let's Play!
@@ -218,6 +218,7 @@ export function Hero() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="bg-white/80 backdrop-blur-sm border border-gray-300 text-gray-700 px-8 py-4 text-lg font-semibold rounded-xl transition-all hover:bg-white hover:shadow-lg"
+            onClick={() => navigate('/dashboard')}
           >
             Check My Progress
           </motion.button>
