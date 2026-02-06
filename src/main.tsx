@@ -14,6 +14,7 @@ import { AuthProvider } from '@/contexts/AuthContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { ToastProvider } from '@/lib/notifications';
+import { PageTransition } from '@/components/ui/PageTransition';
 import '@/index.css'
 import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
@@ -30,24 +31,38 @@ const queryClient = new QueryClient();
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <HomePage />,
+    element: (
+      <PageTransition>
+        <HomePage />
+      </PageTransition>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/login",
-    element: <LoginPage />,
+    element: (
+      <PageTransition>
+        <LoginPage />
+      </PageTransition>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/signup",
-    element: <SignupPage />,
+    element: (
+      <PageTransition>
+        <SignupPage />
+      </PageTransition>
+    ),
     errorElement: <RouteErrorBoundary />,
   },
   {
     path: "/dashboard",
     element: (
       <ProtectedRoute>
-        <DashboardPage />
+        <PageTransition>
+          <DashboardPage />
+        </PageTransition>
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -56,7 +71,9 @@ const router = createBrowserRouter([
     path: "/subjects",
     element: (
       <ProtectedRoute>
-        <SubjectsPage />
+        <PageTransition>
+          <SubjectsPage />
+        </PageTransition>
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -65,7 +82,9 @@ const router = createBrowserRouter([
     path: "/math",
     element: (
       <ProtectedRoute>
-        <MathHubPage />
+        <PageTransition>
+          <MathHubPage />
+        </PageTransition>
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -74,7 +93,9 @@ const router = createBrowserRouter([
     path: "/math/addition",
     element: (
       <ProtectedRoute>
-        <AdditionPage />
+        <PageTransition>
+          <AdditionPage />
+        </PageTransition>
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -83,7 +104,9 @@ const router = createBrowserRouter([
     path: "/math/speed-drill",
     element: (
       <ProtectedRoute>
-        <SpeedDrillPage />
+        <PageTransition>
+          <SpeedDrillPage />
+        </PageTransition>
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,
@@ -92,7 +115,9 @@ const router = createBrowserRouter([
     path: "/math/regular-practice",
     element: (
       <ProtectedRoute>
-        <RegularPracticePage />
+        <PageTransition>
+          <RegularPracticePage />
+        </PageTransition>
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,

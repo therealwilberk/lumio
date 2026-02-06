@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { ChevronDown, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
+import { FloatingElements } from '@/components/ui/FloatingElements';
 
 export function Hero() {
   const { user } = useAuth();
@@ -66,6 +67,9 @@ export function Hero() {
     >
       {/* Navbar */}
       <Navbar />
+
+      {/* Floating Background Elements */}
+      <FloatingElements />
 
       {/* Mountain Background */}
       <div className="absolute inset-0">

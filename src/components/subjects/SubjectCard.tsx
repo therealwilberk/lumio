@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
+import { AnimatedButton } from '@/components/ui/AnimatedButton';
 import { 
   Calculator, 
   BookOpen, 
@@ -147,34 +148,36 @@ export function SubjectCard({
 
           {/* Action Button */}
           {isUnlocked && !isComingSoon && (
-            <Button
+            <AnimatedButton
               onClick={onContinue}
-              className="w-full text-white font-semibold rounded-xl py-3 transition-all transform hover:scale-105"
-              style={{ background: config.gradient }}
+              variant="primary"
+              className="w-full"
             >
               <span className="flex items-center justify-center gap-2">
                 Continue Learning
                 <ChevronRight className="h-4 w-4" />
               </span>
-            </Button>
+            </AnimatedButton>
           )}
 
           {isComingSoon && (
-            <Button
+            <AnimatedButton
               disabled
-              className="w-full bg-gray-100 text-gray-500 font-semibold rounded-xl py-3 cursor-not-allowed"
+              variant="secondary"
+              className="w-full"
             >
               Coming Soon
-            </Button>
+            </AnimatedButton>
           )}
 
           {!isUnlocked && !isComingSoon && (
-            <Button
+            <AnimatedButton
               disabled
-              className="w-full bg-gray-100 text-gray-500 font-semibold rounded-xl py-3 cursor-not-allowed"
+              variant="secondary"
+              className="w-full"
             >
               Locked
-            </Button>
+            </AnimatedButton>
           )}
         </div>
       </div>

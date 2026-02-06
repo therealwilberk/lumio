@@ -6,6 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { celebrate } from '@/components/ui/Celebration';
+import { StreakCounter } from '@/components/ui/StreakCounter';
+import { showNotification } from '@/lib/notifications';
 import { 
   ArrowLeft, 
   Zap, 
@@ -135,7 +138,19 @@ export function SpeedDrillPage() {
     const timeSpent = (Date.now() - problemStartTime) / 1000;
     
     if (answer === currentProblem.answer) {
-      // Correct answer
+      // Correct answer - trigger confetti!
+      celebrate('correct');
+      
+      // Show toast notification for streak milestones
+      const newStreak = streak + 1;
+      if (newStreak === 5) {
+        showNotification('streak', '5 in a row! Keep it up! 🔥');
+      } else if (newStreak === 10) {
+        showNotification('streak', 'Amazing! 10 streak! 🚀');
+      } else if (newStreak === 20) {
+        showNotification('achievement', 'Incredible! 20 streak! 🏆');
+      }
+      
       setShowFeedback('correct');
       setStreak(streak + 1);
       if (streak + 1 > bestStreak) {
@@ -201,6 +216,10 @@ export function SpeedDrillPage() {
     
     setDrillResult(result);
     setGameState('complete');
+    
+    // Celebrate completion!
+    celebrate('completion');
+    showNotification('success', `Challenge complete! ${Math.round(result.accuracy * 100)}% accuracy! 🎉`);
     
     // Save to backend
     saveDrillResult(result);
@@ -404,10 +423,7 @@ export function SpeedDrillPage() {
 
                 {/* Streak Display */}
                 <div className="text-center">
-                  <div className="inline-flex items-center gap-2 px-4 py-2 bg-orange-100 dark:bg-orange-900/30 rounded-full">
-                    <Flame className="h-5 w-5 text-orange-500" />
-                    <span className="font-bold text-orange-600 dark:text-orange-400">Streak: {streak} 🔥</span>
-                  </div>
+                  <StreakCounter count={streak} size="lg" />
                 </div>
               </motion.div>
             )}

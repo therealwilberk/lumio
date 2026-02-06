@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { StudentStats } from '@shared/types';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { RocketLoader } from '@/components/ui/LoadingStates';
 import { 
   Plus, 
   Minus, 
@@ -139,10 +140,7 @@ export function MathHubPage() {
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
         <Navbar />
         <div className="flex items-center justify-center pt-24">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-            <div className="text-lg text-gray-600 dark:text-gray-300">Loading Math Hub...</div>
-          </div>
+          <RocketLoader />
         </div>
       </div>
     );
