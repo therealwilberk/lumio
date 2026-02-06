@@ -334,8 +334,8 @@ export function SpeedDrillPage() {
                   </div>
                 </div>
 
-                {/* Timer Ring */}
-                <div className="flex justify-center mb-8">
+                {/* Hidden Timer Ring for functionality only */}
+                <div className="hidden">
                   <svg className="w-32 h-32 transform -rotate-90">
                     <circle
                       cx="64"

@@ -70,7 +70,9 @@ export function Navbar() {
             </div>
             <span 
               className={`text-xl font-bold ${
-                scrolled ? 'text-gray-900' : 'text-white'
+                scrolled 
+                  ? 'text-gray-900 dark:text-white' 
+                  : 'text-white dark:text-white'
               }`}
             >
               Lumio
@@ -91,8 +93,8 @@ export function Navbar() {
                     isActive
                       ? 'bg-white/20 text-white font-semibold'
                       : scrolled
-                      ? 'text-gray-700 hover:text-gray-900 hover:bg-white/10'
-                      : 'text-white/90 hover:text-white hover:bg-white/10'
+                      ? 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-white/10'
+                      : 'text-white dark:text-white hover:text-white hover:bg-white/10'
                   }`}
                 >
                   <Icon className="h-5 w-5" />
@@ -119,7 +121,7 @@ export function Navbar() {
               onClick={toggleTheme}
               className={`p-2 rounded-xl transition-all duration-200 ${
                 scrolled
-                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
                   : 'bg-white/20 text-white hover:bg-white/30'
               }`}
             >
@@ -173,8 +175,8 @@ export function Navbar() {
                   onClick={() => handleNavigation('/login')}
                   className={`px-4 py-2 rounded-xl transition-all duration-200 ${
                     scrolled
-                      ? 'text-gray-700 hover:text-gray-900 hover:bg-white/10'
-                      : 'text-white/90 hover:text-white hover:bg-white/10'
+                      ? 'text-gray-700 dark:text-gray-200 hover:text-gray-900 dark:hover:text-white hover:bg-white/10'
+                      : 'text-white dark:text-white hover:text-white hover:bg-white/10'
                   }`}
                 >
                   Sign In
@@ -188,6 +190,20 @@ export function Navbar() {
               </div>
             )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="md:hidden"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X className={`h-6 w-6 ${scrolled ? 'text-gray-900 dark:text-white' : 'text-white dark:text-white'}`} />
+            ) : (
+              <Menu className={`h-6 w-6 ${scrolled ? 'text-gray-900 dark:text-white' : 'text-white dark:text-white'}`} />
+            )}
+          </Button>
         </div>
       </nav>
 
