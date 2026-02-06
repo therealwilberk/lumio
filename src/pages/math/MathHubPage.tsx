@@ -158,10 +158,10 @@ export function MathHubPage() {
           className="text-center mb-12"
         >
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Math Hub
+            Math Hub! 🔢
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Master mathematics one topic at a time. Progress through challenges to unlock new adventures!
+            Learn math one adventure at a time. Beat challenges to unlock new topics!
           </p>
         </motion.div>
 
@@ -180,7 +180,7 @@ export function MathHubPage() {
                     <Calculator className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Total Problems</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Problems Solved</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {stats?.totalSolved || 0}
                     </p>
@@ -198,7 +198,7 @@ export function MathHubPage() {
                     <Target className="h-5 w-5 text-orange-600 dark:text-orange-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">Current Streak</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Day Streak</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {stats?.streak || 0}
                     </p>
@@ -216,7 +216,7 @@ export function MathHubPage() {
                     <BarChart3 className="h-5 w-5 text-green-600 dark:text-green-400" />
                   </div>
                   <div>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">This Week</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">Points This Week</p>
                     <p className="text-2xl font-bold text-gray-900 dark:text-white">
                       {getWeeklyScore()}
                     </p>
@@ -248,21 +248,6 @@ export function MathHubPage() {
               >
                 <CardContent className="p-8">
                   {/* Lock Overlay */}
-                  {!topic.isUnlocked && (
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center z-10">
-                      <div className="text-center">
-                        <Lock className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-                        <p className="text-gray-400 font-medium">
-                          Complete {topic.id === 'subtraction' ? 'Addition' : 
-                                   topic.id === 'multiplication' ? 'Subtraction' : 
-                                   'Multiplication'} to unlock
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Topic Content */}
-                  <div className={!topic.isUnlocked ? 'opacity-50' : ''}>
                     {/* Icon and Symbol */}
                     <div className="flex items-center justify-between mb-6">
                       <div className={`w-16 h-16 ${topic.bgColor} rounded-2xl flex items-center justify-center`}>
@@ -294,7 +279,9 @@ export function MathHubPage() {
                     {/* Progress Bar */}
                     <div className="mb-6">
                       <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">Progress</span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {topic.progress === 0 ? "Let's get started!" : topic.progress < 50 ? "Keep going!" : topic.progress < 100 ? "Almost there!" : "You did it!"}
+                        </span>
                         <span className="text-sm font-semibold text-gray-900 dark:text-white">
                           {topic.progress}%
                         </span>
@@ -314,11 +301,11 @@ export function MathHubPage() {
                       <Button 
                         className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl transition-all transform hover:scale-105"
                       >
-                        Practice {topic.name}
+                        Let's Practice {topic.name}!
                       </Button>
                     ) : (
                       <div className="w-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-xl text-center font-medium">
-                        Locked
+                        Locked 🔒
                       </div>
                     )}
                   </div>
@@ -337,10 +324,10 @@ export function MathHubPage() {
         >
           <Card className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl p-8 rounded-3xl max-w-2xl mx-auto text-center">
             <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-              Your Math Journey
+              Your Math Adventure! 🗺️
             </h3>
             <p className="text-gray-600 dark:text-gray-300 mb-6">
-              Complete each topic to unlock the next challenge. Master all four to become a math champion!
+              Beat each topic to unlock the next one. Master all four to become a Math Champion! 🏆
             </p>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -353,7 +340,7 @@ export function MathHubPage() {
                     {topic.name}
                   </div>
                   <div className="text-xs text-gray-500 dark:text-gray-400">
-                    {topic.isUnlocked ? 'Unlocked' : 'Locked'}
+                    {topic.isUnlocked ? 'Ready!' : 'Locked'}
                   </div>
                 </div>
               ))}

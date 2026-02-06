@@ -188,10 +188,10 @@ export function DashboardPage() {
         >
           <div>
             <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Dashboard
+              Your Progress! 📊
             </h1>
             <p className="text-gray-600 dark:text-gray-300">
-              Welcome back, {user?.username}! Track your progress and achievements.
+              Hey {user?.username}! Check out how awesome you're doing!
             </p>
           </div>
           
@@ -200,7 +200,7 @@ export function DashboardPage() {
             className="flex items-center gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
           >
             <Download className="h-4 w-4" />
-            Export
+            Download My Stuff
           </Button>
         </motion.div>
 
@@ -268,7 +268,7 @@ export function DashboardPage() {
                   className="w-full mt-4 bg-orange-500 hover:bg-orange-600 text-white"
                   onClick={() => navigate('/math/regular-practice')}
                 >
-                  Practice These
+                  Let's Practice These!
                 </Button>
               </CardContent>
             </Card>
@@ -312,7 +312,7 @@ export function DashboardPage() {
                 </div>
                 
                 <div className="text-xs text-gray-600 dark:text-gray-400 text-center">
-                  {achievements.filter(a => a.unlocked).length} of {achievements.length} unlocked
+                  {achievements.filter(a => a.unlocked).length} badges earned! Keep going!
                 </div>
               </CardContent>
             </Card>
