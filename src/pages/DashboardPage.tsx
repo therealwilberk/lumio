@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import type { StudentStats } from '@shared/types';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { StatsGrid } from '@/components/dashboard/StatsGrid';
+import { DailyActivityChart, SpeedImprovementChart } from '@/components/dashboard/ActivityCharts';
 import { 
   BrainCircuit, 
   Target, 
@@ -21,7 +23,9 @@ import {
   PieChart,
   AlertTriangle,
   Lock,
-  Trophy
+  Trophy,
+  Flame,
+  CheckCircle
 } from 'lucide-react';
 
 interface DailyActivity {
@@ -148,7 +152,7 @@ export function DashboardPage() {
     ? Math.round(speedTrend.reduce((sum, session) => sum + session.accuracy, 0) / speedTrend.length)
     : 0;
 
-  const formatTime = (seconds: number) => {
+  const formatTime = (seconds: number): string => {
     const hours = Math.floor(seconds / 3600);
     const minutes = Math.floor((seconds % 3600) / 60);
     if (hours > 0) {
@@ -200,92 +204,19 @@ export function DashboardPage() {
           </Button>
         </motion.div>
 
-        {/* Stats Overview - 4 Cards */}
+        {/* Colorful Stats Grid */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          className="mb-8"
         >
-          {/* Total Practice Time */}
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-xl flex items-center justify-center">
-                  <Clock className="h-6 w-6 text-blue-600 dark:text-blue-400" />
-                </div>
-                <div className="text-xs text-green-600 dark:text-green-400 font-medium">
-                  +12% this week
-                </div>
-              </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                {formatTime(totalPracticeTime)}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Total Practice Time
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Problems Solved */}
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-xl flex items-center justify-center">
-                  <BrainCircuit className="h-6 w-6 text-purple-600 dark:text-purple-400" />
-                </div>
-                <div className="text-xs text-green-600 dark:text-green-400 font-medium">
-                  +8% this week
-                </div>
-              </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                {displayStats.totalSolved}
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Problems Solved
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Accuracy Rate */}
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-xl flex items-center justify-center">
-                  <Target className="h-6 w-6 text-green-600 dark:text-green-400" />
-                </div>
-                <div className="text-xs text-green-600 dark:text-green-400 font-medium">
-                  +3% this week
-                </div>
-              </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                {accuracyRate}%
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Accuracy Rate
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Current Streak */}
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg hover:shadow-xl transition-shadow">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between mb-4">
-                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900/30 rounded-xl flex items-center justify-center">
-                  <TrendingUp className="h-6 w-6 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                  Active 🔥
-                </div>
-              </div>
-              <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
-                {displayStats.streak}d
-              </div>
-              <div className="text-sm text-gray-600 dark:text-gray-400">
-                Current Streak
-              </div>
-            </CardContent>
-          </Card>
+          <StatsGrid
+            totalTime={formatTime(totalPracticeTime)}
+            problemsSolved={displayStats.totalSolved}
+            accuracyRate={accuracyRate}
+            streak={displayStats.streak}
+          />
         </motion.div>
 
         {/* Charts Section */}
@@ -295,83 +226,8 @@ export function DashboardPage() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
         >
-          {/* Daily Activity */}
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg p-6">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                <BarChart3 className="h-5 w-5" />
-                Daily Activity (Last 7 Days)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {dailyActivity.map((day, index) => (
-                  <div key={day.day} className="flex items-center gap-4">
-                    <div className="w-12 text-sm text-gray-600 dark:text-gray-400">
-                      {day.day}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {day.problems} problems
-                        </div>
-                        <div className="text-xs text-gray-500">
-                          ({formatTime(day.time)})
-                        </div>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <motion.div
-                          className="bg-blue-500 h-2 rounded-full"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(day.problems / 30) * 100}%` }}
-                          transition={{ duration: 0.5, delay: index * 0.1 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Speed Trend */}
-          <Card className="bg-white dark:bg-gray-800 border-0 shadow-lg p-6">
-            <CardHeader className="pb-4">
-              <CardTitle className="flex items-center gap-2 text-gray-900 dark:text-white">
-                <LineChart className="h-5 w-5" />
-                Speed Improvement
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {speedTrend.map((session, index) => (
-                  <div key={session.session} className="flex items-center gap-4">
-                    <div className="w-20 text-sm text-gray-600 dark:text-gray-400">
-                      {session.session}
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="text-sm text-gray-900 dark:text-white">
-                          {session.avgTime.toFixed(1)}s avg
-                        </div>
-                        <div className="text-xs text-green-600 dark:text-green-400">
-                          {session.accuracy}% accuracy
-                        </div>
-                      </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
-                        <motion.div
-                          className="bg-purple-500 h-2 rounded-full"
-                          initial={{ width: 0 }}
-                          animate={{ width: `${(15 - session.avgTime) / 15 * 100}%` }}
-                          transition={{ duration: 0.5, delay: index * 0.1 }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
+          <DailyActivityChart data={dailyActivity} />
+          <SpeedImprovementChart data={speedTrend} />
         </motion.div>
 
         {/* Bottom Section */}
