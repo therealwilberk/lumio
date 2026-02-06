@@ -1,8 +1,8 @@
-# Number Nexus
+# Lumio
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/therealwilberk/numbernexus)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-username/lumio)
 
-A production-ready full-stack chat application powered by Cloudflare Workers and Durable Objects. Features real-time chat boards, user management, and scalable storage using a single Global Durable Object with indexed entities. Built with React, TypeScript, shadcn/ui, and Tailwind CSS for a modern, responsive UI.
+A gamified learning platform for Grade 6 students focusing on math fundamentals with future expansion to other subjects (Kiswahili, Agriculture, English etc).
 
 ## Features
 
@@ -28,7 +28,7 @@ A production-ready full-stack chat application powered by Cloudflare Workers and
 1. **Clone and Install**:
    ```bash
    git clone <your-repo-url>
-   cd number-nexus-l8ug1hxkkac3obzrgj4rq
+   cd lumio
    bun install
    ```
 
@@ -92,7 +92,7 @@ Or manually:
 
 Assets (`dist/`) auto-serve as Pages SPA via `assets` config in `wrangler.jsonc`.
 
-[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/therealwilberk/numbernexus)
+[![Deploy to Cloudflare](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/your-username/lumio)
 
 **Custom Domain**: Update `wrangler.jsonc` and run `wrangler deploy`.
 

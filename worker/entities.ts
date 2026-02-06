@@ -1,6 +1,5 @@
 import { IndexedEntity } from "./core-utils";
-import type { User, StudentStats, SolveLog } from "@shared/types";
-import { MOCK_USERS } from "@shared/mock-data";
+import type { StudentStats, SolveLog } from "@shared/types";
 export class StudentEntity extends IndexedEntity<StudentStats> {
   static readonly entityName = "student";
   static readonly indexName = "students";
@@ -52,10 +51,4 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
       id: s.id
     }));
   }
-}
-export class UserEntity extends IndexedEntity<User> {
-  static readonly entityName = "user";
-  static readonly indexName = "users";
-  static readonly initialState: User = { id: "", name: "" };
-  static seedData = MOCK_USERS;
 }
