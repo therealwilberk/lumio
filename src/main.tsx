@@ -17,6 +17,7 @@ import { HomePage } from '@/pages/HomePage';
 import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { DashboardPage } from '@/pages/DashboardPage';
+import { AdditionPage } from '@/pages/math/AdditionPage';
 
 const queryClient = new QueryClient();
 
@@ -41,6 +42,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <DashboardPage />
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/math/addition",
+    element: (
+      <ProtectedRoute>
+        <AdditionPage />
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,

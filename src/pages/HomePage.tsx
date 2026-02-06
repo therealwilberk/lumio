@@ -2,149 +2,210 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, BrainCircuit, Target } from 'lucide-react';
+import { ArrowRight, Sparkles, BrainCircuit, Target, BookOpen, Calculator, TrendingUp, Award } from 'lucide-react';
+import { Hero } from '@/components/layout/Hero';
 
 export function HomePage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <motion.div
-          className="absolute -top-40 -right-40 w-80 h-80 bg-blue-200/20 rounded-full blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -50, 0],
-          }}
-          transition={{
-            duration: 20,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-indigo-200/20 rounded-full blur-3xl"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 50, 0],
-          }}
-          transition={{
-            duration: 25,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-purple-200/20 rounded-full blur-3xl"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
-          }}
-          transition={{
-            duration: 15,
-            repeat: Infinity,
-            ease: "easeInOut"
-          }}
-        />
-      </div>
-
-      {/* Navigation */}
-      <nav className="relative z-10 px-6 py-6">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <motion.div 
-            className="flex items-center gap-2"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <BrainCircuit className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Lumio</span>
-          </motion.div>
-          
-          <motion.div 
-            className="hidden md:flex items-center gap-8"
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            <button onClick={() => navigate('/login')} className="text-gray-600 hover:text-gray-900 transition-colors">Sign In</button>
-            <Button 
-              onClick={() => navigate('/signup')}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Get Started
-            </Button>
-          </motion.div>
-        </div>
-      </nav>
-
       {/* Hero Section */}
-      <div className="relative z-10 px-6 py-20 md:py-32">
-        <div className="max-w-7xl mx-auto text-center">
+      <Hero />
+
+      {/* Subjects Section */}
+      <section id="subjects-section" className="py-20 px-6">
+        <div className="max-w-7xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
-            className="space-y-8"
+            viewport={{ once: true }}
+            className="text-center mb-16"
           >
-            {/* Badge */}
             <motion.div
               initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              whileInView={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+              viewport={{ once: true }}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-800 rounded-full text-sm font-medium mb-6"
             >
               <Sparkles className="h-4 w-4" />
-              Gamified Learning for Grade 6 Students
+              Explore Subjects
             </motion.div>
 
-            {/* Main Heading */}
-            <motion.h1 
-              className="text-5xl md:text-7xl font-bold text-gray-900 leading-tight"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-            >
-              From Math
-              <span className="block text-blue-600">
-                Overwhelm to
-                <motion.span
-                  className="inline-block ml-2"
-                  animate={{ rotate: [0, 5, -5, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-                >
-                  ✨
-                </motion.span>
-                Breakthrough
-              </span>
-            </motion.h1>
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              Choose Your Learning Path
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Master fundamental math skills through engaging, interactive challenges designed for Grade 6 students.
+            </p>
+          </motion.div>
 
-            {/* Description */}
-            <motion.p 
-              className="text-xl md:text-2xl text-gray-600 max-w-3xl mx-auto leading-relaxed"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.4 }}
-            >
-              Transform your child's relationship with math through engaging challenges, 
-              real-time feedback, and personalized learning paths.
-            </motion.p>
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              {
+                icon: Calculator,
+                title: "Addition",
+                description: "Master addition with fun challenges",
+                color: "blue",
+                available: true,
+                path: "/math/addition"
+              },
+              {
+                icon: Calculator,
+                title: "Subtraction",
+                description: "Build confidence with subtraction",
+                color: "green",
+                available: false,
+                path: "#"
+              },
+              {
+                icon: Calculator,
+                title: "Multiplication",
+                description: "Learn multiplication patterns",
+                color: "purple",
+                available: false,
+                path: "#"
+              },
+              {
+                icon: Calculator,
+                title: "Division",
+                description: "Conquer division step by step",
+                color: "orange",
+                available: false,
+                path: "#"
+              }
+            ].map((subject, index) => (
+              <motion.div
+                key={subject.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05 }}
+                className="relative"
+              >
+                <div className={`bg-white/80 backdrop-blur-sm border-0 shadow-lg hover:shadow-xl transition-all rounded-2xl p-6 h-full ${
+                  subject.available ? 'cursor-pointer' : 'cursor-not-allowed opacity-60'
+                }`}
+                onClick={() => subject.available && navigate(subject.path)}
+              >
+                <div className={`w-16 h-16 bg-${subject.color}-100 rounded-full flex items-center justify-center mb-4 mx-auto`}>
+                  <subject.icon className={`h-8 w-8 text-${subject.color}-600`} />
+                </div>
+                
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">{subject.title}</h3>
+                <p className="text-gray-600 text-sm mb-4">{subject.description}</p>
+                
+                {subject.available ? (
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    Start Learning
+                  </Button>
+                ) : (
+                  <div className="w-full bg-gray-100 text-gray-500 py-2 px-4 rounded-lg text-center text-sm">
+                    Coming Soon
+                  </div>
+                )}
+              </div>
+              {!subject.available && (
+                <div className="absolute top-4 right-4">
+                  <div className="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">
+                    Soon
+                  </div>
+                </div>
+              )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-            {/* CTA Buttons */}
-            <motion.div 
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-8"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-            >
+      {/* Features Section */}
+      <section className="py-20 px-6 bg-white/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Why Students Love Lumio
+            </h2>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+              Our gamified approach makes learning math fun and effective.
+            </p>
+          </motion.div>
+
+          <div className="grid md:grid-cols-3 gap-8">
+            {[
+              {
+                icon: Target,
+                title: "Personalized Learning",
+                description: "Adaptive challenges that grow with your child's skill level and learning pace.",
+                stats: "95% improvement rate"
+              },
+              {
+                icon: BrainCircuit,
+                title: "Real-time Feedback",
+                description: "Instant insights help students understand concepts and learn from mistakes.",
+                stats: "Instant responses"
+              },
+              {
+                icon: Award,
+                title: "Achievement System",
+                description: "Earn badges, streaks, and rewards that motivate continued learning.",
+                stats: "50+ achievements"
+              }
+            ].map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                viewport={{ once: true }}
+                whileHover={{ scale: 1.05 }}
+                className="text-center p-8 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200 hover:shadow-xl transition-all"
+              >
+                <feature.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-3">{feature.title}</h3>
+                <p className="text-gray-600 mb-4">{feature.description}</p>
+                <div className="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full inline-block">
+                  {feature.stats}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}
+            className="bg-white/80 backdrop-blur-sm border-0 shadow-xl p-12 rounded-3xl"
+          >
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+              Ready to Begin Your Math Adventure?
+            </h2>
+            <p className="text-xl text-gray-600 mb-8">
+              Join thousands of students discovering the joy of mathematics through interactive learning.
+            </p>
+            
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg"
                 onClick={() => navigate('/signup')}
-                className="bg-gray-900 hover:bg-gray-800 text-white px-8 py-4 text-lg rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
               >
-                Start Your Journey
                 <ArrowRight className="h-5 w-5" />
+                Get Started Free
               </Button>
               
               <Button 
@@ -153,89 +214,12 @@ export function HomePage() {
                 onClick={() => navigate('/login')}
                 className="border-gray-300 text-gray-700 hover:bg-gray-50 px-8 py-4 text-lg rounded-xl transition-all"
               >
-                About Me
+                Sign In
               </Button>
-            </motion.div>
+            </div>
           </motion.div>
         </div>
-      </div>
-
-      {/* Features Section */}
-      <motion.div 
-        className="relative z-10 px-6 py-20 bg-white/50 backdrop-blur-sm"
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.6 }}
-      >
-        <div className="max-w-7xl mx-auto">
-          <motion.h2 
-            className="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-16"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.7 }}
-          >
-            Transform Your Learning with a
-            <span className="block text-blue-600">Proven Method</span>
-          </motion.h2>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {[
-              {
-                icon: Target,
-                title: "Personalized Learning",
-                description: "Adaptive challenges that grow with your child's skill level"
-              },
-              {
-                icon: BrainCircuit,
-                title: "Real-time Feedback",
-                description: "Instant insights to help students understand and improve"
-              },
-              {
-                icon: Sparkles,
-                title: "Gamified Experience",
-                description: "Make learning fun with achievements, streaks, and rewards"
-              }
-            ].map((feature, index) => (
-              <motion.div
-                key={index}
-                className="text-center p-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-gray-200 hover:shadow-lg transition-shadow"
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.8 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <feature.icon className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">{feature.title}</h3>
-                <p className="text-gray-600">{feature.description}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Footer CTA */}
-      <motion.div 
-        className="relative z-10 px-6 py-16 text-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8, delay: 1.2 }}
-      >
-        <div className="max-w-4xl mx-auto">
-          <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
-            Ready to Begin Your Math Adventure?
-          </h3>
-          <p className="text-lg text-gray-600 mb-8">
-            Join thousands of students discovering the joy of mathematics.
-          </p>
-          <Button 
-            size="lg"
-            onClick={() => navigate('/signup')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg rounded-xl transition-all transform hover:scale-105"
-          >
-            Get Started Free
-          </Button>
-        </div>
-      </motion.div>
+      </section>
     </div>
   );
 }
