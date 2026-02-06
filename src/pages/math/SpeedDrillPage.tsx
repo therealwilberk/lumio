@@ -9,6 +9,7 @@ import { Navbar } from '@/components/layout/Navbar';
 import { celebrate } from '@/components/ui/Celebration';
 import { StreakCounter } from '@/components/ui/StreakCounter';
 import { showNotification } from '@/lib/notifications';
+import { TimerRing } from '@/components/speed-drill/TimerRing';
 import { 
   ArrowLeft, 
   Zap, 
@@ -342,33 +343,28 @@ export function SpeedDrillPage() {
                 className="w-full max-w-2xl"
               >
                 {/* Timer and Progress */}
-                <div className="flex justify-between items-center mb-8 text-gray-600 dark:text-gray-400">
-                  <div className="flex items-center gap-2">
-                    <Timer className="h-5 w-5" />
-                    <span className="font-medium">Timer: {formatTime(currentTime)}</span>
+                <div className="flex justify-between items-center mb-8">
+                  <div className="flex flex-col items-center">
+                    <TimerRing elapsedMs={currentTime} />
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Time</p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    <span className="font-medium">Problems: {currentProblemIndex + 1}/{TOTAL_PROBLEMS}</span>
+                  
+                  {/* Problem Counter */}
+                  <div className="flex flex-col items-center">
+                    <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                      {currentProblemIndex + 1}
+                      <span className="text-gray-400 dark:text-gray-500">/{TOTAL_PROBLEMS}</span>
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Problems</p>
                   </div>
-                </div>
-
-                {/* Hidden Timer Ring for functionality only */}
-                <div className="hidden">
-                  <svg className="w-32 h-32 transform -rotate-90">
-                    <circle
-                      cx="64"
-                      cy="64"
-                      r="56"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="8"
-                      className={getTimerColor()}
-                      strokeDasharray={`${2 * Math.PI * 56}`}
-                      strokeDashoffset={`${2 * Math.PI * 56 * (1 - (currentTime / 60))}`}
-                      style={{ transition: 'stroke-dashoffset 0.5s ease' }}
-                    />
-                  </svg>
+                  
+                  {/* Best Streak */}
+                  <div className="flex flex-col items-center">
+                    <div className="text-4xl font-bold text-orange-500">
+                      {bestStreak}
+                    </div>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Best Streak</p>
+                  </div>
                 </div>
 
                 {/* Problem Display */}

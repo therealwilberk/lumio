@@ -2,7 +2,7 @@
 
 **Original File:** `misc/progress.md`  
 **Archive Created:** February 6, 2026 at 8:56 PM UTC+03:00  
-**Total Sections:** 18  
+**Total Sections:** 19  
 **Total Lines:** 992
 
 ---
@@ -45,6 +45,7 @@
 |---------|------|-------------|--------|
 | M5 | [16-milestone-05-animations.md](./16-milestone-05-animations.md) | UI Animation System - Make UI Feel Alive | ✅ Complete |
 | Bugfix | [17-bugfix-navbar-visibility.md](./17-bugfix-navbar-visibility.md) | Navbar Visibility Fix | ✅ Complete |
+| Feature | [18-feature-timer-ring.md](./18-feature-timer-ring.md) | Speed Drill Timer Ring | ✅ Complete |
 
 ---
 
