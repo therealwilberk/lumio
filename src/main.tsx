@@ -19,6 +19,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { AdditionPage } from '@/pages/math/AdditionPage';
+import { MathHubPage } from '@/pages/math/MathHubPage';
 import { SubjectsPage } from '@/pages/SubjectsPage';
 
 const queryClient = new QueryClient();
@@ -53,6 +54,15 @@ const router = createBrowserRouter([
     element: (
       <ProtectedRoute>
         <SubjectsPage />
+      </ProtectedRoute>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/math",
+    element: (
+      <ProtectedRoute>
+        <MathHubPage />
       </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,

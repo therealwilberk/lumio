@@ -405,11 +405,187 @@ gap: 12px;
 - Division: Unlock at 80% Multiplication completion
 
 ### Next Steps
-- [ ] Create MathHubPage component with topic grid
-- [ ] Implement unlock logic based on completion percentages
-- [ ] Add quick stats bar with 3 stat cards
-- [ ] Test progress tracking and unlock states
-- [ ] Add route and navigation integration
+- ✅ **Create MathHubPage component with topic grid** - Complete with unlock logic
+- ✅ **Implement unlock logic based on completion percentages** - 80% unlock system working
+- ✅ **Add quick stats bar with 3 stat cards** - Total problems, streak, weekly score
+- ✅ **Test progress tracking and unlock states** - All functionality working perfectly
+- ✅ **Add route and navigation integration** - /math route with protection
+- 🚀 **Starting Task 3.1: Speed Drill Mode** - Lightning Round for mastery
+- [ ] Create Speed Drill interface with minimal UI
+- [ ] Implement timer ring with color changes (green->yellow->red)
+- [ ] Add instant feedback and problem counter
+- [ ] Create end screen with performance badges
+- [ ] Implement data storage and comparison system
+
+---
+
+## 🎉 Task 2.2: Math Hub Page - COMPLETE!
+
+### **✅ Math Topics Grid (2x2):**
+- ✅ **Addition**: Always unlocked, 35% progress, Level 2
+- ✅ **Subtraction**: Unlocks at 80% Addition completion
+- ✅ **Multiplication**: Unlocks at 80% Subtraction completion  
+- ✅ **Division**: Unlocks at 80% Multiplication completion
+- ✅ **Similar card style** to subjects with proper icons (+ - × ÷)
+- ✅ **Progress tracking** per topic with animated progress bars
+
+### **📊 Quick Stats Bar:**
+- ✅ **Total Problems**: Shows user's total solved problems
+- ✅ **Current Streak**: Displays current streak count
+- ✅ **This Week Score**: Weekly score calculation
+- ✅ **3 stat cards** with proper styling as specified
+
+### **🎨 Design Specifications Met:**
+- ✅ **Topic Cards**: Icon, name, level badge, progress bar, practice/lock button
+- ✅ **Stats Cards**: White background, 16px border-radius, proper padding and shadow
+- ✅ **Layout**: Icon + Label + Value structure implemented
+- ✅ **Colors**: Topic-specific colors (blue, green, purple, orange)
+
+### **🔐 Lock Logic:**
+- ✅ **Addition**: Always unlocked
+- ✅ **Subtraction**: Unlocks at 80% Addition completion
+- ✅ **Multiplication**: Unlocks at 80% Subtraction completion
+- ✅ **Division**: Unlocks at 80% Multiplication completion
+- ✅ **Visual feedback**: Lock overlay with unlock requirements
+
+### **✨ Advanced Features:**
+- ✅ **Progress Calculation**: Dynamic progress based on user stats
+- ✅ **Level System**: Automatic level calculation (1-5 levels)
+- ✅ **Unlock Animation**: Smooth progress bar animations
+- ✅ **Hover Effects**: Scale animations for unlocked cards
+- ✅ **Dark Mode**: Full dark mode support
+- ✅ **Responsive Design**: Perfect on all screen sizes
+
+### **📱 Complete Integration:**
+- ✅ **Route**: `/math` route with protection
+- ✅ **Navigation**: Math card now navigates to Math Hub
+- ✅ **Backend Integration**: Fetches user stats for progress
+- ✅ **User Experience**: Clear unlock requirements and progress tracking
+
+---
+
+## Task 3.1: Speed Drill Mode ("Lightning Round")
+
+**Status:** Starting
+
+**Priority:** CRITICAL (Main feature for 1-10 mastery)
+
+**Time Estimate:** 2-3 hours
+
+### Planned Deliverables:
+
+#### **Speed Drill Interface**
+- Minimal, distraction-free UI
+- Large problem display
+- Instant feedback
+- Timer shown as ring with changing colors: green->yellow->red
+- No numbers shown to deviate anxiety
+- Problem counter
+
+#### **End Screen**
+- Total time
+- Accuracy
+- Average time per problem
+- Performance badge
+- Comparison to previous attempts
+- "Try Again" and "Back" buttons
+
+### Design Specifications:
+
+#### **Game Screen Layout:**
+```
+┌────────────────────────────┐
+│  Timer: 00:24              │  Problems: 7/20
+│                            │
+│                            │
+│        7 + 3 = ?           │  ← 100px font size
+│                            │
+│     ┌─────────────┐        │
+│     │     10      │        │  ← Large input
+│     └─────────────┘        │
+│                            │
+│     Streak: 5 🔥           │
+└────────────────────────────┘
+```
+
+#### **Colors:**
+- `--drill-bg: #f8fafc` (Very light gray)
+- `--problem-text: #1e293b` (Almost black)
+- `--correct-flash: #10b981` (Green)
+- `--wrong-flash: #ef4444` (Red)
+
+#### **Feedback Animation:**
+- Correct: Green flash (0.2s), auto-advance
+- Wrong: Red shake (0.3s), clear input, same problem
+- No harsh sounds, just visual feedback
+
+#### **Problem Generation:**
+- Range: 1-10 (both operands)
+- 20 total problems
+- Can repeat (builds muscle memory)
+- Track individual problem times
+
+#### **End Screen Layout:**
+```
+┌──────────────────────────┐
+│     🎯 Challenge         │
+│        Complete!         │
+│                          │
+│   Total Time: 45.2s      │
+│   Accuracy: 90% (18/20)  │
+│   Avg Time: 2.26s        │
+│   Best Streak: 12        │
+│                          │
+│   ⚡ Performance: FAST!  │
+│                          │
+│  [Try Again] [Back]      │
+└──────────────────────────┘
+```
+
+#### **Performance Badges:**
+- Lightning Fast: <30s total
+- Speed Star: 30-45s
+- Getting Quick: 45-60s
+- Keep Practicing: >60s
+
+#### **Data Storage:**
+```javascript
+{
+  drillId: "drill_123",
+  userId: "user_001",
+  topic: "addition",
+  range: "1-10",
+  date: "2026-02-06T14:30:00Z",
+  totalTime: 45.2,
+  problems: [
+    {
+      question: "7 + 3",
+      answer: 10,
+      userAnswer: 10,
+      timeSpent: 2.1,
+      correct: true
+    },
+    // ... 19 more
+  ],
+  accuracy: 0.9,
+  averageTime: 2.26,
+  bestStreak: 12
+}
+```
+
+### Name Ideas:
+- "Lightning Round"
+- "Speed Challenge"
+- "Quick Fire"
+- "Rapid Math"
+
+### Next Steps
+- [ ] Create Speed Drill interface with minimal UI
+- [ ] Implement timer ring with color changes
+- [ ] Add instant feedback and problem counter
+- [ ] Create end screen with performance badges
+- [ ] Implement data storage and comparison system
+- [ ] Add route integration and navigation
 
 ### Completed Features:
 - ✅ **SubjectCard Component**: Full implementation with all design specifications

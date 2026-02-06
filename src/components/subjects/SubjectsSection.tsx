@@ -16,8 +16,7 @@ export function SubjectsSection() {
       description: 'Master addition, subtraction, multiplication, and division with interactive challenges.',
       progress: 35,
       isUnlocked: true,
-      isComingSoon: false,
-      path: '/math/addition'
+      isComingSoon: false
     },
     {
       subject: 'kiswahili' as const,
@@ -25,8 +24,7 @@ export function SubjectsSection() {
       description: 'Learn Swahili language basics, vocabulary, and conversational skills.',
       progress: 0,
       isUnlocked: false,
-      isComingSoon: true,
-      path: '#'
+      isComingSoon: true
     },
     {
       subject: 'agriculture' as const,
@@ -34,8 +32,7 @@ export function SubjectsSection() {
       description: 'Explore farming concepts, plant science, and sustainable agriculture practices.',
       progress: 0,
       isUnlocked: false,
-      isComingSoon: true,
-      path: '#'
+      isComingSoon: true
     },
     {
       subject: 'english' as const,
@@ -43,17 +40,12 @@ export function SubjectsSection() {
       description: 'Improve reading, writing, grammar, and communication skills in English.',
       progress: 0,
       isUnlocked: false,
-      isComingSoon: true,
-      path: '#'
+      isComingSoon: true
     }
   ];
 
-  const handleContinue = (path: string) => {
-    navigate(path);
-  };
-
   return (
-    <section className="py-20 px-6 bg-white/50 backdrop-blur-sm">
+    <section className="py-20 px-6 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div
@@ -63,10 +55,10 @@ export function SubjectsSection() {
           transition={{ duration: 0.8 }}
           className="text-center mb-16"
         >
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-6">
             Choose Your Learning Path
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-3xl mx-auto">
             Master fundamental skills through engaging, interactive challenges designed for Grade 6 students.
           </p>
         </motion.div>
@@ -91,7 +83,11 @@ export function SubjectsSection() {
                 progress={subject.progress}
                 isUnlocked={subject.isUnlocked}
                 isComingSoon={subject.isComingSoon}
-                onContinue={() => handleContinue(subject.path)}
+                onContinue={() => {
+                  if (subject.subject === 'math') {
+                    navigate('/math');
+                  }
+                }}
               />
             </motion.div>
           ))}
@@ -105,35 +101,35 @@ export function SubjectsSection() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="mt-16"
         >
-          <div className="bg-white/80 backdrop-blur-sm border-0 shadow-xl p-8 rounded-3xl max-w-2xl mx-auto text-center">
-            <h3 className="text-2xl font-bold text-gray-900 mb-4">
+          <div className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-0 shadow-xl p-8 rounded-3xl max-w-2xl mx-auto text-center">
+            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
               Your Learning Journey
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="text-gray-600 dark:text-gray-300 mb-6">
               Track your progress across all subjects and unlock new content as you advance.
             </p>
             
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center">
-                <div className="text-2xl font-bold text-blue-600">1</div>
-                <div className="text-sm text-gray-600">Subjects Available</div>
+                <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">1</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Subjects Available</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">35%</div>
-                <div className="text-sm text-gray-600">Math Progress</div>
+                <div className="text-2xl font-bold text-green-600 dark:text-green-400">35%</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Math Progress</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-purple-600">0</div>
-                <div className="text-sm text-gray-600">Achievements</div>
+                <div className="text-2xl font-bold text-purple-600 dark:text-purple-400">0</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Achievements</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold text-orange-600">3</div>
-                <div className="text-sm text-gray-600">Coming Soon</div>
+                <div className="text-2xl font-bold text-orange-600 dark:text-orange-400">3</div>
+                <div className="text-sm text-gray-600 dark:text-gray-400">Coming Soon</div>
               </div>
             </div>
 
             {user && (
-              <div className="text-sm text-gray-500">
+              <div className="text-sm text-gray-500 dark:text-gray-400">
                 Keep learning to unlock more subjects and earn achievements!
               </div>
             )}

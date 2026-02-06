@@ -27,28 +27,32 @@ const subjectConfig = {
     secondary: '#2563eb',
     light: '#dbeafe',
     icon: Calculator,
-    gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)'
+    gradient: 'linear-gradient(135deg, #3b82f6, #2563eb)',
+    path: '/math'
   },
   kiswahili: {
     primary: '#ec4899',
     secondary: '#db2777',
     light: '#fce7f3',
     icon: BookOpen,
-    gradient: 'linear-gradient(135deg, #ec4899, #db2777)'
+    gradient: 'linear-gradient(135deg, #ec4899, #db2777)',
+    path: '#'
   },
   agriculture: {
     primary: '#10b981',
     secondary: '#059669',
     light: '#d1fae5',
     icon: Sprout,
-    gradient: 'linear-gradient(135deg, #10b981, #059669)'
+    gradient: 'linear-gradient(135deg, #10b981, #059669)',
+    path: '#'
   },
   english: {
     primary: '#f59e0b',
     secondary: '#d97706',
     light: '#fef3c7',
     icon: PenTool,
-    gradient: 'linear-gradient(135deg, #f59e0b, #d97706)'
+    gradient: 'linear-gradient(135deg, #f59e0b, #d97706)',
+    path: '#'
   }
 };
 
