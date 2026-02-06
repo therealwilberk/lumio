@@ -2,7 +2,7 @@
 
 **Original File:** `misc/progress.md`  
 **Archive Created:** February 6, 2026 at 8:56 PM UTC+03:00  
-**Total Sections:** 17  
+**Total Sections:** 18  
 **Total Lines:** 992
 
 ---
@@ -44,6 +44,7 @@
 | Section | File | Description | Status |
 |---------|------|-------------|--------|
 | M5 | [16-milestone-05-animations.md](./16-milestone-05-animations.md) | UI Animation System - Make UI Feel Alive | ✅ Complete |
+| Bugfix | [17-bugfix-navbar-visibility.md](./17-bugfix-navbar-visibility.md) | Navbar Visibility Fix | ✅ Complete |
 
 ---
 
