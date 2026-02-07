@@ -30,3 +30,9 @@
 ## Hero Component Location
 - `src/components/layout/Hero.tsx`
 - Integrated into `src/pages/HomePage.tsx`
+
+## Audit Files
+- `00-overview.md`: Summary of UI stack and structure.
+- `01-priority-issues.md`: Ranked list of improvements (Revised).
+- `02-hero-specific.md`: Deep dive into Hero animations and parallax.
+- `03-deep-dive-learning.md`: Deep dive into the educational interface and game loop.
