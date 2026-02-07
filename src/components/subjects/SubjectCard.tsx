@@ -2,14 +2,15 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { AnimatedButton } from '@/components/ui/AnimatedButton';
-import { 
-  Calculator, 
-  BookOpen, 
-  Sprout, 
-  PenTool, 
-  Lock, 
+import { CardContainer, CardBody, CardItem } from '@/components/ui/3d-card';
+import {
+  Calculator,
+  BookOpen,
+  Sprout,
+  PenTool,
+  Lock,
   TrendingUp,
-  ChevronRight 
+  ChevronRight
 } from 'lucide-react';
 
 export interface SubjectCardProps {
@@ -57,42 +58,34 @@ const subjectConfig = {
   }
 };
 
-export function SubjectCard({ 
-  subject, 
-  title, 
-  description, 
-  progress, 
-  isUnlocked, 
+export function SubjectCard({
+  subject,
+  title,
+  description,
+  progress,
+  isUnlocked,
   isComingSoon = false,
-  onContinue 
+  onContinue
 }: SubjectCardProps) {
   const config = subjectConfig[subject];
   const Icon = config.icon;
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, delay: 0.1 }}
-      whileHover={isUnlocked && !isComingSoon ? { y: -12, scale: 1.02 } : {}}
-      className="relative"
-    >
-      <div 
-        className="relative bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-xl border-4 border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 transition-all duration-300"
-      >
+    <CardContainer containerClassName="py-0" className="w-full">
+      <CardBody className="relative bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-xl border-4 border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 transition-all duration-300 w-full h-auto">
         {/* Coming Soon Badge */}
         {isComingSoon && (
-          <div 
+          <CardItem
+            translateZ="20"
             className="absolute top-4 right-4 bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-xs font-medium"
           >
             Coming Soon
-          </div>
+          </CardItem>
         )}
 
         {/* Lock Overlay */}
         {!isUnlocked && !isComingSoon && (
-          <div className="absolute inset-0 bg-black/20 rounded-[24px] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/20 rounded-[24px] flex items-center justify-center z-10">
             <div className="text-center">
               <Lock className="h-8 w-8 text-gray-600 mx-auto mb-2" />
               <p className="text-gray-600 font-medium">Locked</p>
@@ -103,23 +96,37 @@ export function SubjectCard({
         {/* Card Content */}
         <div className={`${!isUnlocked && !isComingSoon ? 'opacity-50' : ''}`}>
           {/* Icon */}
-          <div 
+          <CardItem
+            translateZ="50"
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner"
             style={{ backgroundColor: config.light }}
           >
-            <Icon 
+            <Icon
               className="h-8 w-8"
               style={{ color: config.primary }}
             />
-          </div>
+          </CardItem>
 
           {/* Title and Description */}
-          <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">{title}</h3>
-          <p className="text-gray-600 text-sm mb-6 leading-relaxed">{description}</p>
+          <CardItem
+            translateZ="60"
+            as="h3"
+            className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight"
+          >
+            {title}
+          </CardItem>
+
+          <CardItem
+            translateZ="40"
+            as="p"
+            className="text-gray-600 dark:text-gray-400 text-sm mb-6 leading-relaxed"
+          >
+            {description}
+          </CardItem>
 
           {/* Progress Bar */}
           {isUnlocked && !isComingSoon && (
-            <div className="mb-8">
+            <CardItem translateZ="80" className="mb-8">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
                   {progress === 0 ? "Not Started" : progress < 100 ? "In Progress" : "Mastered!"}
@@ -131,7 +138,7 @@ export function SubjectCard({
               <div className="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-3 overflow-hidden border border-gray-100 dark:border-gray-700">
                 <motion.div
                   className="h-full rounded-full shadow-inner"
-                  style={{ 
+                  style={{
                     background: config.gradient,
                     width: `${progress}%`
                   }}
@@ -140,44 +147,50 @@ export function SubjectCard({
                   transition={{ duration: 1.5, type: "spring" }}
                 />
               </div>
-            </div>
+            </CardItem>
           )}
 
           {/* Action Button */}
           {isUnlocked && !isComingSoon && (
-            <AnimatedButton
-              onClick={onContinue}
-              variant="primary"
-              className="w-full"
-            >
-              <span className="flex items-center justify-center gap-2">
-                Let's Practice!
-                <ChevronRight className="h-4 w-4" />
-              </span>
-            </AnimatedButton>
+            <CardItem translateZ="30" className="w-full">
+              <AnimatedButton
+                onClick={onContinue}
+                variant="primary"
+                className="w-full"
+              >
+                <span className="flex items-center justify-center gap-2">
+                  Let's Practice!
+                  <ChevronRight className="h-4 w-4" />
+                </span>
+              </AnimatedButton>
+            </CardItem>
           )}
 
           {isComingSoon && (
-            <AnimatedButton
-              disabled
-              variant="secondary"
-              className="w-full"
-            >
-              Coming Soon
-            </AnimatedButton>
+            <CardItem translateZ="30" className="w-full">
+              <AnimatedButton
+                disabled
+                variant="secondary"
+                className="w-full"
+              >
+                Coming Soon
+              </AnimatedButton>
+            </CardItem>
           )}
 
           {!isUnlocked && !isComingSoon && (
-            <AnimatedButton
-              disabled
-              variant="secondary"
-              className="w-full"
-            >
-              Locked
-            </AnimatedButton>
+            <CardItem translateZ="30" className="w-full">
+              <AnimatedButton
+                disabled
+                variant="secondary"
+                className="w-full"
+              >
+                Locked
+              </AnimatedButton>
+            </CardItem>
           )}
         </div>
-      </div>
-    </motion.div>
+      </CardBody>
+    </CardContainer>
   );
 }
