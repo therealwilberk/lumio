@@ -1,6 +1,6 @@
 # Hero Spline Overhaul
 
-**Version:** v1.1.0
+**Version:** v1.2.0
 **Created:** 2026-02-07
 **Status:** ✅ Completed
 
@@ -31,6 +31,10 @@
 - **Interactivity**
   - Adjusted pointer-events so that the hero overlay does not block Spline mouse tracking.
   - Buttons and key UI elements remain clickable while the rest of the hero surface is available to the Spline runtime.
+
+- **Mobile Composition**
+  - Added a responsive wrapper around the Spline canvas to slightly scale and shift the scene on small screens.
+  - Ensures the Lumio robot is fully visible on Android/phone viewports instead of being cropped at the top or bottom.
 
 ## Next Steps
 

@@ -76,6 +76,7 @@
 | v1.2.0 | 2026-02-07 | Added UI Stabilization & Polish milestone |
 | v1.3.0 | 2026-02-07 | Added Hero Spline Overhaul entry |
 | v1.3.1 | 2026-02-07 | Refined Hero Spline foreground behavior & interaction |
+| v1.3.2 | 2026-02-07 | Tweaked mobile Spline composition for better visibility |
 
 ---
 
