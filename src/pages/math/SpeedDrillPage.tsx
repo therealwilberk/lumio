@@ -11,6 +11,7 @@ import { StreakCounter } from '@/components/ui/StreakCounter';
 import { showNotification } from '@/lib/notifications';
 import { TimerRing } from '@/components/speed-drill/TimerRing';
 import { Numpad } from '@/components/speed-drill/Numpad';
+import { MascotDuck } from '@/components/ui/MascotDuck';
 import { 
   ArrowLeft, 
   Zap, 
