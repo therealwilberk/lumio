@@ -7,6 +7,8 @@ import { PlayfulFloatingElements } from '@/components/ui/FloatingElements';
 import { useNavigate } from 'react-router-dom';
 import { MascotDuck } from '@/components/ui/MascotDuck';
 import { BouncyText } from '@/components/ui/BouncyText';
+import { BackgroundBeams } from '@/components/ui/background-beams';
+import { SparklesCore } from '@/components/ui/sparkles';
 
 export function Hero() {
   const { user } = useAuth();
@@ -17,16 +19,12 @@ export function Hero() {
 
   const { scrollY } = useScroll();
 
-  // Use springs for smoother parallax
+  // Use springs for content fade/scale on scroll
   const smoothScrollY = useSpring(scrollY, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001
   });
-
-  const parallaxBack = useTransform(smoothScrollY, [0, 500], [0, 150]);
-  const parallaxMid = useTransform(smoothScrollY, [0, 500], [0, 250]);
-  const parallaxFront = useTransform(smoothScrollY, [0, 500], [0, 350]);
 
   const contentScale = useTransform(smoothScrollY, [0, 500], [1, 0.8]);
   const contentOpacity = useTransform(smoothScrollY, [0, 300], [1, 0]);
@@ -64,7 +62,7 @@ export function Hero() {
   }, [user]);
 
   return (
-    <div 
+    <div
       ref={heroRef}
       className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500"
       style={{ height: '100vh' }}
@@ -72,87 +70,27 @@ export function Hero() {
       {/* Navbar */}
       <Navbar />
 
+      {/* Aceternity Background Beams */}
+      <BackgroundBeams className="absolute inset-0 z-0" />
+
+      {/* Sparkles Layer */}
+      <div className="absolute inset-0 w-full h-full z-0">
+        <SparklesCore
+          id="hero-sparkles"
+          background="transparent"
+          minSize={0.4}
+          maxSize={1.2}
+          particleDensity={80}
+          className="w-full h-full"
+          particleColor="#FFFFFF"
+        />
+      </div>
+
+      {/* Gradient Background */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 dark:from-slate-950 dark:via-purple-950 dark:to-slate-950" />
+
       {/* Floating Background Elements */}
       <PlayfulFloatingElements />
-
-      {/* Drifting Clouds */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(5)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute opacity-40"
-            style={{
-              top: `${10 + i * 15}%`,
-              left: `-10%`,
-            }}
-            animate={{
-              x: ['0vw', '120vw'],
-            }}
-            transition={{
-              duration: 40 + i * 10,
-              repeat: Infinity,
-              ease: "linear",
-              delay: i * 5,
-            }}
-          >
-            <svg width="120" height="60" viewBox="0 0 120 60" fill="white">
-              <path d="M20,40 Q20,20 40,20 Q45,10 60,10 Q75,10 80,20 Q100,20 100,40 Q100,55 80,55 L40,55 Q20,55 20,40 Z" />
-            </svg>
-          </motion.div>
-        ))}
-      </div>
-
-      {/* Mountain Background */}
-      <div className="absolute inset-0">
-        {/* Sky gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-400 via-blue-300 to-orange-200 dark:from-blue-900 dark:via-blue-800 dark:to-orange-300" />
-        
-        {/* Mountain layers - Parallax effect */}
-        <motion.div
-          className="absolute bottom-0 left-0 right-0"
-          style={{ y: parallaxBack }}
-        >
-          {/* Back mountains */}
-          <svg viewBox="0 0 1440 400" className="w-full h-64 md:h-80">
-            <path
-              d="M0,200 L240,100 L480,150 L720,80 L960,120 L1200,60 L1440,140 L1440,400 L0,400 Z"
-              fill="#8B7CF6"
-              opacity="0.6"
-            />
-          </svg>
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-0 left-0 right-0"
-          style={{ y: parallaxMid }}
-        >
-          {/* Middle mountains */}
-          <svg viewBox="0 0 1440 400" className="w-full h-48 md:h-64">
-            <path
-              d="M0,250 L180,150 L360,200 L540,120 L720,180 L900,100 L1080,160 L1260,80 L1440,200 L1440,400 L0,400 Z"
-              fill="#6366F1"
-              opacity="0.7"
-            />
-          </svg>
-        </motion.div>
-
-        <motion.div
-          className="absolute bottom-0 left-0 right-0"
-          style={{ y: parallaxFront }}
-        >
-          {/* Front mountains */}
-          <svg viewBox="0 0 1440 400" className="w-full h-40 md:h-56">
-            <path
-              d="M0,300 L200,200 L400,250 L600,180 L800,220 L1000,160 L1200,200 L1440,180 L1440,400 L0,400 Z"
-              fill="#4F46E5"
-              opacity="0.8"
-            />
-          </svg>
-        </motion.div>
-
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-white/20 dark:from-black/20 via-transparent to-transparent" />
-      </div>
 
 
       {/* Mascot Duck */}
@@ -218,7 +156,7 @@ export function Hero() {
           >
             Let's Play!
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.1, rotate: -2 }}
             whileTap={{ scale: 0.9 }}
