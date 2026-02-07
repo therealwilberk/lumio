@@ -1,11 +1,10 @@
-import type { Session, Problem, DayActivity, PerformanceMetrics, SpeedSession } from '@shared/types';
+import type { Session, Problem, DayActivity, PerformanceMetrics, SpeedSession, DifficultyLevel } from '@shared/types';
 import {
     SECONDS_PER_HOUR,
     SECONDS_PER_MINUTE,
     MS_PER_DAY,
     DEFAULT_ACTIVITY_HEATMAP_DAYS,
-    SPEED_BENCHMARK_MAX_SECONDS,
-    SPEED_RANGE_SECONDS,
+    SPEED_BENCHMARKS,
     STREAK_CONSISTENCY_BENCHMARK_DAYS,
     CONSISTENCY_BASE_POINTS
 } from './math-config';
@@ -148,8 +147,15 @@ export function generateActivityHeatmap(problems: Problem[], days: number = DEFA
 
 /**
  * Calculate performance metrics for radar chart
+ * @param problems - List of problems solved
+ * @param streak - Current streak
+ * @param level - Difficulty level to use for benchmarks (defaults to medium)
  */
-export function calculatePerformanceMetrics(problems: Problem[], streak: number): PerformanceMetrics {
+export function calculatePerformanceMetrics(
+    problems: Problem[],
+    streak: number,
+    level: DifficultyLevel = 'medium'
+): PerformanceMetrics {
     if (problems.length === 0) {
         return {
             speed: 0,
@@ -160,9 +166,11 @@ export function calculatePerformanceMetrics(problems: Problem[], streak: number)
         };
     }
 
-    // Speed (benchmark: 10s is 0, 2s is 100)
+    const benchmark = SPEED_BENCHMARKS[level];
+
+    // Speed
     const avgTime = problems.reduce((sum, p) => sum + p.timeSpent, 0) / problems.length;
-    const speed = Math.max(0, Math.min(100, (SPEED_BENCHMARK_MAX_SECONDS - avgTime) / SPEED_RANGE_SECONDS * 100));
+    const speed = Math.max(0, Math.min(100, (benchmark.max - avgTime) / benchmark.range * 100));
 
     // Accuracy
     const accuracy = (problems.filter(p => p.correct).length / problems.length) * 100;

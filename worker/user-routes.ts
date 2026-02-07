@@ -282,7 +282,7 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
     // In a real app, we might store these pre-calculated, but recalculating ensures accuracy
     const totalTime = problems.reduce((sum, p) => sum + p.timeSpent, 0);
     const activityHeatmap = generateActivityHeatmap(problems);
-    const performanceMetrics = calculatePerformanceMetrics(problems, stats.streak);
+    const performanceMetrics = calculatePerformanceMetrics(problems, stats.streak, stats.difficulty);
 
     // Sort achievements
     const unlockedAchievements = ALL_ACHIEVEMENTS.filter(a => stats.achievements?.includes(a.id));

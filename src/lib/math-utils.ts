@@ -2,11 +2,13 @@ import {
   BRIDGE_BASE,
   FOUNDATION_MAX_SUM,
   BRIDGE_MAX_SUM,
+  PROBLEM_LIMITS,
   MAX_PROBLEM_GENERATION_RETRIES,
   MIN_OPERAND_VALUE,
   MIN_SUM_RATIO,
   FALLBACK_DIVISOR
 } from '@shared/math-config';
+import { DifficultyLevel } from '@shared/types';
 
 export interface MakeTenBreakdown {
   needs: number;
@@ -75,21 +77,40 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
 export function isBridgeThroughTen(n1: number, n2: number): boolean {
   return n1 % BRIDGE_BASE !== 0 && (n1 % BRIDGE_BASE + n2 % BRIDGE_BASE) > BRIDGE_BASE;
 }
-export function generateProblem(maxSum: number = BRIDGE_MAX_SUM, exclude?: { num1: number, num2: number }): { num1: number, num2: number } {
+/**
+ * Generate a math problem based on difficulty level or a specific max sum.
+ * @param difficultyOrMaxSum - Difficulty level (easy, medium, hard) or a number for max sum.
+ * @param exclude - Problem to exclude from generation.
+ */
+export function generateProblem(
+  difficultyOrMaxSum: DifficultyLevel | number = 'medium',
+  exclude?: { num1: number, num2: number }
+): { num1: number, num2: number } {
+  let min = MIN_OPERAND_VALUE;
+  let max = BRIDGE_MAX_SUM;
+
+  if (typeof difficultyOrMaxSum === 'number') {
+    max = difficultyOrMaxSum;
+  } else {
+    const limits = PROBLEM_LIMITS[difficultyOrMaxSum];
+    min = limits.min;
+    max = limits.max;
+  }
+
   const MAX_RETRY = MAX_PROBLEM_GENERATION_RETRIES;
   let attempts = 0;
   while (attempts < MAX_RETRY) {
     attempts++;
-    const n1 = Math.floor(Math.random() * (maxSum - MIN_OPERAND_VALUE)) + MIN_OPERAND_VALUE;
-    const n2 = Math.floor(Math.random() * (maxSum - n1)) + 1;
+    const n1 = Math.floor(Math.random() * (max - min)) + min;
+    const n2 = Math.floor(Math.random() * (max - n1)) + 1;
     const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
-    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * MIN_SUM_RATIO) { // Allow smaller sums slightly
+    if (n1 + n2 <= max && n1 + n2 >= max * MIN_SUM_RATIO) {
       if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
         return potential;
       }
     }
   }
-  return { num1: Math.max(1, Math.floor(maxSum / FALLBACK_DIVISOR)), num2: 1 };
+  return { num1: Math.max(min, Math.floor(max / FALLBACK_DIVISOR)), num2: 1 };
 }
 export function getProblemCategory(sum: number): string {
   if (sum <= FOUNDATION_MAX_SUM) return 'Foundation';
