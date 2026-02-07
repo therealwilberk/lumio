@@ -1,6 +1,6 @@
 # Lumio Hardcoded Values Audit
 
-This document lists hardcoded values, "magic numbers", and policy constants identified in the Lumio codebase (specifically `src/lib/` and `shared/`). These values are candidates for moving to a configuration file or environment variables to allow for easier tuning of game balance, difficulty, and app behavior.
+This document lists hardcoded values, "magic numbers", and policy constants identified in the Lumio codebase (specifically `src/lib/`, `shared/`, and `worker/`). These values are candidates for moving to a configuration file or environment variables to allow for easier tuning of game balance, difficulty, and app behavior.
 
 ## Math & Problem Generation
 
@@ -52,6 +52,27 @@ This document lists hardcoded values, "magic numbers", and policy constants iden
 | `shared/achievements.ts` | Accuracy Goals | 95%, 100% | Adjust difficulty of performance achievements. |
 | `shared/achievements.ts` | Streak Goals | 3, 7, 14, 30, 60 days | Match user retention targets. |
 | `shared/achievements.ts` | Time of Day | 8am, 8pm | Define "Early Bird" and "Night Owl" based on local norms. |
+
+## UI & Notifications
+
+| File | Line | Current Value | Description | Why Configurable |
+| :--- | :--- | :--- | :--- | :--- |
+| `src/lib/notifications.tsx` | 14-50 | (Colors/Icons) | Background colors and emojis for toast types | Brand tuning and localization. |
+| `src/lib/notifications.tsx` | 15-51 | (Durations) | Toast display durations (2-3s) | Adjust UX for readability/distraction. |
+| `src/lib/notifications.tsx` | 76, 81, 86, 91 | (Styles) | Border radius, padding, font size | Global UI consistency. |
+| `src/lib/notifications.tsx` | 104 | `${count} streak!` | Streak message template | Localization and personality tuning. |
+| `src/lib/notifications.tsx` | 106 | `Achievement unlocked: ${name}!` | Achievement message template | Localization. |
+
+## Backend & API (Worker)
+
+| File | Line | Current Value | Description | Why Configurable |
+| :--- | :--- | :--- | :--- | :--- |
+| `worker/entities.ts` | 39, 323 | `100` | Session log slice limit | Balance between history depth and storage performance. |
+| `worker/user-routes.ts` | 13 | `'lumio-secret-key...'` | JWT Secret | **Security**: Must be moved to environment variables. |
+| `worker/user-routes.ts` | 32 | `24 * 60 * 60 * 1000` | Token expiration (24h) | Security vs convenience policy. |
+| `worker/user-routes.ts` | 51, 55, 59, 63 | 3, 20, 4 | Auth validation rules | Policy for username/PIN length. |
+| `worker/user-routes.ts` | 240-251 | (Mock Data) | Hardcoded `speedTrend` data | Needs real implementation; candidates for test mocks. |
+| `worker/user-routes.ts` | 252-257 | (Mock Data) | Hardcoded `topicMastery` data | Needs real implementation; candidates for test mocks. |
 
 ## System & Infrastructure
 
