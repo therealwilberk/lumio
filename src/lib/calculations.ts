@@ -1,4 +1,5 @@
 // Calculation utilities for the app
+import { MS_PER_DAY } from '@shared/math-config';
 
 export function calculateAccuracy(problems: { correct: boolean }[]): number {
   if (problems.length === 0) return 0;
@@ -13,7 +14,7 @@ export function calculateStreak(sessions: { date: string }[]): number {
   const uniqueDates = Array.from(new Set(sessions.map(s => s.date))).sort().reverse();
 
   const today = new Date().toISOString().split('T')[0];
-  const yesterday = new Date(Date.now() - 86400000).toISOString().split('T')[0];
+  const yesterday = new Date(Date.now() - MS_PER_DAY).toISOString().split('T')[0];
 
   // If the latest session wasn't today or yesterday, streak is 0
   if (uniqueDates[0] !== today && uniqueDates[0] !== yesterday) {
@@ -27,7 +28,7 @@ export function calculateStreak(sessions: { date: string }[]): number {
     const sessionDate = uniqueDates[i];
 
     // Check if this date is exactly what we expect for a continuous streak
-    const expectedDate = new Date(new Date(uniqueDates[0]).getTime() - streak * 86400000).toISOString().split('T')[0];
+    const expectedDate = new Date(new Date(uniqueDates[0]).getTime() - streak * MS_PER_DAY).toISOString().split('T')[0];
 
     if (sessionDate === expectedDate) {
       streak++;
