@@ -12,32 +12,32 @@ export function SubjectsSection() {
   const subjects = [
     {
       subject: 'math' as const,
-      title: 'Mathematics',
-      description: 'Master addition, subtraction, multiplication, and division with interactive challenges.',
+      title: 'Math Adventure',
+      description: 'Level up your brain with fun plus, minus, and times tables challenges!',
       progress: 35,
       isUnlocked: true,
       isComingSoon: false
     },
     {
       subject: 'kiswahili' as const,
-      title: 'Kiswahili',
-      description: 'Learn Swahili language basics, vocabulary, and conversational skills.',
+      title: 'Kiswahili Zone',
+      description: 'Learn Swahili the fun way with new words and cool stories!',
       progress: 0,
       isUnlocked: false,
       isComingSoon: true
     },
     {
       subject: 'agriculture' as const,
-      title: 'Agriculture',
-      description: 'Explore farming concepts, plant science, and sustainable agriculture practices.',
+      title: 'Farm Science',
+      description: 'Discover the secrets of plants and how to grow your own garden!',
       progress: 0,
       isUnlocked: false,
       isComingSoon: true
     },
     {
       subject: 'english' as const,
-      title: 'English',
-      description: 'Improve reading, writing, grammar, and communication skills in English.',
+      title: 'Word Master',
+      description: 'Become a pro at reading and writing while discovering amazing new books!',
       progress: 0,
       isUnlocked: false,
       isComingSoon: true
@@ -45,7 +45,7 @@ export function SubjectsSection() {
   ];
 
   return (
-    <section className="py-20 px-6 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+    <section id="subjects-section" className="py-20 px-6 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
       <div className="max-w-7xl mx-auto">
         {/* Section Header */}
         <motion.div

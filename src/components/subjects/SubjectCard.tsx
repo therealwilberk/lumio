@@ -75,16 +75,11 @@ export function SubjectCard({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay: 0.1 }}
-      whileHover={isUnlocked && !isComingSoon ? { y: -8 } : {}}
+      whileHover={isUnlocked && !isComingSoon ? { y: -12, scale: 1.02 } : {}}
       className="relative"
     >
       <div 
-        className="relative bg-white rounded-[24px] p-8 shadow-lg transition-all duration-300 hover:shadow-2xl"
-        style={{
-          boxShadow: isUnlocked && !isComingSoon 
-            ? '0 4px 20px rgba(0, 0, 0, 0.08)' 
-            : '0 4px 20px rgba(0, 0, 0, 0.08)',
-        }}
+        className="relative bg-white dark:bg-gray-800 rounded-[2.5rem] p-8 shadow-xl border-4 border-transparent hover:border-blue-100 dark:hover:border-blue-900/30 transition-all duration-300"
       >
         {/* Coming Soon Badge */}
         {isComingSoon && (
@@ -109,40 +104,40 @@ export function SubjectCard({
         <div className={`${!isUnlocked && !isComingSoon ? 'opacity-50' : ''}`}>
           {/* Icon */}
           <div 
-            className="w-12 h-12 rounded-full flex items-center justify-center mb-6"
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-inner"
             style={{ backgroundColor: config.light }}
           >
             <Icon 
-              className="h-6 w-6"
+              className="h-8 w-8"
               style={{ color: config.primary }}
             />
           </div>
 
           {/* Title and Description */}
-          <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
+          <h3 className="text-2xl font-black text-gray-900 dark:text-white mb-2 uppercase tracking-tight">{title}</h3>
           <p className="text-gray-600 text-sm mb-6 leading-relaxed">{description}</p>
 
           {/* Progress Bar */}
           {isUnlocked && !isComingSoon && (
-            <div className="mb-6">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-600 font-medium">
-                  {progress === 0 ? "Let's get started!" : progress < 50 ? "Keep going!" : progress < 100 ? "Almost there!" : "You did it!"}
+            <div className="mb-8">
+              <div className="flex items-center justify-between mb-3">
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-bold uppercase tracking-wider">
+                  {progress === 0 ? "Not Started" : progress < 100 ? "In Progress" : "Mastered!"}
                 </span>
-                <span className="text-sm font-semibold" style={{ color: config.primary }}>
+                <span className="text-sm font-black" style={{ color: config.primary }}>
                   {progress}%
                 </span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-3 overflow-hidden border border-gray-100 dark:border-gray-700">
                 <motion.div
-                  className="h-full rounded-full"
+                  className="h-full rounded-full shadow-inner"
                   style={{ 
                     background: config.gradient,
                     width: `${progress}%`
                   }}
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
-                  transition={{ duration: 1, delay: 0.5 }}
+                  transition={{ duration: 1.5, type: "spring" }}
                 />
               </div>
             </div>

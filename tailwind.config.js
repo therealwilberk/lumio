@@ -90,6 +90,11 @@ export default {
   			sm: 'calc(var(--radius) - 4px)'
   		},
   		colors: {
+        midnight: {
+          DEFAULT: '#0f172a',
+          light: '#1e293b',
+          dark: '#020617',
+        },
   			background: 'hsl(var(--background))',
   			foreground: 'hsl(var(--foreground))',
   			muted: {

@@ -56,8 +56,8 @@ export function AnimatedButton({
       } : {}}
       transition={{ 
         type: 'spring', 
-        stiffness: 400, 
-        damping: 17 
+        stiffness: 250,
+        damping: 12
       }}
       disabled={disabled || isLoading}
       {...props}

@@ -10,6 +10,7 @@ import { celebrate } from '@/components/ui/Celebration';
 import { StreakCounter } from '@/components/ui/StreakCounter';
 import { showNotification } from '@/lib/notifications';
 import { TimerRing } from '@/components/speed-drill/TimerRing';
+import { Numpad } from '@/components/speed-drill/Numpad';
 import { 
   ArrowLeft, 
   Zap, 
@@ -75,6 +76,7 @@ export function SpeedDrillPage() {
   const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [drillResult, setDrillResult] = useState<DrillResult | null>(null);
   const [previousAttempts, setPreviousAttempts] = useState<PreviousAttempt[]>([]);
+  const [mascotMood, setMascotMood] = useState<'idle' | 'happy' | 'sad'>('idle');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const TOTAL_PROBLEMS = 20;
@@ -141,6 +143,7 @@ export function SpeedDrillPage() {
     if (answer === currentProblem.answer) {
       // Correct answer - trigger confetti!
       celebrate('correct');
+      setMascotMood('happy');
       
       // Show toast notification for streak milestones
       const newStreak = streak + 1;
@@ -160,6 +163,7 @@ export function SpeedDrillPage() {
       
       // Auto-advance after short delay
       setTimeout(() => {
+        setMascotMood('idle');
         if (currentProblemIndex < problems.length - 1) {
           setCurrentProblemIndex(currentProblemIndex + 1);
           setUserAnswer('');
@@ -170,19 +174,29 @@ export function SpeedDrillPage() {
           // Complete drill
           completeDrill();
         }
-      }, 200);
+      }, 400);
     } else {
       // Wrong answer
       setShowFeedback('wrong');
+      setMascotMood('sad');
       setStreak(0);
       
       // Shake animation and clear input
       setTimeout(() => {
+        setMascotMood('idle');
         setShowFeedback(null);
         setUserAnswer('');
         inputRef.current?.focus();
-      }, 300);
+      }, 400);
     }
+  };
+
+  const handleNumpadClick = (num: string) => {
+    setUserAnswer(prev => prev + num);
+  };
+
+  const handleNumpadDelete = () => {
+    setUserAnswer(prev => prev.slice(0, -1));
   };
 
   // Complete drill
@@ -277,10 +291,10 @@ export function SpeedDrillPage() {
   const currentProblem = problems[currentProblemIndex];
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
       <Navbar />
       
-      <div className="max-w-4xl mx-auto px-6 py-12 pt-24">
+      <div className="max-w-4xl mx-auto px-6 py-12 pt-24 relative z-10">
         {gameState === 'idle' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -335,73 +349,59 @@ export function SpeedDrillPage() {
         )}
 
         {(gameState === 'playing' || gameState === 'complete') && (
-          <div className="bg-gray-50 dark:bg-gray-900 min-h-screen flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center">
             {gameState === 'playing' && currentProblem && (
               <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-2xl"
               >
-                {/* Timer and Progress */}
-                <div className="flex justify-between items-center mb-8">
-                  <div className="flex flex-col items-center">
-                    <TimerRing elapsedMs={currentTime} />
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Time</p>
-                  </div>
-                  
-                  {/* Problem Counter */}
-                  <div className="flex flex-col items-center">
-                    <div className="text-4xl font-bold text-gray-900 dark:text-white">
-                      {currentProblemIndex + 1}
-                      <span className="text-gray-400 dark:text-gray-500">/{TOTAL_PROBLEMS}</span>
-                    </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Problems</p>
-                  </div>
-                  
-                  {/* Best Streak */}
-                  <div className="flex flex-col items-center">
-                    <div className="text-4xl font-bold text-orange-500">
-                      {bestStreak}
-                    </div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">Best Streak</p>
-                  </div>
-                </div>
+                {/* Game Board Container */}
+                <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border-4 border-blue-100 dark:border-blue-900/30 shadow-2xl rounded-[3rem] p-6 md:p-10 mb-8 relative overflow-hidden">
+                  {/* Decorative corner elements */}
+                  <div className="absolute top-0 left-0 w-20 h-20 bg-blue-500/10 rounded-br-[3rem]" />
+                  <div className="absolute bottom-0 right-0 w-20 h-20 bg-orange-500/10 rounded-tl-[3rem]" />
 
-                {/* Problem Display */}
-                <Card className="bg-white dark:bg-gray-800 border-0 shadow-xl p-8 rounded-2xl mb-8">
-                  <div className="text-center">
-                    <div 
-                      className="text-6xl md:text-8xl font-bold text-gray-900 dark:text-white mb-8"
-                      style={{ fontSize: '100px' }}
-                    >
-                      {currentProblem.question}
+                  {/* Header HUD */}
+                  <div className="grid grid-cols-3 gap-4 mb-10">
+                    <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/50 p-4 rounded-3xl border border-gray-100 dark:border-gray-700">
+                      <TimerRing elapsedMs={currentTime} size={80} strokeWidth={6} />
+                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2 uppercase tracking-wider">Time</p>
                     </div>
+
+                    <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-gray-900/50 p-4 rounded-3xl border border-gray-100 dark:border-gray-700">
+                      <div className="text-3xl font-black text-gray-900 dark:text-white">
+                        {currentProblemIndex + 1}
+                        <span className="text-gray-400">/{TOTAL_PROBLEMS}</span>
+                      </div>
+                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">Progress</p>
+                    </div>
+
+                    <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-gray-900/50 p-4 rounded-3xl border border-gray-100 dark:border-gray-700">
+                      <div className="text-3xl font-black text-orange-500">
+                        {bestStreak}
+                      </div>
+                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">Best</p>
+                    </div>
+                  </div>
+
+                  {/* Problem Display */}
+                  <div className="text-center relative py-10">
+                    <motion.div
+                      key={currentProblemIndex}
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      className="text-7xl md:text-9xl font-black text-gray-900 dark:text-white mb-12 tabular-nums tracking-tighter"
+                    >
+                      {currentProblem.question.replace(' = ?', '')}
+                    </motion.div>
                     
-                    <AnimatePresence mode="wait">
-                      {showFeedback === 'correct' && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: [0, 1, 0], scale: [0.8, 1.1, 1] }}
-                          exit={{ opacity: 0, scale: 0.8 }}
-                          className="absolute inset-0 bg-green-500 rounded-2xl"
-                          transition={{ duration: 0.2 }}
-                        />
-                      )}
-                      {showFeedback === 'wrong' && (
-                        <motion.div
-                          initial={{ opacity: 0, x: 0 }}
-                          animate={{ opacity: [0, 1, 1, 0], x: [0, -10, 10, -10, 0] }}
-                          exit={{ opacity: 0, x: 0 }}
-                          className="absolute inset-0 bg-red-500 rounded-2xl"
-                          transition={{ duration: 0.3 }}
-                        />
-                      )}
-                    </AnimatePresence>
-                    
-                    <div className="relative">
+                    <div className="relative flex flex-col items-center gap-6">
+                      <div className="text-4xl font-bold text-gray-400 mb-2">=</div>
                       <input
                         ref={inputRef}
                         type="number"
+                        inputMode="numeric"
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         onKeyPress={(e) => {
@@ -409,13 +409,42 @@ export function SpeedDrillPage() {
                             handleSubmit();
                           }
                         }}
-                        className="w-32 text-4xl font-bold text-center bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-xl py-4 text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500"
+                        className="w-full max-w-[240px] text-6xl font-black text-center bg-slate-100 dark:bg-gray-900 border-4 border-blue-200 dark:border-blue-800 rounded-3xl py-6 text-gray-900 dark:text-white focus:outline-none focus:ring-8 focus:ring-blue-500/20 transition-all no-spinner"
                         placeholder="?"
                         disabled={showFeedback !== null}
+                        autoFocus
                       />
+
+                      {/* Feedback Overlays */}
+                      <AnimatePresence>
+                        {showFeedback === 'correct' && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.5 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="absolute -top-20 text-6xl"
+                          >
+                            🌟
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                   </div>
-                </Card>
+
+                  {/* Mascot positioned relative to Game Board */}
+                  <div className="absolute -bottom-6 -right-6 hidden lg:block">
+                    <MascotDuck mood={mascotMood} className="w-40 h-40" />
+                  </div>
+                </div>
+
+                {/* Mobile Numpad */}
+                <div className="md:hidden mb-8">
+                  <Numpad
+                    onNumberClick={handleNumpadClick}
+                    onDelete={handleNumpadDelete}
+                    onSubmit={handleSubmit}
+                  />
+                </div>
 
                 {/* Streak Display */}
                 <div className="text-center">
