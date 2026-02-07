@@ -54,7 +54,7 @@ describe('Math Utilities', () => {
   describe('generateProblem', () => {
     it('respects maxSum', () => {
       for (let i = 0; i < 100; i++) {
-        const { num1, num2 } = generateProblem(20);
+        const { num1, num2 } = generateProblem('addition', 20);
         expect(num1 + num2).toBeLessThanOrEqual(20);
       }
     });
@@ -62,8 +62,17 @@ describe('Math Utilities', () => {
     it('respects exclude parameter', () => {
       const exclude = { num1: 10, num2: 5 };
       for (let i = 0; i < 100; i++) {
-        const problem = generateProblem(20, exclude);
+        const problem = generateProblem('addition', 20, exclude);
         expect(problem).not.toEqual(exclude);
+      }
+    });
+
+    it('generates subtraction problems correctly', () => {
+      for (let i = 0; i < 100; i++) {
+        const { num1, num2 } = generateProblem('subtraction', 'medium');
+        expect(num1).toBeGreaterThanOrEqual(num2);
+        expect(num1 - num2).toBeGreaterThanOrEqual(0);
+        expect(num1).toBeLessThanOrEqual(20); // Medium max is 20
       }
     });
   });

@@ -49,7 +49,7 @@ describe('Level-Aware Configuration', () => {
   describe('generateProblem', () => {
     it('respects easy problem limits (max 10)', () => {
       for (let i = 0; i < 50; i++) {
-        const problem = generateProblem('easy');
+        const problem = generateProblem('addition', 'easy');
         expect(problem.num1 + problem.num2).toBeLessThanOrEqual(PROBLEM_LIMITS.easy.max);
         expect(problem.num1).toBeGreaterThanOrEqual(PROBLEM_LIMITS.easy.min);
       }
@@ -58,7 +58,7 @@ describe('Level-Aware Configuration', () => {
     it('respects hard problem limits (max 100)', () => {
       let foundLarge = false;
       for (let i = 0; i < 100; i++) {
-        const problem = generateProblem('hard');
+        const problem = generateProblem('addition', 'hard');
         const sum = problem.num1 + problem.num2;
         expect(sum).toBeLessThanOrEqual(PROBLEM_LIMITS.hard.max);
         expect(problem.num1).toBeGreaterThanOrEqual(PROBLEM_LIMITS.hard.min);
@@ -68,7 +68,7 @@ describe('Level-Aware Configuration', () => {
     });
 
     it('maintains backward compatibility with number parameter', () => {
-      const problem = generateProblem(50);
+      const problem = generateProblem('addition', 50);
       expect(problem.num1 + problem.num2).toBeLessThanOrEqual(50);
     });
   });

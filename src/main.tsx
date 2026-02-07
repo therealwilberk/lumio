@@ -21,6 +21,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { SignupPage } from '@/pages/SignupPage';
 import { DashboardPage } from '@/pages/DashboardPage';
 import { AdditionPage } from '@/pages/math/AdditionPage';
+import { SubtractionPage } from '@/pages/math/SubtractionPage';
 import { MathHubPage } from '@/pages/math/MathHubPage';
 import { SpeedDrillPage } from '@/pages/math/SpeedDrillPage';
 import { RegularPracticePage } from '@/pages/math/RegularPracticePage';
@@ -35,6 +36,17 @@ const router = createBrowserRouter([
       <PageTransition>
         <HomePage />
       </PageTransition>
+    ),
+    errorElement: <RouteErrorBoundary />,
+  },
+  {
+    path: "/math/subtraction",
+    element: (
+      <ProtectedRoute>
+        <PageTransition>
+          <SubtractionPage />
+        </PageTransition>
+      </ProtectedRoute>
     ),
     errorElement: <RouteErrorBoundary />,
   },
