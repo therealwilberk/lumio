@@ -3,6 +3,8 @@
  * Moving hardcoded values here allows for easier tuning of game balance and difficulty.
  */
 
+import { DifficultyLevel } from './types';
+
 // Time Constants
 export const MS_PER_DAY = 86400000;
 export const SECONDS_PER_HOUR = 3600;
@@ -11,7 +13,15 @@ export const SECONDS_PER_MINUTE = 60;
 // Problem Generation & Categories
 export const BRIDGE_BASE = 10;
 export const FOUNDATION_MAX_SUM = 10;
-export const BRIDGE_MAX_SUM = 20;
+
+export const PROBLEM_LIMITS: Record<DifficultyLevel, { min: number; max: number }> = {
+  easy: { min: 2, max: 10 },
+  medium: { min: 2, max: 20 },
+  hard: { min: 10, max: 100 },
+};
+
+// Legacy support - default to medium
+export const BRIDGE_MAX_SUM = PROBLEM_LIMITS.medium.max;
 
 export const MAX_PROBLEM_GENERATION_RETRIES = 50;
 export const MIN_OPERAND_VALUE = 2;
@@ -29,7 +39,21 @@ export const DIVISION_SCORE_OFFSET = 300;
 
 // Performance Metrics & KPI Defaults
 export const DEFAULT_ACTIVITY_HEATMAP_DAYS = 90;
-export const SPEED_BENCHMARK_MAX_SECONDS = 10;
-export const SPEED_RANGE_SECONDS = 8;
+
+export interface SpeedBenchmark {
+  max: number;
+  range: number;
+}
+
+export const SPEED_BENCHMARKS: Record<DifficultyLevel, SpeedBenchmark> = {
+  easy: { max: 15, range: 12 },    // 15s is 0, 3s is 100
+  medium: { max: 10, range: 8 },    // 10s is 0, 2s is 100
+  hard: { max: 5, range: 4 },       // 5s is 0, 1s is 100
+};
+
+// Legacy support
+export const SPEED_BENCHMARK_MAX_SECONDS = SPEED_BENCHMARKS.medium.max;
+export const SPEED_RANGE_SECONDS = SPEED_BENCHMARKS.medium.range;
+
 export const STREAK_CONSISTENCY_BENCHMARK_DAYS = 30;
 export const CONSISTENCY_BASE_POINTS = 50;
