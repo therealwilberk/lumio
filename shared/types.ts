@@ -62,6 +62,8 @@ export interface Problem {
   timeSpent: number; // seconds
   hintsUsed: number;
   timestamp: Date;
+  num1?: number;
+  num2?: number;
 }
 
 // Achievement system

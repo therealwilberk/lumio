@@ -45,7 +45,7 @@ const customLogger = {
   hasErrorLogged: () => false,
 
   // Keep these as-is
-  clearScreen: () => {},
+  clearScreen: () => { },
   hasWarned: false,
 };
 
@@ -123,10 +123,6 @@ export default ({ mode }: { mode: string }) => {
     server: {
       allowedHosts: true,
       strictPort: true,
-      hmr: {
-        host: '192.168.100.75',
-        port: 3000,
-      },
       watch: {
         awaitWriteFinish: {
           stabilityThreshold: 150,

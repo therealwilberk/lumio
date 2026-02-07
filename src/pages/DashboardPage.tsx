@@ -13,6 +13,9 @@ import { PerformanceRadar } from '@/components/dashboard/PerformanceRadar';
 import { AchievementBadge } from '@/components/dashboard/AchievementBadge';
 import { ALL_ACHIEVEMENTS } from '@shared/achievements';
 import { MascotDuck } from '@/components/ui/MascotDuck';
+import { SpeedTrendChart } from '@/components/dashboard/SpeedTrendChart';
+import { TopicMasteryCircles } from '@/components/dashboard/TopicMasteryCircles';
+import { BadgeUnlockModal } from '@/components/dashboard/BadgeUnlockModal';
 import {
   AlertTriangle,
   Download
@@ -31,12 +34,21 @@ export function DashboardPage() {
   // Dashboard data
   const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
+  const [newUnlock, setNewUnlock] = useState<AchievementType | null>(null);
+
+  // Derived state for charts
+  const speedTrend = dashboardData?.charts.speedTrend || [];
+  const topicMastery = dashboardData?.charts.topicMastery || [];
 
   useEffect(() => {
     if (user) {
       api<DashboardResponse>(`/api/dashboard/${user.id}`)
         .then((data) => {
           setDashboardData(data);
+          // Check for recent unlocks (simulated for now, or if API returns them)
+          if (data.achievements.recentUnlocks.length > 0) {
+            setNewUnlock(data.achievements.recentUnlocks[0]);
+          }
         })
         .catch(console.error)
         .finally(() => setLoading(false));
@@ -153,6 +165,17 @@ export function DashboardPage() {
           {performanceMetrics && <PerformanceRadar metrics={performanceMetrics} />}
         </motion.div>
 
+        {/* Secondary Charts Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
+        >
+          <SpeedTrendChart data={speedTrend} />
+          <TopicMasteryCircles data={topicMastery} />
+        </motion.div>
+
         {/* Bottom Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Trouble Spots */}
@@ -240,6 +263,12 @@ export function DashboardPage() {
           </motion.div>
         </div>
       </div>
+      {/* Modals */}
+      <BadgeUnlockModal
+        achievement={newUnlock}
+        isOpen={!!newUnlock}
+        onClose={() => setNewUnlock(null)}
+      />
     </div>
   );
 }

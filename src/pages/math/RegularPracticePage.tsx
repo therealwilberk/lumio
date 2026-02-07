@@ -6,8 +6,10 @@ import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import type { StudentStats } from '@shared/types';
-import { api } from '@/lib/api-client';
+import { api, completeSession } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { BadgeUnlockModal } from '@/components/dashboard/BadgeUnlockModal';
+import type { Problem as SharedProblem, Session as SharedSession, Achievement } from '@shared/types';
 import { Spotlight } from '@/components/ui/spotlight';
 import { Meteors } from '@/components/ui/meteors';
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
@@ -15,11 +17,11 @@ import { MascotDuck } from '@/components/ui/MascotDuck';
 import { celebrate } from '@/components/ui/Celebration';
 import { DotGroup } from '@/components/ui/DotGroup';
 import { Plus } from 'lucide-react';
-import { 
-  ArrowLeft, 
-  Target, 
-  Trophy, 
-  RotateCcw, 
+import {
+  ArrowLeft,
+  Target,
+  Trophy,
+  RotateCcw,
   Timer,
   Flame,
   Lightbulb,
@@ -59,7 +61,7 @@ interface PracticeSession {
 export function RegularPracticePage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  
+
   // Game state
   const [gameState, setGameState] = useState<'idle' | 'playing' | 'complete'>('idle');
   const [currentProblem, setCurrentProblem] = useState<Problem | null>(null);
@@ -76,11 +78,17 @@ export function RegularPracticePage() {
     correctAnswers: 0,
     hintsUsed: 0
   });
-  
+
   // Settings
   const [showVisualHelpers, setShowVisualHelpers] = useState(true);
   const [problemStartTime, setProblemStartTime] = useState<number>(0);
   const [sessionStartTime, setSessionStartTime] = useState<number>(0);
+  // Session Data for API
+  const [problemHistory, setProblemHistory] = useState<SharedProblem[]>([]);
+  const [newAchievements, setNewAchievements] = useState<Achievement[]>([]);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Level definitions
@@ -128,7 +136,7 @@ export function RegularPracticePage() {
     const { min, max } = level.range;
     const num1 = Math.floor(Math.random() * (max - min + 1)) + min;
     const num2 = Math.floor(Math.random() * (max - min + 1)) + min;
-    
+
     return {
       question: `${num1} + ${num2} = ?`,
       answer: num1 + num2,
@@ -144,8 +152,11 @@ export function RegularPracticePage() {
     const newProblem = generateProblem(currentLevel);
     setCurrentProblem(newProblem);
     setUserAnswer('');
+    setCurrentProblem(newProblem);
+    setUserAnswer('');
     setProblemStartTime(Date.now());
     setSessionStartTime(Date.now());
+    setProblemHistory([]); // Reset history
     setSession({
       ...session,
       problemsSolved: 0,
@@ -158,7 +169,7 @@ export function RegularPracticePage() {
     setGameState('playing');
     setShowFeedback(null);
     setShowHint(false);
-    
+
     // Focus input
     setTimeout(() => {
       inputRef.current?.focus();
@@ -168,7 +179,7 @@ export function RegularPracticePage() {
   // Update timer
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
+
     if (gameState === 'playing') {
       interval = setInterval(() => {
         setSession(prev => ({
@@ -177,7 +188,7 @@ export function RegularPracticePage() {
         }));
       }, 100);
     }
-    
+
     return () => {
       if (interval) clearInterval(interval);
     };
@@ -186,16 +197,34 @@ export function RegularPracticePage() {
   // Handle answer submission
   const handleSubmit = () => {
     if (!currentProblem || !userAnswer.trim()) return;
-    
+
     const answer = parseInt(userAnswer);
     const timeSpent = (Date.now() - problemStartTime) / 1000;
     const isCorrect = answer === currentProblem.answer;
-    
+
+    const problemRecord: any = {
+      id: crypto.randomUUID(),
+      sessionId: 'current',
+      subject: 'math',
+      topic: 'addition', // Could be dynamic based on level
+      question: currentProblem.question,
+      correctAnswer: currentProblem.answer,
+      userAnswer: answer,
+      correct: isCorrect,
+      timeSpent: timeSpent,
+      hintsUsed: showHint ? 1 : 0,
+      timestamp: new Date(),
+      num1: currentProblem.num1,
+      num2: currentProblem.num2
+    };
+
+    setProblemHistory(prev => [...prev, problemRecord]);
+
     if (isCorrect) {
       // Calculate points
       let points = 10;
       if (timeSpent < 10) points += 5; // Time bonus
-      
+
       celebrate('correct');
       setMascotMood('happy');
       setShowFeedback('correct');
@@ -207,7 +236,7 @@ export function RegularPracticePage() {
         correctAnswers: prev.correctAnswers + 1,
         timeSpent: prev.timeSpent + timeSpent
       }));
-      
+
       // Auto-advance after short delay
       setTimeout(() => {
         setMascotMood('idle');
@@ -223,7 +252,7 @@ export function RegularPracticePage() {
         problemsSolved: prev.problemsSolved + 1,
         timeSpent: prev.timeSpent + timeSpent
       }));
-      
+
       // Shake animation and clear input
       setTimeout(() => {
         setMascotMood('idle');
@@ -234,8 +263,48 @@ export function RegularPracticePage() {
     }
   };
 
+  const finishSession = async () => {
+    setIsSubmitting(true);
+    try {
+      const result = await completeSession({
+        userId: user!.id,
+        session: {
+          id: crypto.randomUUID(),
+          userId: user!.id,
+          subject: 'math',
+          topic: 'addition',
+          mode: 'practice',
+          startTime: new Date(sessionStartTime),
+          endTime: new Date(),
+          totalTime: (Date.now() - sessionStartTime) / 1000,
+          problems: problemHistory
+        }
+      });
+
+      if (result.newAchievements && result.newAchievements.length > 0) {
+        setNewAchievements(result.newAchievements);
+        setShowUnlockModal(true);
+        celebrate('achievement');
+      }
+
+      setGameState('complete');
+    } catch (error) {
+      console.error('Failed to save session:', error);
+      // Still show complete screen even if save fails
+      setGameState('complete');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   // Next problem
   const nextProblem = () => {
+    // End session after 10 problems
+    if (session.problemsSolved >= 10) {
+      finishSession();
+      return;
+    }
+
     const newProblem = generateProblem(currentLevel);
     setCurrentProblem(newProblem);
     setUserAnswer('');
@@ -284,9 +353,9 @@ export function RegularPracticePage() {
         className="-top-40 left-0 md:left-60 md:-top-20"
         fill="white"
       />
-      
+
       <Navbar />
-      
+
       <div className="max-w-4xl mx-auto px-6 py-12 pt-24 flex flex-col items-center">
         {gameState === 'idle' && (
           <motion.div
@@ -299,15 +368,15 @@ export function RegularPracticePage() {
                 <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto">
                   <Target className="h-8 w-8 text-white" />
                 </div>
-                
+
                 <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
                   Regular Practice
                 </h1>
-                
+
                 <p className="text-gray-600 dark:text-gray-300 mb-8">
                   Progress through levels and master addition at your own pace.
                 </p>
-                
+
                 <div className="space-y-4">
                   <div className="text-sm text-gray-500 dark:text-gray-400">
                     <strong>Current Level:</strong> {currentLevel.name}
@@ -319,7 +388,7 @@ export function RegularPracticePage() {
                     <strong>Progress:</strong> {session.score} points
                   </div>
                 </div>
-                
+
                 <Button
                   onClick={startPractice}
                   className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
@@ -327,7 +396,7 @@ export function RegularPracticePage() {
                   <Target className="h-5 w-5" />
                   Start Practice
                 </Button>
-                
+
                 <Button
                   variant="outline"
                   onClick={() => navigate('/math')}
@@ -381,70 +450,70 @@ export function RegularPracticePage() {
               <Meteors number={20} />
               <div className="relative z-10">
                 <div className="text-center">
-                  <div 
+                  <div
                     className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6"
                   >
-                  {currentProblem.question}
-                </div>
-                
-                {/* Visual Helpers */}
-                {showVisualHelpers && currentProblem && (
-                  <div className="flex justify-center gap-12 mb-8 relative z-10">
-                    <DotGroup
-                      count={currentProblem.num1}
-                      color="blue"
-                      minRows={Math.max(Math.ceil(currentProblem.num1/5), Math.ceil(currentProblem.num2/5))}
-                    />
-                    <div className="flex items-center">
-                      <Plus className="h-8 w-8 text-gray-400" />
+                    {currentProblem.question}
+                  </div>
+
+                  {/* Visual Helpers */}
+                  {showVisualHelpers && currentProblem && (
+                    <div className="flex justify-center gap-12 mb-8 relative z-10">
+                      <DotGroup
+                        count={currentProblem.num1}
+                        color="blue"
+                        minRows={Math.max(Math.ceil(currentProblem.num1 / 5), Math.ceil(currentProblem.num2 / 5))}
+                      />
+                      <div className="flex items-center">
+                        <Plus className="h-8 w-8 text-gray-400" />
+                      </div>
+                      <DotGroup
+                        count={currentProblem.num2}
+                        color="purple"
+                        minRows={Math.max(Math.ceil(currentProblem.num1 / 5), Math.ceil(currentProblem.num2 / 5))}
+                      />
                     </div>
-                    <DotGroup
-                      count={currentProblem.num2}
-                      color="purple"
-                      minRows={Math.max(Math.ceil(currentProblem.num1/5), Math.ceil(currentProblem.num2/5))}
+                  )}
+
+                  <AnimatePresence mode="wait">
+                    {showFeedback === 'correct' && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1.1, 1] }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl"
+                        transition={{ duration: 0.5 }}
+                      />
+                    )}
+                    {showFeedback === 'wrong' && (
+                      <motion.div
+                        initial={{ opacity: 0, x: 0 }}
+                        animate={{ opacity: [0, 1, 1, 0], x: [0, -10, 10, -10, 0] }}
+                        exit={{ opacity: 0, x: 0 }}
+                        className="absolute inset-0 border-2 border-red-500 rounded-2xl"
+                        transition={{ duration: 0.3 }}
+                      />
+                    )}
+                  </AnimatePresence>
+
+                  <div className="relative">
+                    <input
+                      ref={inputRef}
+                      type="number"
+                      value={userAnswer}
+                      onChange={(e) => setUserAnswer(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === 'Enter') {
+                          handleSubmit();
+                        }
+                      }}
+                      className="w-32 text-2xl font-bold text-center bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-xl py-4 text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500"
+                      placeholder="?"
+                      disabled={showFeedback !== null}
                     />
                   </div>
-                )}
-                
-                <AnimatePresence mode="wait">
-                  {showFeedback === 'correct' && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: [0, 1, 1, 0], scale: [0.8, 1.1, 1] }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="absolute inset-0 bg-gradient-to-r from-green-500 to-green-600 rounded-2xl"
-                      transition={{ duration: 0.5 }}
-                    />
-                  )}
-                  {showFeedback === 'wrong' && (
-                    <motion.div
-                      initial={{ opacity: 0, x: 0 }}
-                      animate={{ opacity: [0, 1, 1, 0], x: [0, -10, 10, -10, 0] }}
-                      exit={{ opacity: 0, x: 0 }}
-                      className="absolute inset-0 border-2 border-red-500 rounded-2xl"
-                      transition={{ duration: 0.3 }}
-                    />
-                  )}
-                </AnimatePresence>
-                
-                <div className="relative">
-                  <input
-                    ref={inputRef}
-                    type="number"
-                    value={userAnswer}
-                    onChange={(e) => setUserAnswer(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter') {
-                        handleSubmit();
-                      }
-                    }}
-                    className="w-32 text-2xl font-bold text-center bg-gray-100 dark:bg-gray-700 border-2 border-gray-300 dark:border-gray-600 rounded-xl py-4 text-gray-900 dark:text-white focus:outline-none focus:ring-4 focus:ring-blue-500"
-                    placeholder="?"
-                    disabled={showFeedback !== null}
-                  />
                 </div>
               </div>
-            </div>
             </Card>
 
             {/* Mascot positioned relative to Game Board */}
@@ -466,7 +535,7 @@ export function RegularPracticePage() {
                   {showHint && <span className="text-xs ml-2">(-5 pts)</span>}
                 </Button>
               </AnimatedTooltip>
-              
+
               <AnimatedTooltip items={[{ id: 2, name: "Settings", designation: "Toggle helpers", image: "" }]}>
                 <Button
                   variant="outline"
@@ -521,11 +590,11 @@ export function RegularPracticePage() {
                 <div className="w-20 h-20 bg-gradient-to-br from-yellow-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
                   <Trophy className="h-10 w-10 text-white" />
                 </div>
-                
+
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
                   Practice Complete!
                 </h2>
-                
+
                 {/* Stats */}
                 <div className="space-y-3 text-left">
                   <div className="flex justify-between">
@@ -559,7 +628,7 @@ export function RegularPracticePage() {
                     </span>
                   </div>
                 </div>
-                
+
                 {/* Performance Message */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-6">
                   <Zap className="h-5 w-5 text-white" />
@@ -567,7 +636,7 @@ export function RegularPracticePage() {
                     {session.score >= 100 ? 'Excellent!' : session.score >= 50 ? 'Great Job!' : 'Keep Practicing!'}
                   </span>
                 </div>
-                
+
                 {/* Action Buttons */}
                 <div className="flex gap-4 justify-center">
                   {session.level < levels.length ? (
@@ -587,7 +656,7 @@ export function RegularPracticePage() {
                       Practice Again
                     </Button>
                   )}
-                  
+
                   <Button
                     variant="outline"
                     onClick={() => navigate('/math')}
@@ -602,6 +671,12 @@ export function RegularPracticePage() {
           </motion.div>
         )}
       </div>
+
+      <BadgeUnlockModal
+        isOpen={showUnlockModal}
+        onClose={() => setShowUnlockModal(false)}
+        achievement={newAchievements[0] || null}
+      />
     </div>
   );
 }
