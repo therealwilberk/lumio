@@ -2,7 +2,7 @@
 
 **Original File:** `misc/progress.md`  
 **Archive Created:** February 6, 2026 at 8:56 PM UTC+03:00  
-**Total Sections:** 21
+**Total Sections:** 22
 **Total Lines:** 1010
 
 ---
@@ -57,6 +57,7 @@
 | Section | File | Description | Status |
 |---------|------|-------------|--------|
 | M21 | [21-ui-stabilization-pass.md](./21-ui-stabilization-pass.md) | UI Stabilization & Polish Pass | ✅ Complete |
+| Hero | [28-hero-spline-overhaul.md](./28-hero-spline-overhaul.md) | Homepage Hero Spline Overhaul | ✅ Complete |
 
 ---
 
@@ -73,6 +74,7 @@
 | v1.0.0 | 2026-02-06 | Initial archive creation from progress.md |
 | v1.1.0 | 2026-02-06 | Added Core Math Test Coverage milestone |
 | v1.2.0 | 2026-02-07 | Added UI Stabilization & Polish milestone |
+| v1.3.0 | 2026-02-07 | Added Hero Spline Overhaul entry |
 
 ---
 
