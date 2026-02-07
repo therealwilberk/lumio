@@ -26,6 +26,10 @@ export interface StudentStats {
   lastSolvedAt: number;
   difficulty: DifficultyLevel;
   sessionLogs: SolveLog[];
+  // Dashboard Data
+  achievements: string[]; // IDs of unlocked achievements
+  performanceMetrics: PerformanceMetrics;
+  dayActivity: DayActivity[];
 }
 
 // ============================================

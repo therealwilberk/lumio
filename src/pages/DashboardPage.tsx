@@ -4,14 +4,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
-import type { StudentStats, DayActivity as DayActivityType, PerformanceMetrics, Achievement as AchievementType } from '@shared/types';
+import type { StudentStats, DayActivity as DayActivityType, PerformanceMetrics, Achievement as AchievementType, DashboardResponse } from '@shared/types';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { KPIGrid } from '@/components/dashboard/KPICards';
 import { ActivityHeatmap } from '@/components/dashboard/ActivityHeatmap';
 import { PerformanceRadar } from '@/components/dashboard/PerformanceRadar';
 import { AchievementBadge } from '@/components/dashboard/AchievementBadge';
-import { ALL_ACHIEVEMENTS } from '@/lib/achievements';
+import { ALL_ACHIEVEMENTS } from '@shared/achievements';
 import { MascotDuck } from '@/components/ui/MascotDuck';
 import {
   AlertTriangle,
@@ -28,103 +28,20 @@ interface TroubleSpot {
 export function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [stats, setStats] = useState<StudentStats | null>(null);
-  const [loading, setLoading] = useState(true);
-
   // Dashboard data
-  const [dailyActivity, setDailyActivity] = useState<DayActivityType[]>([]);
-  const [performanceMetrics, setPerformanceMetrics] = useState<PerformanceMetrics | null>(null);
-  const [troubleSpots, setTroubleSpots] = useState<TroubleSpot[]>([]);
-  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [dashboardData, setDashboardData] = useState<DashboardResponse | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (user) {
-      Promise.all([
-        api<StudentStats>(`/api/student/${user.id}`),
-        api<DailyActivity[]>(`/api/student/${user.id}/daily-activity`),
-        api<SpeedTrend[]>(`/api/student/${user.id}/speed-trend`),
-        api<TroubleSpot[]>(`/api/student/${user.id}/trouble-spots`),
-        api<Achievement[]>(`/api/student/${user.id}/achievements`)
-      ])
-        .then(([statsData, activityData, speedData, troubleData, achievementData]) => {
-          setStats(statsData);
-          setDailyActivity(activityData);
-          setSpeedTrend(speedData);
-          setTroubleSpots(troubleData);
-          setAchievements(achievementData);
+      api<DashboardResponse>(`/api/dashboard/${user.id}`)
+        .then((data) => {
+          setDashboardData(data);
         })
         .catch(console.error)
         .finally(() => setLoading(false));
     }
   }, [user]);
-
-  // Mock data for development
-  useEffect(() => {
-    if (!loading && !stats) {
-      setStats({
-        id: user?.id || 'demo-user',
-        streak: 5,
-        highScore: 240,
-        totalScore: 1250,
-        totalSolved: 287,
-        lastSolvedAt: Date.now(),
-        difficulty: 'medium',
-        sessionLogs: []
-      });
-
-      // Generate last 7 days of activity
-      const today = new Date();
-      const mockActivity: DayActivityType[] = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date(today);
-        date.setDate(date.getDate() - i);
-        mockActivity.push({
-          date: date.toISOString().split('T')[0],
-          problemCount: Math.floor(Math.random() * 30) + 10,
-          practiceTime: Math.floor(Math.random() * 300) + 180,
-          subjects: ['math']
-        });
-      }
-      setDailyActivity(mockActivity);
-
-      setPerformanceMetrics({
-        speed: 85,
-        accuracy: 90,
-        consistency: 75,
-        problemSolving: 80,
-        mentalMath: 88
-      });
-
-      setTroubleSpots([
-        { problem: '8 + 7 = ?', missed: 3, total: 5, failureRate: 60 },
-        { problem: '9 + 6 = ?', missed: 2, total: 4, failureRate: 50 },
-        { problem: '7 + 8 = ?', missed: 2, total: 6, failureRate: 33 },
-        { problem: '6 + 9 = ?', missed: 1, total: 4, failureRate: 25 }
-      ]);
-
-      setUnlockedAchievements(['first_steps', 'getting_started', 'daily_learner']);
-    }
-  }, [loading, stats, user]);
-
-  const displayStats = stats || {
-    streak: 0,
-    highScore: 0,
-    totalScore: 0,
-    totalSolved: 0,
-  };
-
-  // Calculate derived stats
-  const totalPracticeTime = dailyActivity.reduce((sum, day) => sum + day.practiceTime, 0);
-  const accuracyRate = performanceMetrics?.accuracy || 0;
-
-  const formatTime = (seconds: number): string => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    if (hours > 0) {
-      return `${hours}h ${minutes}m`;
-    }
-    return `${minutes}m`;
-  };
 
   if (loading) {
     return (
@@ -140,6 +57,26 @@ export function DashboardPage() {
     );
   }
 
+  // Use dashboard data or fallbacks
+  const kpis = dashboardData?.kpis || {
+    totalTime: '0m',
+    totalProblems: 0,
+    accuracy: 0,
+    streak: 0
+  };
+
+  const activityData = dashboardData?.charts.activityHeatmap || [];
+  const performanceMetrics = dashboardData?.charts.performanceRadar || {
+    speed: 0,
+    accuracy: 0,
+    consistency: 0,
+    problemSolving: 0,
+    mentalMath: 0
+  };
+
+  const troubleSpots = dashboardData?.troubleSpots || [];
+  const unlockedAchievementIds = dashboardData?.achievements.unlocked.map(a => a.id) || [];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
       <Navbar />
@@ -153,7 +90,7 @@ export function DashboardPage() {
             animate={{ opacity: 1, scale: 1 }}
             className="absolute -top-4 -left-36 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 w-48 text-sm font-bold text-gray-700 dark:text-gray-200"
           >
-            You're on a {displayStats.streak} day streak! You're a math superstar! 🌟
+            You're on a {kpis.streak} day streak! You're a math superstar! 🌟
             <div className="absolute top-1/2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-r border-t border-gray-100 dark:border-gray-700 rotate-45 -translate-y-1/2" />
           </motion.div>
         </div>
@@ -182,7 +119,7 @@ export function DashboardPage() {
               Save My Stats
             </Button>
             <Button
-              onClick={() => navigate('/math')}
+              onClick={() => navigate('/math/regular-practice')}
               className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl h-12 px-8 font-black shadow-lg shadow-blue-500/20 transform hover:scale-105 transition-all"
             >
               Let's Practice!
@@ -198,10 +135,10 @@ export function DashboardPage() {
           className="mb-8"
         >
           <KPIGrid
-            totalTime={formatTime(totalPracticeTime)}
-            problemsSolved={displayStats.totalSolved}
-            accuracy={accuracyRate}
-            streak={displayStats.streak}
+            totalTime={kpis.totalTime}
+            problemsSolved={kpis.totalProblems}
+            accuracy={kpis.accuracy}
+            streak={kpis.streak}
           />
         </motion.div>
 
@@ -212,7 +149,7 @@ export function DashboardPage() {
           transition={{ duration: 0.8, delay: 0.4 }}
           className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8"
         >
-          <ActivityHeatmap data={dailyActivity} />
+          <ActivityHeatmap data={activityData} />
           {performanceMetrics && <PerformanceRadar metrics={performanceMetrics} />}
         </motion.div>
 
@@ -233,21 +170,25 @@ export function DashboardPage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {troubleSpots.map((spot, index) => (
-                    <div key={index} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <div className="text-sm font-medium text-gray-900 dark:text-white">
-                          {spot.problem}
+                  {troubleSpots.length > 0 ? (
+                    troubleSpots.map((spot, index) => (
+                      <div key={index} className="flex items-center justify-between p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg">
+                        <div className="flex items-center gap-3">
+                          <div className="text-sm font-medium text-gray-900 dark:text-white">
+                            {spot.problem}
+                          </div>
+                          <div className="text-xs text-orange-600 dark:text-orange-400">
+                            {spot.missed}/{spot.total} missed
+                          </div>
                         </div>
-                        <div className="text-xs text-orange-600 dark:text-orange-400">
-                          {spot.missed}/{spot.total} missed
+                        <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">
+                          {spot.failureRate}%
                         </div>
                       </div>
-                      <div className="text-xs text-orange-600 dark:text-orange-400 font-medium">
-                        {spot.failureRate}%
-                      </div>
-                    </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="text-center text-gray-500 py-4">No trouble spots yet! Great job! 🎉</div>
+                  )}
                 </div>
 
                 <Button
@@ -278,13 +219,13 @@ export function DashboardPage() {
                     <AchievementBadge
                       key={achievement.id}
                       achievement={achievement}
-                      unlocked={unlockedAchievements.includes(achievement.id)}
+                      unlocked={unlockedAchievementIds.includes(achievement.id)}
                     />
                   ))}
                 </div>
 
                 <div className="text-sm text-gray-600 dark:text-gray-400 text-center mt-4">
-                  {unlockedAchievements.length} of {ALL_ACHIEVEMENTS.length} badges earned!
+                  {unlockedAchievementIds.length} of {ALL_ACHIEVEMENTS.length} badges earned!
                 </div>
 
                 <Button

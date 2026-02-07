@@ -11,7 +11,16 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
     totalScore: 0,
     lastSolvedAt: 0,
     difficulty: "easy",
-    sessionLogs: []
+    sessionLogs: [],
+    achievements: [],
+    performanceMetrics: {
+      speed: 0,
+      accuracy: 0,
+      consistency: 0,
+      problemSolving: 0,
+      mentalMath: 0
+    },
+    dayActivity: []
   };
   async updateProgress(isCorrect: boolean, points: number = 1, solveLog?: SolveLog): Promise<StudentStats> {
     return this.mutate((s) => {
@@ -30,7 +39,7 @@ export class StudentEntity extends IndexedEntity<StudentStats> {
       } else {
         newStreak = 0;
       }
-      const updatedLogs = solveLog 
+      const updatedLogs = solveLog
         ? [solveLog, ...(s.sessionLogs || [])].slice(0, 100)
         : (s.sessionLogs || []);
       return {
