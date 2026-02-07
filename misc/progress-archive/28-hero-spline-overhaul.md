@@ -1,6 +1,6 @@
 # Hero Spline Overhaul
 
-**Version:** v1.0.0
+**Version:** v1.1.0
 **Created:** 2026-02-07
 **Status:** ✅ Completed
 
@@ -9,7 +9,7 @@
 ## Summary
 
 - Updated `Hero.tsx` to feature a new Spline-powered 3D hero scene that responds to hover/click.
-- Switched hero layout to a responsive two-column design on desktop and stacked layout on mobile.
+- Switched hero layout to a responsive overlay on top of a full-bleed Spline background.
 - Kept existing greeting, time-based messaging, and CTA flows while visually integrating the Lumio robot hero.
 
 ## Implementation Notes
@@ -20,13 +20,17 @@
   - Wrapped in a responsive container with `aspect-[4/3]` on small screens and `aspect-[16/10]` on medium+.
 
 - **Layout & Responsiveness**
-  - Desktop: text on the left, Spline canvas on the right (`md:flex-row`).
-  - Mobile: Spline sits above the text (`flex-col-reverse`).
-  - Buttons remain primary CTA for starting math play and checking progress.
+  - Spline now fills the entire hero area as the visual foreground, with a subtle gradient overlay for text readability.
+  - Desktop: text is left-aligned in an overlay column; the rest of the hero is interactive Spline space.
+  - Mobile: text and CTAs remain centered while Spline runs full-screen behind them.
 
 - **Styling & Background**
-  - Preserved background beams, sparkles, and playful floating elements for continuity.
-  - Kept mascot duck in the bottom-right corner.
+  - Removed previous background beams, sparkles, floating elements, mascot duck, and scroll indicator.
+  - Added dark gradient overlays and stronger text/button drop-shadows to preserve readability over the Spline scene.
+
+- **Interactivity**
+  - Adjusted pointer-events so that the hero overlay does not block Spline mouse tracking.
+  - Buttons and key UI elements remain clickable while the rest of the hero surface is available to the Spline runtime.
 
 ## Next Steps
 

@@ -75,6 +75,7 @@
 | v1.1.0 | 2026-02-06 | Added Core Math Test Coverage milestone |
 | v1.2.0 | 2026-02-07 | Added UI Stabilization & Polish milestone |
 | v1.3.0 | 2026-02-07 | Added Hero Spline Overhaul entry |
+| v1.3.1 | 2026-02-07 | Refined Hero Spline foreground behavior & interaction |
 
 ---
 
