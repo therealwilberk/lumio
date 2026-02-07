@@ -254,6 +254,7 @@ export function MathHubPage() {
               className="relative"
             >
               <HoverBorderGradient
+                as="div"
                 containerClassName="rounded-3xl"
                 className={`dark:bg-black bg-white text-black dark:text-white ${topic.isUnlocked
                     ? 'cursor-pointer'
