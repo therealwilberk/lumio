@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform, useSpring } from 'framer-motion';
 import { ChevronDown, Sparkles } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { Navbar } from './Navbar';
@@ -11,19 +11,25 @@ import { BouncyText } from '@/components/ui/BouncyText';
 export function Hero() {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [scrollY, setScrollY] = useState(0);
   const [greetingMessage, setGreetingMessage] = useState('');
   const [timeMessage, setTimeMessage] = useState('');
   const heroRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
+  const { scrollY } = useScroll();
 
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  // Use springs for smoother parallax
+  const smoothScrollY = useSpring(scrollY, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  const parallaxBack = useTransform(smoothScrollY, [0, 500], [0, 150]);
+  const parallaxMid = useTransform(smoothScrollY, [0, 500], [0, 250]);
+  const parallaxFront = useTransform(smoothScrollY, [0, 500], [0, 350]);
+
+  const contentScale = useTransform(smoothScrollY, [0, 500], [1, 0.8]);
+  const contentOpacity = useTransform(smoothScrollY, [0, 300], [1, 0]);
 
   useEffect(() => {
     // Set dynamic greeting based on time
@@ -57,15 +63,10 @@ export function Hero() {
     setTimeMessage(timeMsg);
   }, [user]);
 
-  // Parallax effect calculation
-  const parallaxOffset = scrollY * 0.5;
-  const scale = 1 - scrollY * 0.0005;
-  const opacity = Math.max(0, 1 - scrollY * 0.002);
-
   return (
     <div 
       ref={heroRef}
-      className="relative min-h-screen flex items-center justify-center overflow-hidden"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500"
       style={{ height: '100vh' }}
     >
       {/* Navbar */}
@@ -109,7 +110,7 @@ export function Hero() {
         {/* Mountain layers - Parallax effect */}
         <motion.div
           className="absolute bottom-0 left-0 right-0"
-          style={{ transform: `translateY(${parallaxOffset * 0.3}px)` }}
+          style={{ y: parallaxBack }}
         >
           {/* Back mountains */}
           <svg viewBox="0 0 1440 400" className="w-full h-64 md:h-80">
@@ -123,7 +124,7 @@ export function Hero() {
 
         <motion.div
           className="absolute bottom-0 left-0 right-0"
-          style={{ transform: `translateY(${parallaxOffset * 0.5}px)` }}
+          style={{ y: parallaxMid }}
         >
           {/* Middle mountains */}
           <svg viewBox="0 0 1440 400" className="w-full h-48 md:h-64">
@@ -137,7 +138,7 @@ export function Hero() {
 
         <motion.div
           className="absolute bottom-0 left-0 right-0"
-          style={{ transform: `translateY(${parallaxOffset * 0.7}px)` }}
+          style={{ y: parallaxFront }}
         >
           {/* Front mountains */}
           <svg viewBox="0 0 1440 400" className="w-full h-40 md:h-56">
@@ -163,8 +164,8 @@ export function Hero() {
       <motion.div
         className="relative z-10 text-center px-5 max-w-4xl mx-auto"
         style={{
-          transform: `scale(${scale})`,
-          opacity,
+          scale: contentScale,
+          opacity: contentOpacity,
         }}
       >
         {/* Animated greeting */}
@@ -208,7 +209,7 @@ export function Hero() {
             className="bg-pink-500 hover:bg-pink-600 text-white px-10 py-5 text-xl font-bold rounded-2xl transition-colors shadow-lg hover:shadow-pink-500/50"
             onClick={() => {
               if (user) {
-                navigate('/dashboard');
+                navigate('/math-hub');
               } else {
                 const element = document.getElementById('subjects-section');
                 element?.scrollIntoView({ behavior: 'smooth' });

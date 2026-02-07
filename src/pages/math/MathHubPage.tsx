@@ -9,6 +9,7 @@ import { api } from '@/lib/api-client';
 import { calculateTopicProgress } from '@/lib/progression';
 import { Navbar } from '@/components/layout/Navbar';
 import { RocketLoader } from '@/components/ui/LoadingStates';
+import { MascotDuck } from '@/components/ui/MascotDuck';
 import { 
   Plus, 
   Minus, 
@@ -123,7 +124,7 @@ export function MathHubPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a]">
         <Navbar />
         <div className="flex items-center justify-center pt-24">
           <RocketLoader />
@@ -133,10 +134,23 @@ export function MathHubPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-6 py-12 pt-24">
+      <div className="max-w-7xl mx-auto px-6 py-12 pt-24 relative z-10">
+        {/* Mascot Greeting */}
+        <div className="absolute top-24 right-10 hidden xl:block">
+          <MascotDuck mood="idle" className="w-48 h-48" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute -top-4 -left-32 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 w-48 text-sm font-bold text-gray-700 dark:text-gray-200"
+          >
+            Choose your next adventure, {user?.username || 'explorer'}! 🗺️
+            <div className="absolute top-1/2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-r border-t border-gray-100 dark:border-gray-700 rotate-45 -translate-y-1/2" />
+          </motion.div>
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -214,7 +228,7 @@ export function MathHubPage() {
         </motion.div>
 
         {/* Math Topics Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
           {topics.map((topic, index) => (
             <motion.div
               key={topic.id}
@@ -263,21 +277,25 @@ export function MathHubPage() {
                     </p>
 
                     {/* Progress Bar */}
-                    <div className="mb-6">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm text-gray-600 dark:text-gray-400">
-                          {topic.progress === 0 ? "Let's get started!" : topic.progress < 50 ? "Keep going!" : topic.progress < 100 ? "Almost there!" : "You did it!"}
+                    <div className="mb-8">
+                      <div className="flex items-center justify-between mb-3">
+                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                          {topic.progress === 0 ? "Not Started" : topic.progress < 100 ? "In Progress" : "Mastered!"}
                         </span>
-                        <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                        <span className="text-sm font-black text-blue-600 dark:text-blue-400">
                           {topic.progress}%
                         </span>
                       </div>
-                      <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+                      <div className="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-4 overflow-hidden border-2 border-gray-200 dark:border-gray-800">
                         <motion.div
-                          className="h-full rounded-full bg-gradient-to-r from-blue-500 to-purple-600"
+                          className={`h-full rounded-full ${
+                            topic.progress < 100
+                              ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                              : 'bg-gradient-to-r from-green-400 to-green-600'
+                          }`}
                           initial={{ width: 0 }}
                           animate={{ width: `${topic.progress}%` }}
-                          transition={{ duration: 1, delay: 0.5 }}
+                          transition={{ duration: 1.5, type: "spring" }}
                         />
                       </div>
                     </div>

@@ -39,7 +39,7 @@ export function AnimatedCard({
         y: -8,
         scale: 1.02,
         boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
-        transition: { type: 'spring', stiffness: 300, damping: 20 }
+        transition: { type: 'spring', stiffness: 250, damping: 12 }
       }}
       whileTap={{ scale: 0.98 }}
       transition={{

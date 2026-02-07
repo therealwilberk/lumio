@@ -9,6 +9,7 @@ import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
 import { StatsGrid } from '@/components/dashboard/StatsGrid';
 import { DailyActivityChart, SpeedImprovementChart } from '@/components/dashboard/ActivityCharts';
+import { MascotDuck } from '@/components/ui/MascotDuck';
 import { 
   BrainCircuit, 
   Target, 
@@ -163,7 +164,7 @@ export function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-blue-900 dark:to-indigo-900">
+      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a]">
         <Navbar />
         <div className="flex items-center justify-center pt-20">
           <div className="flex flex-col items-center gap-4">
@@ -176,32 +177,53 @@ export function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
       <Navbar />
       
-      <div className="max-w-7xl mx-auto px-6 py-12 pt-24">
+      <div className="max-w-7xl mx-auto px-6 py-12 pt-24 relative z-10">
+        {/* Mascot Interaction */}
+        <div className="absolute top-24 right-10 hidden xl:block">
+          <MascotDuck mood="happy" className="w-40 h-40" />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="absolute -top-4 -left-36 bg-white dark:bg-gray-800 p-4 rounded-2xl shadow-xl border border-gray-100 dark:border-gray-700 w-48 text-sm font-bold text-gray-700 dark:text-gray-200"
+          >
+            You're on a {displayStats.streak} day streak! You're a math superstar! 🌟
+            <div className="absolute top-1/2 -right-2 w-4 h-4 bg-white dark:bg-gray-800 border-r border-t border-gray-100 dark:border-gray-700 rotate-45 -translate-y-1/2" />
+          </motion.div>
+        </div>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex justify-between items-center mb-8"
+          className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12"
         >
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
-              Your Progress! 📊
+            <h1 className="text-4xl font-black text-gray-900 dark:text-white mb-3 uppercase tracking-tight">
+              My Stats! 📊
             </h1>
-            <p className="text-gray-600 dark:text-gray-300">
-              Hey {user?.username}! Check out how awesome you're doing!
+            <p className="text-lg font-medium text-gray-600 dark:text-gray-400">
+              Check out all the awesome math you've mastered!
             </p>
           </div>
           
-          <Button
-            variant="outline"
-            className="flex items-center gap-2 border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-          >
-            <Download className="h-4 w-4" />
-            Download My Stuff
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              className="bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 rounded-2xl h-12 px-6 font-bold"
+            >
+              <Download className="h-5 w-5 mr-2" />
+              Save My Stats
+            </Button>
+            <Button
+              onClick={() => navigate('/math')}
+              className="bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-2xl h-12 px-8 font-black shadow-lg shadow-blue-500/20 transform hover:scale-105 transition-all"
+            >
+              Let's Practice!
+            </Button>
+          </div>
         </motion.div>
 
         {/* Colorful Stats Grid */}
@@ -211,12 +233,14 @@ export function DashboardPage() {
           transition={{ duration: 0.8, delay: 0.2 }}
           className="mb-8"
         >
-          <StatsGrid
-            totalTime={formatTime(totalPracticeTime)}
-            problemsSolved={displayStats.totalSolved}
-            accuracyRate={accuracyRate}
-            streak={displayStats.streak}
-          />
+          <div className="bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm rounded-[3rem] p-8 border-4 border-white dark:border-gray-800 shadow-2xl">
+            <StatsGrid
+              totalTime={formatTime(totalPracticeTime)}
+              problemsSolved={displayStats.totalSolved}
+              accuracyRate={accuracyRate}
+              streak={displayStats.streak}
+            />
+          </div>
         </motion.div>
 
         {/* Charts Section */}
@@ -290,24 +314,27 @@ export function DashboardPage() {
               <CardContent>
                 <div className="grid grid-cols-3 gap-4 mb-4">
                   {achievements.map((achievement) => (
-                    <div
+                    <motion.div
                       key={achievement.id}
-                      className={`relative p-3 rounded-xl text-center transition-all ${
+                      whileHover={achievement.unlocked ? { scale: 1.1, rotate: 5 } : {}}
+                      className={`relative p-4 rounded-2xl text-center transition-all ${
                         achievement.unlocked
-                          ? 'bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-200 dark:border-yellow-800'
-                          : 'bg-gray-100 dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                          ? 'bg-gradient-to-br from-yellow-50 to-orange-100 dark:from-yellow-900/20 dark:to-orange-900/20 border-2 border-yellow-200 dark:border-yellow-800/50 shadow-md'
+                          : 'bg-gray-100 dark:bg-gray-800/50 border-2 border-dashed border-gray-200 dark:border-gray-700 grayscale'
                       }`}
                     >
-                      <div className={`mb-2 ${achievement.unlocked ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-400'}`}>
+                      <div className={`mb-2 flex justify-center ${achievement.unlocked ? 'text-yellow-600 dark:text-yellow-400 scale-125' : 'text-gray-400'}`}>
                         {achievement.icon}
                       </div>
-                      <div className="text-xs font-medium text-gray-900 dark:text-white">
+                      <div className="text-sm font-black text-gray-900 dark:text-white leading-tight">
                         {achievement.name}
                       </div>
                       {!achievement.unlocked && (
-                        <Lock className="absolute top-1 right-1 h-3 w-3 text-gray-400" />
+                        <div className="absolute top-2 right-2">
+                          <Lock className="h-4 w-4 text-gray-400" />
+                        </div>
                       )}
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
                 

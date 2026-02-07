@@ -18,12 +18,12 @@ describe('Authentication', () => {
   it('renders sign in button', () => {
     render(<LoginPage />);
     
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /let's go/i })).toBeInTheDocument();
   });
 
   it('renders welcome message', () => {
     render(<LoginPage />);
     
-    expect(screen.getByText(/welcome/i)).toBeInTheDocument();
+    expect(screen.getByText(/math adventure/i)).toBeInTheDocument();
   });
 });

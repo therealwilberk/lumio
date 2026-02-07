@@ -41,7 +41,6 @@ export function Navbar() {
     { href: '/', label: 'Home', icon: Home },
     { href: '/subjects', label: 'Subjects', icon: BookOpen },
     { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { href: '/progress', label: 'Progress', icon: TrendingUp },
   ];
 
   const isActiveLink = (href: string) => {
@@ -56,28 +55,28 @@ export function Navbar() {
 
   // Determine navbar background style based on route and scroll
   const getNavbarClasses = () => {
-    // On non-home pages OR when scrolled on home page, use solid background
+    // High-quality glassmorphism for all states
     if (!isHomePage || scrolled) {
       return {
-        background: 'bg-white/95 dark:bg-gray-900/95',
-        border: 'border border-gray-200 dark:border-gray-700',
-        shadow: 'shadow-lg',
-        text: 'text-gray-900 dark:text-white',
+        background: 'bg-white/70 dark:bg-midnight/60',
+        border: 'border border-white/40 dark:border-white/10',
+        shadow: 'shadow-glass',
+        text: 'text-midnight dark:text-white',
         textHover: 'hover:text-blue-600 dark:hover:text-blue-400',
-        linkBg: 'hover:bg-gray-100 dark:hover:bg-gray-800',
-        activeLinkBg: 'bg-blue-100/50 dark:bg-blue-900/30',
+        linkBg: 'hover:bg-white/40 dark:hover:bg-white/10',
+        activeLinkBg: 'bg-blue-100/60 dark:bg-blue-900/40',
         activeLinkText: 'text-blue-600 dark:text-blue-400',
       };
     }
     
-    // On home page at top, use semi-transparent
+    // On home page at top, use more transparent "super-glass"
     return {
-      background: 'bg-white/80 dark:bg-gray-900/80',
-      border: 'border border-white/30 dark:border-gray-700/50',
+      background: 'bg-white/40 dark:bg-midnight/30',
+      border: 'border border-white/30 dark:border-white/10',
       shadow: 'shadow-md',
-      text: 'text-gray-900 dark:text-white',
+      text: 'text-midnight dark:text-white',
       textHover: 'hover:text-blue-600 dark:hover:text-blue-400',
-      linkBg: 'hover:bg-white/20 dark:hover:bg-white/10',
+      linkBg: 'hover:bg-white/30 dark:hover:bg-white/10',
       activeLinkBg: 'bg-blue-500/20 dark:bg-blue-500/20',
       activeLinkText: 'text-blue-600 dark:text-blue-400',
     };
@@ -97,7 +96,7 @@ export function Navbar() {
           
           // Background & Blur - always visible
           style.background,
-          'backdrop-blur-md',
+          'backdrop-blur-xl',
           
           // Border & Shadow
           style.border,
@@ -253,6 +252,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
+            aria-label="Toggle menu"
             className={cn(
               'md:hidden',
               !isHomePage || scrolled
@@ -271,7 +271,7 @@ export function Navbar() {
       </nav>
 
       {/* Mobile Navigation - Glassmorphic */}
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {mobileMenuOpen && (
           <>
             {/* Backdrop */}
@@ -289,7 +289,7 @@ export function Navbar() {
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed right-4 top-4 h-[calc(100vh-2rem)] w-80 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 shadow-2xl rounded-2xl z-50 md:hidden"
+              className="fixed right-4 top-4 h-[calc(100vh-2rem)] w-80 bg-white/90 dark:bg-midnight/90 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-2xl rounded-2xl z-50 md:hidden"
             >
               <div className="flex flex-col h-full">
                 {/* Mobile Header */}

@@ -4,9 +4,14 @@ import { motion } from 'framer-motion';
 interface MascotDuckProps {
   className?: string;
   delay?: number;
+  mood?: 'idle' | 'happy' | 'thinking' | 'sad';
 }
 
-export function MascotDuck({ className = "w-32 h-32 md:w-40 md:h-40", delay = 0.5 }: MascotDuckProps) {
+export function MascotDuck({
+  className = "w-32 h-32 md:w-40 md:h-40",
+  delay = 0.5,
+  mood = 'idle'
+}: MascotDuckProps) {
   return (
     <motion.div
       className={`relative ${className}`}
@@ -26,7 +31,14 @@ export function MascotDuck({ className = "w-32 h-32 md:w-40 md:h-40", delay = 0.
     >
       <motion.div
         className="w-full h-full relative"
-        animate={{
+        animate={mood === 'happy' ? {
+          y: [0, -40, 0, -20, 0],
+          rotate: [0, 10, -10, 10, 0],
+          scale: [1, 1.1, 1, 1.05, 1],
+        } : mood === 'sad' ? {
+          rotate: [0, -5, 5, -5, 5, 0],
+          x: [0, -5, 5, -5, 5, 0],
+        } : {
           y: [0, -10, 0],
           rotate: [-2, 2, -2],
         }}

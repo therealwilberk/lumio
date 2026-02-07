@@ -53,6 +53,11 @@
 |---------|------|-------------|--------|
 | M20 | [20-milestone-math-test-coverage.md](./20-milestone-math-test-coverage.md) | Core Math Test Coverage | ✅ Complete |
 
+### Phase 7: Polish & Stabilization
+| Section | File | Description | Status |
+|---------|------|-------------|--------|
+| M21 | [21-ui-stabilization-pass.md](./21-ui-stabilization-pass.md) | UI Stabilization & Polish Pass | ✅ Complete |
+
 ---
 
 ## File Naming Convention
@@ -67,6 +72,7 @@
 |---------|------|-------------|
 | v1.0.0 | 2026-02-06 | Initial archive creation from progress.md |
 | v1.1.0 | 2026-02-06 | Added Core Math Test Coverage milestone |
+| v1.2.0 | 2026-02-07 | Added UI Stabilization & Polish milestone |
 
 ---
 
