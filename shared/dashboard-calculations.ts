@@ -1,4 +1,14 @@
 import type { Session, Problem, DayActivity, PerformanceMetrics, SpeedSession } from '@shared/types';
+import {
+    SECONDS_PER_HOUR,
+    SECONDS_PER_MINUTE,
+    MS_PER_DAY,
+    DEFAULT_ACTIVITY_HEATMAP_DAYS,
+    SPEED_BENCHMARK_MAX_SECONDS,
+    SPEED_RANGE_SECONDS,
+    STREAK_CONSISTENCY_BENCHMARK_DAYS,
+    CONSISTENCY_BASE_POINTS
+} from './math-config';
 
 // ============================================
 // KPI CALCULATIONS
@@ -17,8 +27,8 @@ export function calculateTotalPracticeTime(sessions: Session[]): number {
  * @returns Formatted string like "2h 45m" or "45m"
  */
 export function formatPracticeTime(seconds: number): string {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
+    const hours = Math.floor(seconds / SECONDS_PER_HOUR);
+    const minutes = Math.floor((seconds % SECONDS_PER_HOUR) / SECONDS_PER_MINUTE);
 
     if (hours > 0) {
         return `${hours}h ${minutes}m`;
@@ -59,7 +69,7 @@ export function calculateStreak(sessions: Session[]): number {
 
     for (const date of sortedDates) {
         const sessionDate = new Date(date);
-        const diffDays = Math.floor((checkDate.getTime() - sessionDate.getTime()) / (1000 * 60 * 60 * 24));
+        const diffDays = Math.floor((checkDate.getTime() - sessionDate.getTime()) / MS_PER_DAY);
 
         if (diffDays === streak) {
             streak++;
@@ -113,7 +123,7 @@ export function calculateWeeklyTrend(sessions: Session[], metric: 'time' | 'prob
 /**
  * Generate activity heatmap for last N days
  */
-export function generateActivityHeatmap(problems: Problem[], days: number = 90): DayActivity[] {
+export function generateActivityHeatmap(problems: Problem[], days: number = DEFAULT_ACTIVITY_HEATMAP_DAYS): DayActivity[] {
     const heatmap: DayActivity[] = [];
     const endDate = new Date();
     const startDate = new Date();
@@ -152,13 +162,13 @@ export function calculatePerformanceMetrics(problems: Problem[], streak: number)
 
     // Speed (benchmark: 10s is 0, 2s is 100)
     const avgTime = problems.reduce((sum, p) => sum + p.timeSpent, 0) / problems.length;
-    const speed = Math.max(0, Math.min(100, (10 - avgTime) / 8 * 100));
+    const speed = Math.max(0, Math.min(100, (SPEED_BENCHMARK_MAX_SECONDS - avgTime) / SPEED_RANGE_SECONDS * 100));
 
     // Accuracy
     const accuracy = (problems.filter(p => p.correct).length / problems.length) * 100;
 
     // Consistency (based on streak and practice frequency)
-    const consistency = Math.min(100, (streak / 30 * 50) + 50);
+    const consistency = Math.min(100, (streak / STREAK_CONSISTENCY_BENCHMARK_DAYS * CONSISTENCY_BASE_POINTS) + CONSISTENCY_BASE_POINTS);
 
     // Problem Solving (% of correct problems)
     const problemSolving = accuracy; // Simplified for now

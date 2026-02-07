@@ -1,3 +1,13 @@
+import {
+  BRIDGE_BASE,
+  FOUNDATION_MAX_SUM,
+  BRIDGE_MAX_SUM,
+  MAX_PROBLEM_GENERATION_RETRIES,
+  MIN_OPERAND_VALUE,
+  MIN_SUM_RATIO,
+  FALLBACK_DIVISOR
+} from '@shared/math-config';
+
 export interface MakeTenBreakdown {
   needs: number;
   remainder: number;
@@ -15,13 +25,13 @@ export interface HintStrategy {
   };
 }
 export function getMakeTenBreakdown(n1: number, n2: number): MakeTenBreakdown {
-  const needs = Math.max(0, 10 - (n1 % 10 === 0 ? 10 : n1 % 10));
+  const needs = Math.max(0, BRIDGE_BASE - (n1 % BRIDGE_BASE === 0 ? BRIDGE_BASE : n1 % BRIDGE_BASE));
   const remainder = Math.max(0, n2 - needs);
   return { needs, remainder };
 }
 export function getHintStrategy(n1: number, n2: number): HintStrategy {
   const sum = n1 + n2;
-  if (sum <= 10) {
+  if (sum <= FOUNDATION_MAX_SUM) {
     return {
       type: 'count',
       title: 'PRECISION COUNTING',
@@ -30,25 +40,25 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
       visualCues: { pulseAddend1: true, pulseAddend2: true, bridgeActive: false }
     };
   }
-  if (n1 < 10 && n2 < 10 && sum > 10) {
+  if (n1 < BRIDGE_BASE && n2 < BRIDGE_BASE && sum > BRIDGE_BASE) {
     const { needs, remainder } = getMakeTenBreakdown(n1, n2);
     return {
       type: 'make-ten',
       title: 'BRIDGE TO TEN',
-      description: `Filling up to 10 makes the math much faster!`,
+      description: `Filling up to ${BRIDGE_BASE} makes the math much faster!`,
       steps: [
-        `${n1} needs ${needs} to make a full 10`,
+        `${n1} needs ${needs} to make a full ${BRIDGE_BASE}`,
         `Take ${needs} from ${n2}`,
         `${n2} has ${remainder} left over`,
-        `Final: 10 + ${remainder} = ${sum}`
+        `Final: ${BRIDGE_BASE} + ${remainder} = ${sum}`
       ],
       visualCues: { pulseAddend1: false, pulseAddend2: false, bridgeActive: true }
     };
   }
-  const t1 = Math.floor(n1 / 10) * 10;
-  const o1 = n1 % 10;
-  const t2 = Math.floor(n2 / 10) * 10;
-  const o2 = n2 % 10;
+  const t1 = Math.floor(n1 / BRIDGE_BASE) * BRIDGE_BASE;
+  const o1 = n1 % BRIDGE_BASE;
+  const t2 = Math.floor(n2 / BRIDGE_BASE) * BRIDGE_BASE;
+  const o2 = n2 % BRIDGE_BASE;
   const onesSum = o1 + o2;
   return {
     type: 'decompose',
@@ -57,33 +67,33 @@ export function getHintStrategy(n1: number, n2: number): HintStrategy {
     steps: [
       `Tens: ${t1} + ${t2} = ${t1 + t2}`,
       `Ones: ${o1} + ${o2} = ${onesSum}`,
-      onesSum > 10 ? `Bridge Ones: ${t1 + t2} + ${onesSum} = ${sum}` : `Total: ${t1 + t2} + ${onesSum} = ${sum}`
+      onesSum > BRIDGE_BASE ? `Bridge Ones: ${t1 + t2} + ${onesSum} = ${sum}` : `Total: ${t1 + t2} + ${onesSum} = ${sum}`
     ],
     visualCues: { pulseAddend1: true, pulseAddend2: true, bridgeActive: false }
   };
 }
 export function isBridgeThroughTen(n1: number, n2: number): boolean {
-  return n1 % 10 !== 0 && (n1 % 10 + n2 % 10) > 10;
+  return n1 % BRIDGE_BASE !== 0 && (n1 % BRIDGE_BASE + n2 % BRIDGE_BASE) > BRIDGE_BASE;
 }
-export function generateProblem(maxSum: number = 20, exclude?: { num1: number, num2: number }): { num1: number, num2: number } {
-  const MAX_RETRY = 50;
+export function generateProblem(maxSum: number = BRIDGE_MAX_SUM, exclude?: { num1: number, num2: number }): { num1: number, num2: number } {
+  const MAX_RETRY = MAX_PROBLEM_GENERATION_RETRIES;
   let attempts = 0;
   while (attempts < MAX_RETRY) {
     attempts++;
-    const n1 = Math.floor(Math.random() * (maxSum - 2)) + 2;
+    const n1 = Math.floor(Math.random() * (maxSum - MIN_OPERAND_VALUE)) + MIN_OPERAND_VALUE;
     const n2 = Math.floor(Math.random() * (maxSum - n1)) + 1;
     const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
-    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * 0.2) { // Allow smaller sums slightly
+    if (n1 + n2 <= maxSum && n1 + n2 >= maxSum * MIN_SUM_RATIO) { // Allow smaller sums slightly
       if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
         return potential;
       }
     }
   }
-  return { num1: Math.max(1, Math.floor(maxSum / 1.5)), num2: 1 };
+  return { num1: Math.max(1, Math.floor(maxSum / FALLBACK_DIVISOR)), num2: 1 };
 }
 export function getProblemCategory(sum: number): string {
-  if (sum <= 10) return 'Foundation';
-  if (sum <= 20) return 'Bridge';
+  if (sum <= FOUNDATION_MAX_SUM) return 'Foundation';
+  if (sum <= BRIDGE_MAX_SUM) return 'Bridge';
   return 'Decomposition';
 }
 export function calculatePerformanceSummary(logs: any[]) {
