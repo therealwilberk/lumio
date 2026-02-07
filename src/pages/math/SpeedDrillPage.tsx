@@ -6,6 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { Spotlight } from '@/components/ui/spotlight';
+import { Meteors } from '@/components/ui/meteors';
+import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import { celebrate } from '@/components/ui/Celebration';
 import { StreakCounter } from '@/components/ui/StreakCounter';
 import { showNotification } from '@/lib/notifications';
@@ -292,7 +295,13 @@ export function SpeedDrillPage() {
   const currentProblem = problems[currentProblemIndex];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
+    <div className="h-screen w-full bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
+      {/* Spotlight effect */}
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill="white"
+      />
+      
       <Navbar />
       
       <div className="max-w-4xl mx-auto px-6 py-12 pt-24 relative z-10">
@@ -359,6 +368,8 @@ export function SpeedDrillPage() {
               >
                 {/* Game Board Container */}
                 <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border-4 border-blue-100 dark:border-blue-900/30 shadow-2xl rounded-[3rem] p-6 md:p-10 mb-8 relative overflow-hidden">
+                  <Meteors number={20} />
+                  <div className="relative z-10">
                   {/* Decorative corner elements */}
                   <div className="absolute top-0 left-0 w-20 h-20 bg-blue-500/10 rounded-br-[3rem]" />
                   <div className="absolute bottom-0 right-0 w-20 h-20 bg-orange-500/10 rounded-tl-[3rem]" />
@@ -435,6 +446,7 @@ export function SpeedDrillPage() {
                   {/* Mascot positioned relative to Game Board */}
                   <div className="absolute -bottom-6 -right-6 hidden lg:block">
                     <MascotDuck mood={mascotMood} className="w-40 h-40" />
+                  </div>
                   </div>
                 </div>
 

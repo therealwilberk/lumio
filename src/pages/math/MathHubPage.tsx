@@ -10,13 +10,15 @@ import { calculateTopicProgress } from '@/lib/progression';
 import { Navbar } from '@/components/layout/Navbar';
 import { RocketLoader } from '@/components/ui/LoadingStates';
 import { MascotDuck } from '@/components/ui/MascotDuck';
-import { 
-  Plus, 
-  Minus, 
-  X, 
-  Divide, 
-  Lock, 
-  TrendingUp, 
+import { LampContainer } from '@/components/ui/lamp';
+import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
+import {
+  Plus,
+  Minus,
+  X,
+  Divide,
+  Lock,
+  TrendingUp,
   Target,
   Calculator,
   Award,
@@ -54,7 +56,7 @@ export function MathHubPage() {
     try {
       const userStats = await api<StudentStats>(`/api/student/${user.id}`);
       setStats(userStats);
-      
+
       // Calculate topic progress and unlock states
       const progressionData = calculateTopicProgress(userStats);
       const calculatedTopics = enrichTopicData(progressionData);
@@ -124,7 +126,7 @@ export function MathHubPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a]">
+      <div className="min-h-screen bg-slate-950">
         <Navbar />
         <div className="flex items-center justify-center pt-24">
           <RocketLoader />
@@ -134,9 +136,9 @@ export function MathHubPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
+    <div className="min-h-screen bg-slate-950 transition-colors duration-500">
       <Navbar />
-      
+
       <div className="max-w-7xl mx-auto px-6 py-12 pt-24 relative z-10">
         {/* Mascot Greeting */}
         <div className="absolute top-24 right-10 hidden xl:block">
@@ -151,19 +153,23 @@ export function MathHubPage() {
           </motion.div>
         </div>
 
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 dark:text-white mb-4">
-            Math Hub! 🔢
-          </h1>
-          <p className="text-xl text-gray-600 dark:text-gray-300 max-w-2xl mx-auto">
-            Learn math one adventure at a time. Beat challenges to unlock new topics!
-          </p>
-        </motion.div>
+        {/* Header with Lamp Effect */}
+        <div className="-mx-6 -mt-12 mb-12">
+          <LampContainer>
+            <motion.h1
+              initial={{ opacity: 0.5, y: 100 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{
+                delay: 0.3,
+                duration: 0.8,
+                ease: "easeInOut",
+              }}
+              className="mt-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl"
+            >
+              Pick Your Math Adventure! 🎯
+            </motion.h1>
+          </LampContainer>
+        </div>
 
         {/* Quick Stats Bar */}
         <motion.div
@@ -235,85 +241,82 @@ export function MathHubPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              whileHover={topic.isUnlocked ? { scale: 1.05 } : {}}
               className="relative"
             >
-              <Card 
-                className={`bg-white dark:bg-gray-800 border-0 shadow-xl overflow-hidden transition-all duration-300 ${
-                  topic.isUnlocked 
-                    ? 'cursor-pointer hover:shadow-2xl' 
+              <HoverBorderGradient
+                containerClassName="rounded-3xl"
+                className={`dark:bg-black bg-white text-black dark:text-white ${topic.isUnlocked
+                    ? 'cursor-pointer'
                     : 'cursor-not-allowed opacity-75'
-                }`}
+                  }`}
                 onClick={() => handleTopicClick(topic)}
               >
-                <CardContent className="p-8">
-                  {/* Lock Overlay */}
-                    {/* Icon and Symbol */}
-                    <div className="flex items-center justify-between mb-6">
-                      <div className={`w-16 h-16 ${topic.bgColor} rounded-2xl flex items-center justify-center`}>
-                        <topic.icon className={`h-8 w-8 ${topic.color}`} />
-                      </div>
-                      <div className="text-4xl font-bold text-gray-400 dark:text-gray-500">
-                        {topic.symbol}
-                      </div>
+                <div className="p-8 w-full">
+                  {/* Icon and Symbol */}
+                  <div className="flex items-center justify-between mb-6">
+                    <div className={`w-16 h-16 ${topic.bgColor} rounded-2xl flex items-center justify-center`}>
+                      <topic.icon className={`h-8 w-8 ${topic.color}`} />
                     </div>
-
-                    {/* Topic Name and Level */}
-                    <div className="mb-4">
-                      <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                        {topic.name}
-                      </h3>
-                      <div className="flex items-center gap-2">
-                        <Award className="h-4 w-4 text-yellow-500" />
-                        <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                          Level {topic.level}
-                        </span>
-                      </div>
+                    <div className="text-4xl font-bold text-gray-400 dark:text-gray-500">
+                      {topic.symbol}
                     </div>
+                  </div>
 
-                    {/* Description */}
-                    <p className="text-gray-600 dark:text-gray-300 mb-6">
-                      {topic.description}
-                    </p>
+                  {/* Topic Name and Level */}
+                  <div className="mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                      {topic.name}
+                    </h3>
+                    <div className="flex items-center gap-2">
+                      <Award className="h-4 w-4 text-yellow-500" />
+                      <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
+                        Level {topic.level}
+                      </span>
+                    </div>
+                  </div>
 
-                    {/* Progress Bar */}
-                    <div className="mb-8">
-                      <div className="flex items-center justify-between mb-3">
-                        <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                          {topic.progress === 0 ? "Not Started" : topic.progress < 100 ? "In Progress" : "Mastered!"}
-                        </span>
-                        <span className="text-sm font-black text-blue-600 dark:text-blue-400">
-                          {topic.progress}%
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-4 overflow-hidden border-2 border-gray-200 dark:border-gray-800">
-                        <motion.div
-                          className={`h-full rounded-full ${
-                            topic.progress < 100
-                              ? 'bg-gradient-to-r from-blue-400 to-blue-600'
-                              : 'bg-gradient-to-r from-green-400 to-green-600'
+                  {/* Description */}
+                  <p className="text-gray-600 dark:text-gray-300 mb-6">
+                    {topic.description}
+                  </p>
+
+                  {/* Progress Bar */}
+                  <div className="mb-8">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        {topic.progress === 0 ? "Not Started" : topic.progress < 100 ? "In Progress" : "Mastered!"}
+                      </span>
+                      <span className="text-sm font-black text-blue-600 dark:text-blue-400">
+                        {topic.progress}%
+                      </span>
+                    </div>
+                    <div className="w-full bg-gray-100 dark:bg-gray-900 rounded-full h-4 overflow-hidden border-2 border-gray-200 dark:border-gray-800">
+                      <motion.div
+                        className={`h-full rounded-full ${topic.progress < 100
+                            ? 'bg-gradient-to-r from-blue-400 to-blue-600'
+                            : 'bg-gradient-to-r from-green-400 to-green-600'
                           }`}
-                          initial={{ width: 0 }}
-                          animate={{ width: `${topic.progress}%` }}
-                          transition={{ duration: 1.5, type: "spring" }}
-                        />
-                      </div>
+                        initial={{ width: 0 }}
+                        animate={{ width: `${topic.progress}%` }}
+                        transition={{ duration: 1.5, type: "spring" }}
+                      />
                     </div>
+                  </div>
 
-                    {/* Action Button */}
-                    {topic.isUnlocked ? (
-                      <Button 
-                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl transition-all transform hover:scale-105"
-                      >
-                        Let's Practice {topic.name}!
-                      </Button>
-                    ) : (
-                      <div className="w-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-xl text-center font-medium">
-                        Locked 🔒
-                      </div>
-                    )}
-                </CardContent>
-              </Card>
+                  {/* Action Button */}
+                  {topic.isUnlocked ? (
+                    <Button
+                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl transition-all"
+                    >
+                      Let's Practice {topic.name}!
+                    </Button>
+                  ) : (
+                    <div className="w-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-xl text-center font-medium">
+                      Locked 🔒
+                    </div>
+                  )}
+                </div>
+              </HoverBorderGradient>
             </motion.div>
           ))}
         </div>
@@ -332,7 +335,7 @@ export function MathHubPage() {
             <p className="text-gray-600 dark:text-gray-300 mb-6">
               Beat each topic to unlock the next one. Master all four to become a Math Champion! 🏆
             </p>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {topics.map((topic) => (
                 <div key={topic.id} className="text-center">

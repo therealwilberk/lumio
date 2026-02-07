@@ -8,6 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 import type { StudentStats } from '@shared/types';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { Spotlight } from '@/components/ui/spotlight';
+import { Meteors } from '@/components/ui/meteors';
+import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import { 
   ArrowLeft, 
   Target, 
@@ -284,7 +287,13 @@ export function RegularPracticePage() {
   const visualHelpers = getVisualHelpers();
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="h-screen w-full bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
+      {/* Spotlight effect */}
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill="white"
+      />
+      
       <Navbar />
       
       <div className="max-w-4xl mx-auto px-6 py-12 pt-24">
@@ -377,11 +386,13 @@ export function RegularPracticePage() {
             </div>
 
             {/* Problem Display */}
-            <Card className="bg-white dark:bg-gray-800 border-0 shadow-xl p-8 rounded-2xl mb-8">
-              <div className="text-center">
-                <div 
-                  className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6"
-                >
+            <Card className="bg-white dark:bg-gray-800 border-0 shadow-xl p-8 rounded-2xl mb-8 relative overflow-hidden">
+              <Meteors number={20} />
+              <div className="relative z-10">
+                <div className="text-center">
+                  <div 
+                    className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6"
+                  >
                   {currentProblem.question}
                 </div>
                 
@@ -461,20 +472,23 @@ export function RegularPracticePage() {
                   />
                 </div>
               </div>
+            </div>
             </Card>
 
             {/* Hint and Settings */}
             <div className="flex justify-center gap-4 mb-8">
-              <Button
-                variant="outline"
-                onClick={useHint}
-                disabled={showHint || session.score < 5}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <Lightbulb className="h-4 w-4" />
-                💡 Hint
-                {showHint && <span className="text-xs ml-2">(-5 pts)</span>}
-              </Button>
+              <AnimatedTooltip items={[{ name: "Hint", designation: "-5 points" }]}>
+                <Button
+                  variant="outline"
+                  onClick={useHint}
+                  disabled={showHint || session.score < 5}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  💡 Hint
+                  {showHint && <span className="text-xs ml-2">(-5 pts)</span>}
+                </Button>
+              </AnimatedTooltip>
               
               <Button
                 variant="outline"
