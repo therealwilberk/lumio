@@ -11,6 +11,8 @@ import { Navbar } from '@/components/layout/Navbar';
 import { RocketLoader } from '@/components/ui/LoadingStates';
 import { MascotDuck } from '@/components/ui/MascotDuck';
 import { LampContainer } from '@/components/ui/lamp';
+import { Spotlight } from '@/components/ui/spotlight';
+import { Meteors } from '@/components/ui/meteors';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
 import {
   Plus,
@@ -136,10 +138,18 @@ export function MathHubPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 transition-colors duration-500">
+    <div className="min-h-screen bg-slate-950 transition-colors duration-500 relative overflow-hidden">
+      {/* Spotlight effect */}
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill="white"
+      />
+
       <Navbar />
 
       <div className="max-w-7xl mx-auto px-6 py-12 pt-24 relative z-10">
+        <Meteors number={20} />
+
         {/* Mascot Greeting */}
         <div className="absolute top-24 right-10 hidden xl:block">
           <MascotDuck mood="idle" className="w-48 h-48" />
@@ -154,8 +164,8 @@ export function MathHubPage() {
         </div>
 
         {/* Header with Lamp Effect */}
-        <div className="-mx-6 -mt-12 mb-12">
-          <LampContainer>
+        <div className="-mx-6 -mt-12 mb-12 overflow-hidden">
+          <LampContainer className="min-h-[500px]">
             <motion.h1
               initial={{ opacity: 0.5, y: 100 }}
               whileInView={{ opacity: 1, y: 0 }}

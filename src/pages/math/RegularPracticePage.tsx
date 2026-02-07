@@ -11,6 +11,10 @@ import { Navbar } from '@/components/layout/Navbar';
 import { Spotlight } from '@/components/ui/spotlight';
 import { Meteors } from '@/components/ui/meteors';
 import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
+import { MascotDuck } from '@/components/ui/MascotDuck';
+import { celebrate } from '@/components/ui/Celebration';
+import { DotGroup } from '@/components/ui/DotGroup';
+import { Plus } from 'lucide-react';
 import { 
   ArrowLeft, 
   Target, 
@@ -62,6 +66,7 @@ export function RegularPracticePage() {
   const [userAnswer, setUserAnswer] = useState('');
   const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | null>(null);
   const [showHint, setShowHint] = useState(false);
+  const [mascotMood, setMascotMood] = useState<'idle' | 'happy' | 'sad'>('idle');
   const [session, setSession] = useState<PracticeSession>({
     level: 1,
     score: 0,
@@ -191,6 +196,8 @@ export function RegularPracticePage() {
       let points = 10;
       if (timeSpent < 10) points += 5; // Time bonus
       
+      celebrate('correct');
+      setMascotMood('happy');
       setShowFeedback('correct');
       setSession(prev => ({
         ...prev,
@@ -203,10 +210,12 @@ export function RegularPracticePage() {
       
       // Auto-advance after short delay
       setTimeout(() => {
+        setMascotMood('idle');
         nextProblem();
       }, 1000);
     } else {
       // Wrong answer
+      setMascotMood('sad');
       setShowFeedback('wrong');
       setSession(prev => ({
         ...prev,
@@ -217,6 +226,7 @@ export function RegularPracticePage() {
       
       // Shake animation and clear input
       setTimeout(() => {
+        setMascotMood('idle');
         setShowFeedback(null);
         setUserAnswer('');
         inputRef.current?.focus();
@@ -232,6 +242,7 @@ export function RegularPracticePage() {
     setProblemStartTime(Date.now());
     setShowFeedback(null);
     setShowHint(false);
+    setMascotMood('idle');
     inputRef.current?.focus();
   };
 
@@ -258,24 +269,6 @@ export function RegularPracticePage() {
     }
   };
 
-  // Get visual helpers dots
-  const getVisualHelpers = () => {
-    if (!currentProblem || !showVisualHelpers) return null;
-    
-    const dots = [];
-    const totalDots = 10; // 2 rows of 5
-    
-    // Create dots for the two numbers
-    for (let i = 0; i < currentProblem.num1; i++) {
-      dots.push({ group: 1, index: i });
-    }
-    for (let i = 0; i < currentProblem.num2; i++) {
-      dots.push({ group: 2, index: i });
-    }
-    
-    return dots;
-  };
-
   // Get timer color
   const getTimerColor = () => {
     const timePerProblem = session.problemsSolved > 0 ? session.timeSpent / session.problemsSolved : 0;
@@ -284,10 +277,8 @@ export function RegularPracticePage() {
     return 'bg-red-500';
   };
 
-  const visualHelpers = getVisualHelpers();
-
   return (
-    <div className="h-screen w-full bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
+    <div className="min-h-screen w-full bg-slate-950 overflow-hidden relative">
       {/* Spotlight effect */}
       <Spotlight
         className="-top-40 left-0 md:left-60 md:-top-20"
@@ -296,12 +287,12 @@ export function RegularPracticePage() {
       
       <Navbar />
       
-      <div className="max-w-4xl mx-auto px-6 py-12 pt-24">
+      <div className="max-w-4xl mx-auto px-6 py-12 pt-24 flex flex-col items-center">
         {gameState === 'idle' && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center"
+            className="text-center w-full"
           >
             <Card className="bg-white dark:bg-gray-800 border-0 shadow-2xl p-12 rounded-3xl max-w-md mx-auto">
               <div className="text-center space-y-8">
@@ -397,40 +388,21 @@ export function RegularPracticePage() {
                 </div>
                 
                 {/* Visual Helpers */}
-                {visualHelpers && (
-                  <div className="flex justify-center gap-8 mb-6">
-                    {/* First number dots */}
-                    <div className="flex flex-wrap gap-2 max-w-xs">
-                      {visualHelpers
-                        .filter(dot => dot.group === 1)
-                        .map((dot, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            className="w-3 h-3 bg-blue-500 rounded-full"
-                          />
-                        ))}
+                {showVisualHelpers && currentProblem && (
+                  <div className="flex justify-center gap-12 mb-8 relative z-10">
+                    <DotGroup
+                      count={currentProblem.num1}
+                      color="blue"
+                      minRows={Math.max(Math.ceil(currentProblem.num1/5), Math.ceil(currentProblem.num2/5))}
+                    />
+                    <div className="flex items-center">
+                      <Plus className="h-8 w-8 text-gray-400" />
                     </div>
-                    
-                    {/* Plus sign */}
-                    <div className="text-2xl font-bold text-gray-600 dark:text-gray-400">+</div>
-                    
-                    {/* Second number dots */}
-                    <div className="flex flex-wrap gap-2 max-w-xs">
-                      {visualHelpers
-                        .filter(dot => dot.group === 2)
-                        .map((dot, index) => (
-                          <motion.div
-                            key={index}
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 + 0.5 }}
-                            className="w-3 h-3 bg-purple-500 rounded-full"
-                          />
-                        ))}
-                    </div>
+                    <DotGroup
+                      count={currentProblem.num2}
+                      color="purple"
+                      minRows={Math.max(Math.ceil(currentProblem.num1/5), Math.ceil(currentProblem.num2/5))}
+                    />
                   </div>
                 )}
                 
@@ -475,9 +447,14 @@ export function RegularPracticePage() {
             </div>
             </Card>
 
+            {/* Mascot positioned relative to Game Board */}
+            <div className="absolute -bottom-6 -right-6 hidden lg:block">
+              <MascotDuck mood={mascotMood} className="w-40 h-40" />
+            </div>
+
             {/* Hint and Settings */}
             <div className="flex justify-center gap-4 mb-8">
-              <AnimatedTooltip items={[{ name: "Hint", designation: "-5 points" }]}>
+              <AnimatedTooltip items={[{ id: 1, name: "Hint", designation: "-5 points", image: "" }]}>
                 <Button
                   variant="outline"
                   onClick={useHint}
@@ -490,14 +467,16 @@ export function RegularPracticePage() {
                 </Button>
               </AnimatedTooltip>
               
-              <Button
-                variant="outline"
-                onClick={() => setShowVisualHelpers(!showVisualHelpers)}
-                className="flex items-center gap-2 px-4 py-2 rounded-xl border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
-              >
-                <Settings className="h-4 w-4" />
-                ⚙️ Settings
-              </Button>
+              <AnimatedTooltip items={[{ id: 2, name: "Settings", designation: "Toggle helpers", image: "" }]}>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowVisualHelpers(!showVisualHelpers)}
+                  className="flex items-center gap-2 px-4 py-2 rounded-xl border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                >
+                  <Settings className="h-4 w-4" />
+                  ⚙️ Settings
+                </Button>
+              </AnimatedTooltip>
             </div>
 
             {/* Hint Display */}
