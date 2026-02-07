@@ -11,6 +11,9 @@ import { Navbar } from '@/components/layout/Navbar';
 import { DigitBlock } from '@/components/ui/DigitBlock';
 import { MascotDuck } from '@/components/ui/MascotDuck';
 import { celebrate } from '@/components/ui/Celebration';
+import { Spotlight } from '@/components/ui/spotlight';
+import { Meteors } from '@/components/ui/meteors';
+import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import { 
   Calculator, 
   CheckCircle, 
@@ -23,7 +26,10 @@ import {
   Sparkles,
   BrainCircuit,
   Zap,
-  BookOpen
+  BookOpen,
+  Trophy,
+  Flame,
+  Star
 } from 'lucide-react';
 
 interface Problem {
@@ -166,11 +172,17 @@ export function AdditionPage() {
   const accuracy = totalAttempts > 0 ? Math.round((correctAnswers / totalAttempts) * 100) : 0;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
+    <div className="min-h-screen w-full bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
+      {/* Spotlight effect for Phase 6 */}
+      <Spotlight
+        className="-top-40 left-0 md:left-60 md:-top-20"
+        fill="white"
+      />
+
       <Navbar />
       
       <div className="max-w-4xl mx-auto px-6 py-12 pt-24 relative z-10">
-        {/* Header */}
+        {/* Navigation Actions */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -178,43 +190,76 @@ export function AdditionPage() {
         >
           <Button
             variant="ghost"
-            onClick={() => navigate('/dashboard')}
-            className="flex items-center gap-2 text-gray-600 hover:text-gray-900"
+            onClick={() => navigate('/math')}
+            className="flex items-center gap-2 text-gray-400 hover:text-white"
           >
             <ArrowLeft className="h-4 w-4" />
-            Go Back
+            Math Hub
           </Button>
           
-          <Button
-            onClick={() => navigate('/math/speed-drill')}
-            className="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
-          >
-            <Zap className="h-5 w-5" />
-            Lightning Round
-          </Button>
-          
-          <Button
-            onClick={() => navigate('/math/regular-practice')}
-            className="bg-gradient-to-r from-green-500 to-teal-500 hover:from-green-600 hover:to-teal-600 text-white px-6 py-3 rounded-xl transition-all transform hover:scale-105 flex items-center gap-2"
-          >
-            <BookOpen className="h-5 w-5" />
-            Regular Practice
-          </Button>
+          <div className="flex gap-4">
+            <Button
+              variant="outline"
+              onClick={() => navigate('/math/speed-drill')}
+              className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10 rounded-xl flex items-center gap-2"
+            >
+              <Zap className="h-4 w-4" />
+              Speed Drill
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => navigate('/math/regular-practice')}
+              className="border-green-500/50 text-green-500 hover:bg-green-500/10 rounded-xl flex items-center gap-2"
+            >
+              <BookOpen className="h-4 w-4" />
+              Practice
+            </Button>
+          </div>
         </motion.div>
 
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
+        {/* Symmetrical Stats Header */}
+        <div className="grid grid-cols-3 gap-4 mb-8">
+          <AnimatedTooltip items={[{ id: 1, name: "Streak", designation: `${streak} in a row!` }]}>
+            <div className="bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 p-4 rounded-2xl flex flex-col items-center">
+              <Flame className="h-5 w-5 text-orange-500 mb-1" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">{streak}</span>
+              <span className="text-[10px] uppercase font-bold text-gray-400">Streak</span>
+            </div>
+          </AnimatedTooltip>
+
+          <AnimatedTooltip items={[{ id: 2, name: "Accuracy", designation: `${accuracy}% of answers correct` }]}>
+            <div className="bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 p-4 rounded-2xl flex flex-col items-center">
+              <Target className="h-5 w-5 text-green-500 mb-1" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">{accuracy}%</span>
+              <span className="text-[10px] uppercase font-bold text-gray-400">Accuracy</span>
+            </div>
+          </AnimatedTooltip>
+
+          <AnimatedTooltip items={[{ id: 3, name: "Points", designation: `${score} points earned this session` }]}>
+            <div className="bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 p-4 rounded-2xl flex flex-col items-center">
+              <Trophy className="h-5 w-5 text-yellow-500 mb-1" />
+              <span className="text-2xl font-bold text-gray-900 dark:text-white">{score}</span>
+              <span className="text-[10px] uppercase font-bold text-gray-400">Points</span>
+            </div>
+          </AnimatedTooltip>
+        </div>
+
+        {/* Main Content Area - Symmetrical */}
+        <div className="max-w-2xl mx-auto">
           {/* Problem Area */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="lg:col-span-2"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
           >
             <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border-4 border-blue-100 dark:border-blue-900/30 shadow-2xl rounded-[3rem] p-8 md:p-12 relative overflow-hidden">
+              {/* Meteors for Phase 6 */}
+              <Meteors number={20} />
+
               {/* Decorative elements */}
               <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-400/10 rounded-bl-[4rem]" />
 
-              <div className="text-center pb-8">
+              <div className="text-center pb-8 relative z-10">
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-2xl">
                     <Calculator className="h-8 w-8 text-blue-600 dark:text-blue-400" />
@@ -251,7 +296,7 @@ export function AdditionPage() {
                 </div>
               </div>
 
-              <div className="space-y-10">
+              <div className="space-y-10 relative z-10">
                 {currentProblem && (
                   <>
                     {/* Whimsical Problem Display */}
@@ -283,8 +328,8 @@ export function AdditionPage() {
                       />
 
                       {/* Mascot integrated into practice area */}
-                      <div className="absolute -right-4 -bottom-4 hidden lg:block">
-                        <MascotDuck mood={mascotMood} className="w-32 h-32" />
+                      <div className="absolute -right-12 -bottom-12 hidden lg:block">
+                        <MascotDuck mood={mascotMood} className="w-40 h-40" />
                       </div>
                     </div>
 
@@ -367,67 +412,10 @@ export function AdditionPage() {
             </div>
           </motion.div>
 
-          {/* Stats Sidebar */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="space-y-6"
-          >
-            {/* Streak Card */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">Streak 🔥</CardTitle>
-                <Target className="h-5 w-5 text-orange-500" />
-              </div>
-              <div className="text-3xl font-bold text-orange-500">{streak}</div>
-              <p className="text-sm text-gray-600">in a row</p>
-            </Card>
-
-            {/* Accuracy Card */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">How Often Right</CardTitle>
-                <BrainCircuit className="h-5 w-5 text-green-500" />
-              </div>
-              <div className="text-3xl font-bold text-green-500">{accuracy}%</div>
-              <p className="text-sm text-gray-600">{correctAnswers}/{totalAttempts} correct</p>
-            </Card>
-
-            {/* Session Stats */}
-            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg p-6">
-              <div className="flex items-center justify-between mb-4">
-                <CardTitle className="text-lg font-semibold text-gray-900">This Session</CardTitle>
-                <Timer className="h-5 w-5 text-blue-500" />
-              </div>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Problems Done</span>
-                  <span className="font-semibold">{totalAttempts}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Time</span>
-                  <span className="font-semibold">{formatTime(sessionTime)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Points</span>
-                  <span className="font-semibold text-blue-600">{score}</span>
-                </div>
-              </div>
-            </Card>
-
-            {/* Motivational Message */}
-            {streak >= 5 && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-xl text-center"
-              >
-                <Sparkles className="h-6 w-6 mx-auto mb-2" />
-                <div className="font-semibold">Amazing!</div>
-                <div className="text-sm">{streak} problem streak!</div>
-              </motion.div>
-            )}
-          </motion.div>
+          {/* Time Display at Bottom */}
+          <div className="mt-8 text-center text-gray-400 font-medium">
+            Session Time: {formatTime(sessionTime)}
+          </div>
         </div>
       </div>
     </div>

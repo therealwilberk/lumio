@@ -366,6 +366,30 @@ export function SpeedDrillPage() {
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full max-w-2xl"
               >
+                {/* Stats Bar */}
+                <div className="flex justify-center gap-8 mb-12">
+                  <AnimatedTooltip items={[{ id: 1, name: "Time", designation: "Keep it fast!", image: "" }]}>
+                    <div className="flex flex-col items-center bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20">
+                      <Timer className="h-6 w-6 text-blue-400 mb-1" />
+                      <span className="text-2xl font-black text-white">{formatTime(currentTime / 1000)}</span>
+                    </div>
+                  </AnimatedTooltip>
+
+                  <AnimatedTooltip items={[{ id: 2, name: "Progress", designation: `${currentProblemIndex + 1} of ${TOTAL_PROBLEMS}`, image: "" }]}>
+                    <div className="flex flex-col items-center bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20">
+                      <Target className="h-6 w-6 text-purple-400 mb-1" />
+                      <span className="text-2xl font-black text-white">{currentProblemIndex + 1}<span className="text-white/40 text-lg">/{TOTAL_PROBLEMS}</span></span>
+                    </div>
+                  </AnimatedTooltip>
+
+                  <AnimatedTooltip items={[{ id: 3, name: "Best Streak", designation: "Personal best", image: "" }]}>
+                    <div className="flex flex-col items-center bg-white/10 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/20">
+                      <Flame className="h-6 w-6 text-orange-500 mb-1" />
+                      <span className="text-2xl font-black text-white">{bestStreak}</span>
+                    </div>
+                  </AnimatedTooltip>
+                </div>
+
                 {/* Game Board Container */}
                 <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border-4 border-blue-100 dark:border-blue-900/30 shadow-2xl rounded-[3rem] p-6 md:p-10 mb-8 relative overflow-hidden">
                   <Meteors number={20} />
@@ -373,29 +397,6 @@ export function SpeedDrillPage() {
                   {/* Decorative corner elements */}
                   <div className="absolute top-0 left-0 w-20 h-20 bg-blue-500/10 rounded-br-[3rem]" />
                   <div className="absolute bottom-0 right-0 w-20 h-20 bg-orange-500/10 rounded-tl-[3rem]" />
-
-                  {/* Header HUD */}
-                  <div className="grid grid-cols-3 gap-4 mb-10">
-                    <div className="flex flex-col items-center bg-slate-50 dark:bg-gray-900/50 p-4 rounded-3xl border border-gray-100 dark:border-gray-700">
-                      <TimerRing elapsedMs={currentTime} size={80} strokeWidth={6} />
-                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-2 uppercase tracking-wider">Time</p>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-gray-900/50 p-4 rounded-3xl border border-gray-100 dark:border-gray-700">
-                      <div className="text-3xl font-black text-gray-900 dark:text-white">
-                        {currentProblemIndex + 1}
-                        <span className="text-gray-400">/{TOTAL_PROBLEMS}</span>
-                      </div>
-                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">Progress</p>
-                    </div>
-
-                    <div className="flex flex-col items-center justify-center bg-slate-50 dark:bg-gray-900/50 p-4 rounded-3xl border border-gray-100 dark:border-gray-700">
-                      <div className="text-3xl font-black text-orange-500">
-                        {bestStreak}
-                      </div>
-                      <p className="text-xs font-bold text-gray-500 dark:text-gray-400 mt-1 uppercase tracking-wider">Best</p>
-                    </div>
-                  </div>
 
                   {/* Problem Display */}
                   <div className="text-center relative py-10">
