@@ -585,7 +585,7 @@ backgroundImage: {
 - [ ] Add lock/unlock animations
 
 ### Phase 6: Practice Pages (3 hours)
-- [ ] Add Spotlight to practice interface
+- [ ] Add Spotlight to practice & math interface
 - [ ] Add Meteors to problem cards
 - [ ] Add Animated Tooltips to hints
 - [ ] Test all interactions
