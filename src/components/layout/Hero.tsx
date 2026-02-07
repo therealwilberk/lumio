@@ -147,7 +147,7 @@ export function Hero() {
             className="bg-pink-500 hover:bg-pink-600 text-white px-10 py-5 text-xl font-bold rounded-2xl transition-colors shadow-lg hover:shadow-pink-500/50"
             onClick={() => {
               if (user) {
-                navigate('/math-hub');
+                navigate('/math');
               } else {
                 const element = document.getElementById('subjects-section');
                 element?.scrollIntoView({ behavior: 'smooth' });
