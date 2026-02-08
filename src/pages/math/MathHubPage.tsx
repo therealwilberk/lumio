@@ -335,7 +335,7 @@ export function MathHubPage() {
                             ? "In Progress"
                             : topic.isMastered
                               ? "🏆 Mastered!"
-                              : "Level 10 Complete"}
+                              : "Level 5 Complete"}
                       </span>
                       <span className="text-sm font-black text-blue-600 dark:text-blue-400">
                         {topic.progress}%
@@ -363,10 +363,47 @@ export function MathHubPage() {
                         Let's Practice {topic.name}!
                       </Button>
 
-                      {topic.progress >= 100 && !topic.isMastered && (
-                        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-xl">
-                          <p className="text-xs font-bold text-orange-600 dark:text-orange-400 text-center">
-                            Topic finished! Now earn the {getAchievementById(topic.masteryAchievementId!)?.name} badge to unlock {topics[index + 1]?.name || 'the next challenge'}! 🎖️
+                      {topic.progress >= 100 && !topic.isMastered && topic.masteryAchievementId && (
+                        <div className="p-4 bg-orange-50 dark:bg-orange-900/20 border-2 border-orange-200 dark:border-orange-800 rounded-2xl">
+                          <p className="text-xs font-black text-orange-700 dark:text-orange-400 text-center mb-2 uppercase tracking-tight">
+                            Unlock Milestone! 🎖️
+                          </p>
+                          <div className="space-y-1.5">
+                            {(() => {
+                              const achievement = getAchievementById(topic.masteryAchievementId);
+                              if (!achievement) return null;
+
+                              const topicLogs = stats?.sessionLogs.filter(l => l.topic?.toLowerCase() === topic.id.toLowerCase()) || [];
+                              const correct = topicLogs.filter(l => l.isCorrect).length;
+                              const accuracy = topicLogs.length > 0
+                                ? Math.round((correct / topicLogs.length) * 100)
+                                : 0;
+
+                              const reqCorrect = achievement.criteria.correct || 0;
+                              const reqAccuracy = achievement.criteria.accuracy || 0;
+
+                              return (
+                                <>
+                                  <div className="flex justify-between text-[10px] font-bold">
+                                    <span className={correct >= reqCorrect ? 'text-green-600' : 'text-orange-600'}>
+                                      Correct: {correct}/{reqCorrect}
+                                    </span>
+                                    <span className={accuracy >= reqAccuracy ? 'text-green-600' : 'text-orange-600'}>
+                                      Accuracy: {accuracy}%/{reqAccuracy}%
+                                    </span>
+                                  </div>
+                                  <div className="h-1.5 w-full bg-orange-100 dark:bg-orange-900/40 rounded-full overflow-hidden">
+                                    <div
+                                      className="h-full bg-orange-500 rounded-full transition-all duration-1000"
+                                      style={{ width: `${Math.min(100, (correct / reqCorrect) * 100)}%` }}
+                                    />
+                                  </div>
+                                </>
+                              );
+                            })()}
+                          </div>
+                          <p className="text-[10px] font-medium text-orange-600 dark:text-orange-500 text-center mt-2 leading-tight">
+                            Earn the {getAchievementById(topic.masteryAchievementId!)?.name} badge to unlock {topics[index + 1]?.name || 'the next challenge'}!
                           </p>
                         </div>
                       )}

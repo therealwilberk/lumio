@@ -5,6 +5,10 @@ import { ok, bad, notFound } from './core-utils';
 import type { StudentStats, SolveLog, Session, DashboardResponse, Achievement, Problem } from "@shared/types";
 import { ALL_ACHIEVEMENTS } from '@shared/achievements';
 import {
+  TOPIC_SCORE_LIMITS,
+  POINTS_PER_LEVEL
+} from '@shared/math-config';
+import {
   calculateTotalPracticeTime,
   generateActivityHeatmap,
   calculatePerformanceMetrics,
@@ -315,12 +319,27 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
           { sessionNumber: 9, date: new Date(Date.now() - 86400000 * 1), avgTime: 4.5, accuracy: 95, problemCount: 28 },
           { sessionNumber: 10, date: new Date(), avgTime: 4.2, accuracy: 98, problemCount: 35 }
         ],
-        topicMastery: [
-          { topic: 'Addition', subject: 'Math', completionPercent: 100, currentLevel: 10, totalLevels: 10, accuracy: 98, avgTime: 2.5, problemsSolved: 500 },
-          { topic: 'Subtraction', subject: 'Math', completionPercent: 75, currentLevel: 7, totalLevels: 10, accuracy: 92, avgTime: 3.8, problemsSolved: 350 },
-          { topic: 'Multiplication', subject: 'Math', completionPercent: 45, currentLevel: 4, totalLevels: 10, accuracy: 85, avgTime: 5.2, problemsSolved: 120 },
-          { topic: 'Division', subject: 'Math', completionPercent: 20, currentLevel: 2, totalLevels: 10, accuracy: 78, avgTime: 6.5, problemsSolved: 60 }
-        ]
+        topicMastery: ['addition', 'subtraction', 'multiplication', 'division'].map(topicId => {
+          const score = stats.topicScores?.[topicId] || (topicId === 'addition' ? stats.totalScore : 0);
+          const limit = TOPIC_SCORE_LIMITS[topicId] || 100;
+          const progress = Math.min(100, (score / limit) * 100);
+
+          const topicProblems = problems.filter(p => p.topic?.toLowerCase() === topicId);
+          const correct = topicProblems.filter(p => p.correct).length;
+          const accuracy = topicProblems.length > 0 ? (correct / topicProblems.length) * 100 : 0;
+          const avgTime = topicProblems.length > 0 ? topicProblems.reduce((sum, p) => sum + p.timeSpent, 0) / topicProblems.length : 0;
+
+          return {
+            topic: topicId.charAt(0).toUpperCase() + topicId.slice(1),
+            subject: 'Math',
+            completionPercent: Math.round(progress),
+            currentLevel: Math.min(Math.floor(progress / POINTS_PER_LEVEL) + 1, 5),
+            totalLevels: 5,
+            accuracy: Math.round(accuracy),
+            avgTime: Math.round(avgTime * 10) / 10,
+            problemsSolved: topicProblems.length
+          };
+        })
       },
       achievements: {
         unlocked: unlockedAchievements,
