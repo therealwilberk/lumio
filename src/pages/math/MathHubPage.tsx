@@ -41,6 +41,7 @@ interface MathTopic {
   description: string;
   requirement?: string;
   masteryAchievementId?: string;
+  isMastered: boolean;
 }
 
 export function MathHubPage() {
@@ -119,10 +120,18 @@ export function MathHubPage() {
       }
     };
 
-    return progressionData.map(topic => ({
-      ...topic,
-      ...topicMetadata[topic.id]
-    }));
+    return progressionData.map(topic => {
+      const metadata = topicMetadata[topic.id];
+      const isMastered = metadata.masteryAchievementId
+        ? stats?.achievements?.includes(metadata.masteryAchievementId) || false
+        : false;
+
+      return {
+        ...topic,
+        ...metadata,
+        isMastered
+      };
+    });
   };
 
   const handleTopicClick = (topic: MathTopic) => {
@@ -320,7 +329,13 @@ export function MathHubPage() {
                   <div className="mb-8">
                     <div className="flex items-center justify-between mb-3">
                       <span className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        {topic.progress === 0 ? "Not Started" : topic.progress < 100 ? "In Progress" : "Mastered!"}
+                        {topic.progress === 0
+                          ? "Not Started"
+                          : topic.progress < 100
+                            ? "In Progress"
+                            : topic.isMastered
+                              ? "🏆 Mastered!"
+                              : "Level 10 Complete"}
                       </span>
                       <span className="text-sm font-black text-blue-600 dark:text-blue-400">
                         {topic.progress}%
@@ -341,11 +356,21 @@ export function MathHubPage() {
 
                   {/* Action Button */}
                   {topic.isUnlocked ? (
-                    <Button
-                      className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl transition-all"
-                    >
-                      Let's Practice {topic.name}!
-                    </Button>
+                    <div className="space-y-3">
+                      <Button
+                        className="w-full bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white py-3 rounded-xl transition-all"
+                      >
+                        Let's Practice {topic.name}!
+                      </Button>
+
+                      {topic.progress >= 100 && !topic.isMastered && (
+                        <div className="p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800 rounded-xl">
+                          <p className="text-xs font-bold text-orange-600 dark:text-orange-400 text-center">
+                            Topic finished! Now earn the {getAchievementById(topic.masteryAchievementId!)?.name} badge to unlock {topics[index + 1]?.name || 'the next challenge'}! 🎖️
+                          </p>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <div className="w-full space-y-2">
                       <div className="w-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-xl text-center font-medium">
