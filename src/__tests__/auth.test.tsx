@@ -12,7 +12,7 @@ describe('Authentication', () => {
   it('renders login form with PIN input', () => {
     render(<LoginPage />);
     
-    expect(screen.getByLabelText(/pin/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^pin$/i)).toBeInTheDocument();
   });
 
   it('renders sign in button', () => {

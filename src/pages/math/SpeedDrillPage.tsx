@@ -424,6 +424,7 @@ export function SpeedDrillPage() {
                         }}
                         className="w-full max-w-[240px] text-6xl font-black text-center bg-slate-100 dark:bg-gray-900 border-4 border-blue-200 dark:border-blue-800 rounded-3xl py-6 text-gray-900 dark:text-white focus:outline-none focus:ring-8 focus:ring-blue-500/20 transition-all no-spinner"
                         placeholder="?"
+                        aria-label="Your answer"
                         disabled={showFeedback !== null}
                         autoFocus
                       />

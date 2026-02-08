@@ -128,9 +128,24 @@ export function SignupForm() {
                     type="button"
                     onClick={() => setShowPin(!showPin)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                    aria-label={showPin ? "Hide PIN" : "Show PIN"}
                   >
                     {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 ml-1">
+                  {pinRequirements.map((req, index) => (
+                    <div key={index} className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold">
+                      {req.test(pin) ? (
+                        <Check className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <div className="h-3 w-3 rounded-full border border-gray-300" />
+                      )}
+                      <span className={req.test(pin) ? 'text-green-600' : 'text-gray-400'}>
+                        {req.text}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -151,6 +166,7 @@ export function SignupForm() {
                     type="button"
                     onClick={() => setShowConfirmPin(!showConfirmPin)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                    aria-label={showConfirmPin ? "Hide confirm PIN" : "Show confirm PIN"}
                   >
                     {showConfirmPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
