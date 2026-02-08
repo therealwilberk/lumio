@@ -3,6 +3,7 @@ import {
   FOUNDATION_MAX_SUM,
   BRIDGE_MAX_SUM,
   PROBLEM_LIMITS,
+  MULTIPLICATION_LIMITS,
   MAX_PROBLEM_GENERATION_RETRIES,
   MIN_OPERAND_VALUE,
   MIN_SUM_RATIO,
@@ -90,6 +91,26 @@ export function generateProblem(
   difficultyOrMaxSum: DifficultyLevel | number = 'medium',
   exclude?: { num1: number, num2: number }
 ): { num1: number, num2: number } {
+  const MAX_RETRY = MAX_PROBLEM_GENERATION_RETRIES;
+  let attempts = 0;
+
+  if (operation === 'multiplication') {
+    const diff = typeof difficultyOrMaxSum === 'number' ? 'medium' : difficultyOrMaxSum;
+    const { min1, max1, min2, max2 } = MULTIPLICATION_LIMITS[diff];
+
+    while (attempts < MAX_RETRY) {
+      attempts++;
+      const n1 = Math.floor(Math.random() * (max1 - min1 + 1)) + min1;
+      const n2 = Math.floor(Math.random() * (max2 - min2 + 1)) + min2;
+
+      const potential = { num1: n1, num2: n2 };
+      if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
+        return potential;
+      }
+    }
+    return { num1: max1, num2: min2 };
+  }
+
   let min = MIN_OPERAND_VALUE;
   let max = BRIDGE_MAX_SUM;
 
@@ -101,8 +122,6 @@ export function generateProblem(
     max = limits.max;
   }
 
-  const MAX_RETRY = MAX_PROBLEM_GENERATION_RETRIES;
-  let attempts = 0;
   while (attempts < MAX_RETRY) {
     attempts++;
 

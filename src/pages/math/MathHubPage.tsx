@@ -38,6 +38,7 @@ interface MathTopic {
   color: string;
   bgColor: string;
   description: string;
+  requirement?: string;
 }
 
 export function MathHubPage() {
@@ -89,7 +90,8 @@ export function MathHubPage() {
         symbol: '-',
         color: 'text-green-600',
         bgColor: 'bg-green-100',
-        description: 'Build confidence with subtraction problems'
+        description: 'Build confidence with subtraction problems',
+        requirement: 'Master Addition first!'
       },
       multiplication: {
         name: 'Multiplication',
@@ -97,7 +99,8 @@ export function MathHubPage() {
         symbol: '×',
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
-        description: 'Learn multiplication patterns and tables'
+        description: 'Learn multiplication patterns and tables',
+        requirement: 'Master Subtraction first!'
       },
       division: {
         name: 'Division',
@@ -105,7 +108,8 @@ export function MathHubPage() {
         symbol: '÷',
         color: 'text-orange-600',
         bgColor: 'bg-orange-100',
-        description: 'Master division step by step'
+        description: 'Master division step by step',
+        requirement: 'Master Multiplication first!'
       }
     };
 
@@ -322,8 +326,15 @@ export function MathHubPage() {
                       Let's Practice {topic.name}!
                     </Button>
                   ) : (
-                    <div className="w-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-xl text-center font-medium">
-                      Locked 🔒
+                    <div className="w-full space-y-2">
+                      <div className="w-full bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400 py-3 rounded-xl text-center font-medium">
+                        Locked 🔒
+                      </div>
+                      {topic.requirement && (
+                        <p className="text-center text-xs font-bold text-orange-500 animate-pulse">
+                          {topic.requirement}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

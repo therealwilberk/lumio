@@ -6,3 +6,4 @@ dist
 dev_server.log
 test-results/
 *.png
+.eslintcache

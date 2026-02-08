@@ -20,6 +20,12 @@ export const PROBLEM_LIMITS: Record<DifficultyLevel, { min: number; max: number 
   hard: { min: 10, max: 100 },
 };
 
+export const MULTIPLICATION_LIMITS: Record<DifficultyLevel, { min1: number; max1: number; min2: number; max2: number }> = {
+  easy: { min1: 1, max1: 20, min2: 1, max2: 5 },
+  medium: { min1: 1, max1: 50, min2: 1, max2: 10 },
+  hard: { min1: 10, max1: 99, min2: 2, max2: 12 },
+};
+
 // Legacy support - default to medium
 export const BRIDGE_MAX_SUM = PROBLEM_LIMITS.medium.max;
 

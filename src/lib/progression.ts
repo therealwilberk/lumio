@@ -17,47 +17,58 @@ export interface MathTopicData {
 
 export { TOPIC_UNLOCK_THRESHOLD };
 
+/**
+ * Calculates progress and unlock status for each math topic.
+ * Topics unlock sequentially: Addition -> Subtraction -> Multiplication -> Division.
+ * A topic is unlocked when the previous one reaches the TOPIC_UNLOCK_THRESHOLD (80%).
+ */
 export function calculateTopicProgress(userStats: StudentStats | null): MathTopicData[] {
-  // Improved progression logic: topics unlock sequentially based on previous topic mastery
-  // In a real app, these would be separate scores, but here we derive them from totalScore for now
-
+  // Derive progress from totalScore based on defined offsets
   // Addition: 0-100 points
-  const additionProgress = userStats?.totalScore ? Math.min((userStats.totalScore / ADDITION_SCORE_LIMIT) * 100, 100) : 35;
+  const additionProgress = userStats?.totalScore
+    ? Math.min((userStats.totalScore / ADDITION_SCORE_LIMIT) * 100, 100)
+    : 0;
 
-  // Subtraction: Unlocks at threshold. 100-200 points
+  // Subtraction: Unlocks at 80% Addition mastery. 100-200 points range
   const subtractionUnlocked = additionProgress >= TOPIC_UNLOCK_THRESHOLD;
-  const subtractionProgress = subtractionUnlocked ? Math.min(Math.max(0, (userStats?.totalScore || 0) - SUBTRACTION_SCORE_OFFSET), 100) : 0;
+  const subtractionProgress = subtractionUnlocked
+    ? Math.min(Math.max(0, (userStats?.totalScore || 0) - SUBTRACTION_SCORE_OFFSET), 100)
+    : 0;
 
-  // Multiplication: Unlocks at threshold. 200-300 points
-  const multiplicationUnlocked = subtractionProgress >= TOPIC_UNLOCK_THRESHOLD;
-  const multiplicationProgress = multiplicationUnlocked ? Math.min(Math.max(0, (userStats?.totalScore || 0) - MULTIPLICATION_SCORE_OFFSET), 100) : 0;
+  // Multiplication: Unlocks at 80% Subtraction mastery. 200-300 points range
+  const multiplicationUnlocked = subtractionUnlocked && subtractionProgress >= TOPIC_UNLOCK_THRESHOLD;
+  const multiplicationProgress = multiplicationUnlocked
+    ? Math.min(Math.max(0, (userStats?.totalScore || 0) - MULTIPLICATION_SCORE_OFFSET), 100)
+    : 0;
 
-  // Division: Unlocks at threshold. 300-400 points
-  const divisionUnlocked = multiplicationProgress >= TOPIC_UNLOCK_THRESHOLD;
-  const divisionProgress = divisionUnlocked ? Math.min(Math.max(0, (userStats?.totalScore || 0) - DIVISION_SCORE_OFFSET), 100) : 0;
+  // Division: Unlocks at 80% Multiplication mastery. 300-400 points range
+  const divisionUnlocked = multiplicationUnlocked && multiplicationProgress >= TOPIC_UNLOCK_THRESHOLD;
+  const divisionProgress = divisionUnlocked
+    ? Math.min(Math.max(0, (userStats?.totalScore || 0) - DIVISION_SCORE_OFFSET), 100)
+    : 0;
 
   return [
     {
       id: 'addition',
-      progress: additionProgress,
+      progress: Math.round(additionProgress),
       isUnlocked: true,
       level: Math.floor(additionProgress / POINTS_PER_LEVEL) + 1,
     },
     {
       id: 'subtraction',
-      progress: subtractionProgress,
+      progress: Math.round(subtractionProgress),
       isUnlocked: subtractionUnlocked,
       level: subtractionProgress > 0 ? Math.floor(subtractionProgress / POINTS_PER_LEVEL) + 1 : 1,
     },
     {
       id: 'multiplication',
-      progress: multiplicationProgress,
+      progress: Math.round(multiplicationProgress),
       isUnlocked: multiplicationUnlocked,
       level: multiplicationProgress > 0 ? Math.floor(multiplicationProgress / POINTS_PER_LEVEL) + 1 : 1,
     },
     {
       id: 'division',
-      progress: divisionProgress,
+      progress: Math.round(divisionProgress),
       isUnlocked: divisionUnlocked,
       level: divisionProgress > 0 ? Math.floor(divisionProgress / POINTS_PER_LEVEL) + 1 : 1,
     }
