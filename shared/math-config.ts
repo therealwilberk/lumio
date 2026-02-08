@@ -44,7 +44,15 @@ export const FALLBACK_DIVISOR = 1.5;
 export const TOPIC_UNLOCK_THRESHOLD = 80;
 export const POINTS_PER_LEVEL = 20;
 
-export const ADDITION_SCORE_LIMIT = 100;
+export const TOPIC_SCORE_LIMITS: Record<string, number> = {
+  addition: 100,
+  subtraction: 100,
+  multiplication: 100,
+  division: 100
+};
+
+// Legacy support
+export const ADDITION_SCORE_LIMIT = TOPIC_SCORE_LIMITS.addition;
 export const SUBTRACTION_SCORE_OFFSET = 100;
 export const MULTIPLICATION_SCORE_OFFSET = 200;
 export const DIVISION_SCORE_OFFSET = 300;

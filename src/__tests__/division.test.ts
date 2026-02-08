@@ -32,7 +32,12 @@ describe('Division Problem Generation', () => {
 describe('Division Unlock Logic', () => {
   it('should remain locked if multiplication progress is below 80%', () => {
     const mockStats = {
-      totalScore: 279, // Multi progress = (279-200)/100 = 79%
+      totalScore: 279,
+      topicScores: {
+        addition: 100,
+        subtraction: 100,
+        multiplication: 79
+      },
       totalSolved: 50,
       streak: 5,
       accuracy: 90,
@@ -46,7 +51,12 @@ describe('Division Unlock Logic', () => {
 
   it('should unlock when multiplication progress reaches 80%', () => {
     const mockStats = {
-      totalScore: 280, // Multi progress = (280-200)/100 = 80%
+      totalScore: 280,
+      topicScores: {
+        addition: 100,
+        subtraction: 100,
+        multiplication: 80
+      },
       totalSolved: 50,
       streak: 5,
       accuracy: 90,

@@ -1,10 +1,7 @@
 import type { StudentStats } from '@shared/types';
 import {
   TOPIC_UNLOCK_THRESHOLD,
-  ADDITION_SCORE_LIMIT,
-  SUBTRACTION_SCORE_OFFSET,
-  MULTIPLICATION_SCORE_OFFSET,
-  DIVISION_SCORE_OFFSET,
+  TOPIC_SCORE_LIMITS,
   POINTS_PER_LEVEL
 } from '@shared/math-config';
 
@@ -23,28 +20,46 @@ export { TOPIC_UNLOCK_THRESHOLD };
  * A topic is unlocked when the previous one reaches the TOPIC_UNLOCK_THRESHOLD (80%).
  */
 export function calculateTopicProgress(userStats: StudentStats | null): MathTopicData[] {
-  // Derive progress from totalScore based on defined offsets
-  // Addition: 0-100 points
-  const additionProgress = userStats?.totalScore
-    ? Math.min((userStats.totalScore / ADDITION_SCORE_LIMIT) * 100, 100)
-    : 0;
+  const getTopicScore = (topicId: string) => {
+    if (!userStats) return 0;
 
-  // Subtraction: Unlocks at 80% Addition mastery. 100-200 points range
+    // Use per-topic scores if available, otherwise fallback to legacy totalScore for addition
+    if (userStats.topicScores && userStats.topicScores[topicId] !== undefined) {
+      return userStats.topicScores[topicId];
+    }
+
+    if (topicId === 'addition') return userStats.totalScore || 0;
+    return 0;
+  };
+
+  const calculateProgress = (score: number, limit: number) => {
+    if (limit <= 0) return 0;
+    return Math.min(Math.max(0, (score / limit) * 100), 100);
+  };
+
+  // Addition
+  const additionScore = getTopicScore('addition');
+  const additionProgress = calculateProgress(additionScore, TOPIC_SCORE_LIMITS.addition);
+
+  // Subtraction: Unlocks at 80% Addition mastery
   const subtractionUnlocked = additionProgress >= TOPIC_UNLOCK_THRESHOLD;
+  const subtractionScore = getTopicScore('subtraction');
   const subtractionProgress = subtractionUnlocked
-    ? Math.min(Math.max(0, (userStats?.totalScore || 0) - SUBTRACTION_SCORE_OFFSET), 100)
+    ? calculateProgress(subtractionScore, TOPIC_SCORE_LIMITS.subtraction)
     : 0;
 
-  // Multiplication: Unlocks at 80% Subtraction mastery. 200-300 points range
+  // Multiplication: Unlocks at 80% Subtraction mastery
   const multiplicationUnlocked = subtractionUnlocked && subtractionProgress >= TOPIC_UNLOCK_THRESHOLD;
+  const multiplicationScore = getTopicScore('multiplication');
   const multiplicationProgress = multiplicationUnlocked
-    ? Math.min(Math.max(0, (userStats?.totalScore || 0) - MULTIPLICATION_SCORE_OFFSET), 100)
+    ? calculateProgress(multiplicationScore, TOPIC_SCORE_LIMITS.multiplication)
     : 0;
 
-  // Division: Unlocks at 80% Multiplication mastery. 300-400 points range
+  // Division: Unlocks at 80% Multiplication mastery
   const divisionUnlocked = multiplicationUnlocked && multiplicationProgress >= TOPIC_UNLOCK_THRESHOLD;
+  const divisionScore = getTopicScore('division');
   const divisionProgress = divisionUnlocked
-    ? Math.min(Math.max(0, (userStats?.totalScore || 0) - DIVISION_SCORE_OFFSET), 100)
+    ? calculateProgress(divisionScore, TOPIC_SCORE_LIMITS.division)
     : 0;
 
   return [
@@ -52,25 +67,25 @@ export function calculateTopicProgress(userStats: StudentStats | null): MathTopi
       id: 'addition',
       progress: Math.round(additionProgress),
       isUnlocked: true,
-      level: Math.floor(additionProgress / POINTS_PER_LEVEL) + 1,
+      level: Math.min(Math.floor(additionProgress / POINTS_PER_LEVEL) + 1, 5),
     },
     {
       id: 'subtraction',
       progress: Math.round(subtractionProgress),
       isUnlocked: subtractionUnlocked,
-      level: subtractionProgress > 0 ? Math.floor(subtractionProgress / POINTS_PER_LEVEL) + 1 : 1,
+      level: subtractionUnlocked ? Math.min(Math.floor(subtractionProgress / POINTS_PER_LEVEL) + 1, 5) : 1,
     },
     {
       id: 'multiplication',
       progress: Math.round(multiplicationProgress),
       isUnlocked: multiplicationUnlocked,
-      level: multiplicationProgress > 0 ? Math.floor(multiplicationProgress / POINTS_PER_LEVEL) + 1 : 1,
+      level: multiplicationUnlocked ? Math.min(Math.floor(multiplicationProgress / POINTS_PER_LEVEL) + 1, 5) : 1,
     },
     {
       id: 'division',
       progress: Math.round(divisionProgress),
       isUnlocked: divisionUnlocked,
-      level: divisionProgress > 0 ? Math.floor(divisionProgress / POINTS_PER_LEVEL) + 1 : 1,
+      level: divisionUnlocked ? Math.min(Math.floor(divisionProgress / POINTS_PER_LEVEL) + 1, 5) : 1,
     }
   ];
 }

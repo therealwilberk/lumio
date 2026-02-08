@@ -65,6 +65,7 @@
 | T30 | [30-subtraction-module.md](./30-subtraction-module.md) | Subtraction Practice Module | ✅ Complete |
 | T31 | [31-multiplication-module.md](./31-multiplication-module.md) | Multiplication Practice Module | ✅ Complete |
 | T32 | [32-division-module.md](./32-division-module.md) | Division Practice Module | ✅ Complete |
+| T33 | [33-progression-fix.md](./33-progression-fix.md) | Progression and Mastery Fixes | ✅ Complete |
 
 ---
 
