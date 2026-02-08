@@ -59,6 +59,12 @@
 | M21 | [21-ui-stabilization-pass.md](./21-ui-stabilization-pass.md) | UI Stabilization & Polish Pass | ✅ Complete |
 | Hero | [28-hero-spline-overhaul.md](./28-hero-spline-overhaul.md) | Homepage Hero Spline Overhaul | ✅ Complete |
 
+### Phase 8: Math Expansion
+| Section | File | Description | Status |
+|---------|------|-------------|--------|
+| T30 | [30-subtraction-module.md](./30-subtraction-module.md) | Subtraction Practice Module | ✅ Complete |
+| T31 | [31-multiplication-module.md](./31-multiplication-module.md) | Multiplication Practice Module | ✅ Complete |
+
 ---
 
 ## File Naming Convention
@@ -77,6 +83,7 @@
 | v1.3.0 | 2026-02-07 | Added Hero Spline Overhaul entry |
 | v1.3.1 | 2026-02-07 | Refined Hero Spline foreground behavior & interaction |
 | v1.3.2 | 2026-02-07 | Tweaked mobile Spline composition for better visibility |
+| v1.4.0 | 2026-02-07 | Implemented Subtraction and Multiplication modules |
 
 ---
 

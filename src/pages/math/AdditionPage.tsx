@@ -158,7 +158,7 @@ export function AdditionPage() {
   const accuracy = totalAttempts > 0 ? Math.round((correctAnswers / totalAttempts) * 100) : 0;
 
   return (
-    <div className="min-h-screen w-full bg-black/[0.96] antialiased bg-grid-white/[0.02] relative overflow-hidden">
+    <div className="min-h-screen w-full bg-slate-950 antialiased relative overflow-hidden">
       {/* Spotlight effect for Phase 6 */}
       <Spotlight
         className="-top-40 left-0 md:left-60 md:-top-20"
@@ -206,29 +206,21 @@ export function AdditionPage() {
 
         {/* Symmetrical Stats Header */}
         <div className="grid grid-cols-3 gap-4 mb-8">
-          <AnimatedTooltip items={[{ id: 1, name: "Streak", designation: `${streak} in a row!` }]}>
-            <div className="bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 p-4 rounded-2xl flex flex-col items-center">
-              <Flame className="h-5 w-5 text-orange-500 mb-1" />
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">{streak}</span>
-              <span className="text-[10px] uppercase font-bold text-gray-400">Streak</span>
-            </div>
-          </AnimatedTooltip>
-
-          <AnimatedTooltip items={[{ id: 2, name: "Accuracy", designation: `${accuracy}% of answers correct` }]}>
-            <div className="bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 p-4 rounded-2xl flex flex-col items-center">
-              <Target className="h-5 w-5 text-green-500 mb-1" />
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">{accuracy}%</span>
-              <span className="text-[10px] uppercase font-bold text-gray-400">Accuracy</span>
-            </div>
-          </AnimatedTooltip>
-
-          <AnimatedTooltip items={[{ id: 3, name: "Points", designation: `${score} points earned this session` }]}>
-            <div className="bg-white/5 dark:bg-gray-800/50 backdrop-blur-sm border border-gray-100 dark:border-gray-800 p-4 rounded-2xl flex flex-col items-center">
-              <Trophy className="h-5 w-5 text-yellow-500 mb-1" />
-              <span className="text-2xl font-bold text-gray-900 dark:text-white">{score}</span>
-              <span className="text-[10px] uppercase font-bold text-gray-400">Points</span>
-            </div>
-          </AnimatedTooltip>
+          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-800 p-4 flex flex-col items-center">
+            <Flame className="h-5 w-5 text-orange-500 mb-1" />
+            <span className="text-2xl font-bold text-white">{streak}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">Streak</span>
+          </Card>
+          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-800 p-4 flex flex-col items-center">
+            <Target className="h-5 w-5 text-green-500 mb-1" />
+            <span className="text-2xl font-bold text-white">{accuracy}%</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">Accuracy</span>
+          </Card>
+          <Card className="bg-slate-900/50 backdrop-blur-sm border-slate-800 p-4 flex flex-col items-center">
+            <Trophy className="h-5 w-5 text-yellow-500 mb-1" />
+            <span className="text-2xl font-bold text-white">{score}</span>
+            <span className="text-[10px] uppercase font-bold text-slate-400">Points</span>
+          </Card>
         </div>
 
         {/* Main Content Area - Symmetrical */}
@@ -238,7 +230,7 @@ export function AdditionPage() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="bg-white dark:bg-gray-800/50 backdrop-blur-sm border-4 border-blue-100 dark:border-blue-900/30 shadow-2xl rounded-[3rem] p-8 md:p-12 relative overflow-hidden">
+            <div className="bg-slate-900/80 backdrop-blur-xl border-slate-800 shadow-2xl rounded-[3rem] p-8 md:p-12 relative overflow-hidden">
               {/* Meteors for Phase 6 */}
               <Meteors number={20} />
 
@@ -247,10 +239,10 @@ export function AdditionPage() {
 
               <div className="text-center pb-8 relative z-10">
                 <div className="flex items-center justify-center gap-3 mb-6">
-                  <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-2xl">
-                    <Calculator className="h-8 w-8 text-blue-600 dark:text-blue-400" />
+                  <div className="p-3 bg-blue-500/20 rounded-2xl">
+                    <Calculator className="h-8 w-8 text-blue-400" />
                   </div>
-                  <h1 className="text-3xl font-black text-gray-900 dark:text-white uppercase tracking-tight">
+                  <h1 className="text-3xl font-black text-white uppercase tracking-tight">
                     Adding Numbers!
                   </h1>
                 </div>
@@ -258,9 +250,9 @@ export function AdditionPage() {
                 {/* Whimsical Difficulty Selector */}
                 <div className="flex justify-center gap-3 mb-10">
                   {[
-                    { id: 'easy', label: 'Seed', color: 'bg-green-400 hover:bg-green-500', icon: '🌱' },
-                    { id: 'medium', label: 'Sprout', color: 'bg-yellow-400 hover:bg-yellow-500', icon: '🌿' },
-                    { id: 'hard', label: 'Oak', color: 'bg-orange-500 hover:bg-orange-600', icon: '🌳' }
+                    { id: 'easy', label: 'Seed', color: 'bg-green-400', icon: '🌱' },
+                    { id: 'medium', label: 'Sprout', color: 'bg-yellow-400', icon: '🌿' },
+                    { id: 'hard', label: 'Oak', color: 'bg-orange-500', icon: '🌳' }
                   ].map((level) => (
                     <motion.button
                       key={level.id}
@@ -270,8 +262,8 @@ export function AdditionPage() {
                       className={`
                         flex flex-col items-center gap-1 px-5 py-3 rounded-2xl font-bold transition-all
                         ${difficulty === level.id
-                          ? `${level.color} text-white shadow-lg ring-4 ring-white dark:ring-gray-800`
-                          : 'bg-slate-100 dark:bg-gray-900 text-gray-500 dark:text-gray-400 hover:bg-slate-200 dark:hover:bg-gray-800'
+                          ? `${level.color} text-white shadow-lg ring-4 ring-white/10`
+                          : 'bg-slate-800 text-slate-400 hover:bg-slate-700'
                         }
                       `}
                     >
@@ -303,7 +295,7 @@ export function AdditionPage() {
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         placeholder="?"
-                        className="text-5xl font-black text-center w-48 h-24 bg-slate-50 dark:bg-gray-900 border-4 border-blue-200 dark:border-blue-800 rounded-[2rem] text-gray-900 dark:text-white focus:outline-none focus:ring-8 focus:ring-blue-500/20 transition-all no-spinner"
+                        className="text-5xl font-black text-center w-48 h-24 bg-slate-800 border-4 border-blue-500/30 rounded-[2rem] text-white focus:outline-none focus:ring-8 focus:ring-blue-500/20 transition-all no-spinner"
                         disabled={showResult}
                         onKeyPress={(e) => {
                           if (e.key === 'Enter' && !showResult) {
@@ -384,7 +376,7 @@ export function AdditionPage() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={handleNext}
-                            className="bg-slate-900 dark:bg-white text-white dark:text-slate-900 px-10 py-4 text-xl font-black rounded-2xl shadow-lg transition-all flex items-center gap-3 mx-auto"
+                            className="bg-white text-slate-900 px-10 py-4 text-xl font-black rounded-2xl shadow-lg transition-all flex items-center gap-3 mx-auto"
                           >
                             Next One!
                             <RotateCcw className="h-6 w-6" />
