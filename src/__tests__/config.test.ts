@@ -10,20 +10,15 @@ describe('Configuration Integration', () => {
     expect(getProblemCategory(mathConfig.FOUNDATION_MAX_SUM + 1)).not.toBe('Foundation');
   });
 
-  it('respects TOPIC_UNLOCK_THRESHOLD for progression', () => {
-    // additionProgress = (score / limit) * 100
-    // subtractionUnlocked if additionProgress >= threshold
+  it('respects badge-based progression for unlocking topics', () => {
+    // Subtraction unlocks only when 'addition-master' badge is present
+    const statsWithout = { achievements: [] } as any;
+    const statsWith = { achievements: ['addition-master'] } as any;
 
-    const scoreJustBelow = (mathConfig.TOPIC_UNLOCK_THRESHOLD - 1) / 100 * mathConfig.ADDITION_SCORE_LIMIT;
-    const scoreAtThreshold = mathConfig.TOPIC_UNLOCK_THRESHOLD / 100 * mathConfig.ADDITION_SCORE_LIMIT;
+    const progressWithout = calculateTopicProgress(statsWithout);
+    const progressWith = calculateTopicProgress(statsWith);
 
-    const statsBelow = { totalScore: scoreJustBelow } as any;
-    const statsAt = { totalScore: scoreAtThreshold } as any;
-
-    const progressBelow = calculateTopicProgress(statsBelow);
-    const progressAt = calculateTopicProgress(statsAt);
-
-    expect(progressBelow.find(p => p.id === 'subtraction')?.isUnlocked).toBe(false);
-    expect(progressAt.find(p => p.id === 'subtraction')?.isUnlocked).toBe(true);
+    expect(progressWithout.find(p => p.id === 'subtraction')?.isUnlocked).toBe(false);
+    expect(progressWith.find(p => p.id === 'subtraction')?.isUnlocked).toBe(true);
   });
 });

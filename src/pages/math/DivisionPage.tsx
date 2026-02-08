@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { api } from '@/lib/api-client';
 import { Navbar } from '@/components/layout/Navbar';
+import { BadgeUnlockModal } from '@/components/dashboard/BadgeUnlockModal';
+import { Achievement } from '@shared/types';
 import { MascotDuck } from '@/components/ui/MascotDuck';
 import { celebrate } from '@/components/ui/Celebration';
 import { generateProblem as generateMathProblem } from '@/lib/math-utils';
@@ -59,6 +61,8 @@ export function DivisionPage() {
   const [startTime, setStartTime] = useState(Date.now());
   const [showHint, setShowHint] = useState(false);
   const [wrongCount, setWrongCount] = useState(0);
+  const [showUnlockModal, setShowUnlockModal] = useState(false);
+  const [newAchievement, setNewAchievement] = useState<Achievement | null>(null);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -182,7 +186,7 @@ export function DivisionPage() {
     if (!user || !currentProblem) return;
 
     try {
-      await api(`/api/student/${user.id}/progress`, {
+      const response = await api<{ newAchievements?: Achievement[] }>(`/api/student/${user.id}/progress`, {
         method: 'POST',
         body: JSON.stringify({
           isCorrect,
@@ -201,6 +205,12 @@ export function DivisionPage() {
           }
         })
       });
+
+      if (response.newAchievements && response.newAchievements.length > 0) {
+        setNewAchievement(response.newAchievements[0]);
+        setShowUnlockModal(true);
+        celebrate('achievement');
+      }
     } catch (error) {
       console.error('Failed to save progress:', error);
     }
@@ -448,6 +458,12 @@ export function DivisionPage() {
           </motion.div>
         </div>
       </div>
+
+      <BadgeUnlockModal
+        isOpen={showUnlockModal}
+        onClose={() => setShowUnlockModal(false)}
+        achievement={newAchievement}
+      />
     </div>
   );
 }
