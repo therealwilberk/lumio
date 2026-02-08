@@ -30,30 +30,35 @@ describe('Progression Logic', () => {
     expect(addition?.isUnlocked).toBe(true);
   });
 
-  it('unlocks subtraction when addition reaches threshold (80%)', () => {
-    const topics = calculateTopicProgress(mockStats({ addition: 80 }));
+  it('unlocks subtraction when addition mastery achievement is earned', () => {
+    const stats = mockStats({ addition: 100 });
+    stats.achievements = ['addition-master'];
+    const topics = calculateTopicProgress(stats);
     const subtraction = topics.find(t => t.id === 'subtraction');
     expect(subtraction?.isUnlocked).toBe(true);
-    expect(topics.find(t => t.id === 'addition')?.progress).toBe(80);
   });
 
-  it('keeps subtraction locked below threshold', () => {
-    const topics = calculateTopicProgress(mockStats({ addition: 79 }));
+  it('keeps subtraction locked if addition mastery achievement is missing', () => {
+    const topics = calculateTopicProgress(mockStats({ addition: 100 }));
     const subtraction = topics.find(t => t.id === 'subtraction');
     expect(subtraction?.isUnlocked).toBe(false);
   });
 
   it('handles per-topic progress independently', () => {
     // 100 in addition, 50 in subtraction
-    const topics = calculateTopicProgress(mockStats({ addition: 100, subtraction: 50 }));
+    const stats = mockStats({ addition: 100, subtraction: 50 });
+    stats.achievements = ['addition-master'];
+    const topics = calculateTopicProgress(stats);
 
     expect(topics.find(t => t.id === 'addition')?.progress).toBe(100);
     expect(topics.find(t => t.id === 'subtraction')?.progress).toBe(50);
     expect(topics.find(t => t.id === 'multiplication')?.isUnlocked).toBe(false);
   });
 
-  it('unlocks multiplication when subtraction reaches threshold', () => {
-    const topics = calculateTopicProgress(mockStats({ addition: 100, subtraction: 80 }));
+  it('unlocks multiplication when subtraction mastery achievement is earned', () => {
+    const stats = mockStats({ addition: 100, subtraction: 100 });
+    stats.achievements = ['addition-master', 'subtraction-master'];
+    const topics = calculateTopicProgress(stats);
     const multiplication = topics.find(t => t.id === 'multiplication');
     expect(multiplication?.isUnlocked).toBe(true);
   });

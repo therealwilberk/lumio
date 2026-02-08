@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { motion } from 'framer-motion';
@@ -88,6 +88,10 @@ export function DashboardPage() {
 
   const troubleSpots = dashboardData?.troubleSpots || [];
   const unlockedAchievementIds = dashboardData?.achievements.unlocked.map(a => a.id) || [];
+
+  const masteryBadgeIds = ['addition-master', 'subtraction-master', 'multiplication-master', 'division-master'];
+  const masteryAchievements = ALL_ACHIEVEMENTS.filter(a => masteryBadgeIds.includes(a.id));
+  const otherAchievements = ALL_ACHIEVEMENTS.filter(a => !masteryBadgeIds.includes(a.id));
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#0f172a] transition-colors duration-500">
@@ -237,27 +241,44 @@ export function DashboardPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
-                  {ALL_ACHIEVEMENTS.slice(0, 6).map((achievement) => (
-                    <AchievementBadge
-                      key={achievement.id}
-                      achievement={achievement}
-                      unlocked={unlockedAchievementIds.includes(achievement.id)}
-                    />
-                  ))}
+                {/* Topic Mastery Badges */}
+                <div className="mb-6">
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Topic Mastery</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {masteryAchievements.map((achievement) => (
+                      <AchievementBadge
+                        key={achievement.id}
+                        achievement={achievement}
+                        unlocked={unlockedAchievementIds.includes(achievement.id)}
+                      />
+                    ))}
+                  </div>
                 </div>
 
-                <div className="text-sm text-gray-600 dark:text-gray-400 text-center mt-4">
+                {/* Other Badges */}
+                <div>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-3">Fun Achievements</h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4 mb-4">
+                    {otherAchievements.slice(0, 3).map((achievement) => (
+                      <AchievementBadge
+                        key={achievement.id}
+                        achievement={achievement}
+                        unlocked={unlockedAchievementIds.includes(achievement.id)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                <div className="text-sm text-gray-600 dark:text-gray-400 text-center mt-4 border-t border-gray-100 dark:border-gray-700 pt-4">
                   {unlockedAchievementIds.length} of {ALL_ACHIEVEMENTS.length} badges earned!
                 </div>
 
-                <Button
-                  variant="outline"
-                  className="w-full mt-4"
-                  onClick={() => navigate('/achievements')}
+                <Link
+                  to="/achievements"
+                  className="block w-full mt-6 py-3 text-center text-xs font-bold uppercase tracking-widest text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-all border-t border-gray-100 dark:border-gray-700"
                 >
-                  View All Achievements
-                </Button>
+                  View All Achievements →
+                </Link>
               </CardContent>
             </Card>
           </motion.div>

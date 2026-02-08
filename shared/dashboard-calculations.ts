@@ -305,5 +305,16 @@ export function checkAchievementCriteria(
         if (maxConsecutive < criteria.consecutiveCorrect) return false;
     }
 
+    // Topic mastery check
+    if (criteria.topic !== undefined && criteria.correct !== undefined && criteria.accuracy !== undefined) {
+        const topicProblems = userStats.problems.filter(p => p.topic?.toLowerCase() === criteria.topic.toLowerCase());
+        const correctInTopic = topicProblems.filter(p => p.correct).length;
+
+        if (correctInTopic < criteria.correct) return false;
+
+        const topicAccuracy = (correctInTopic / topicProblems.length) * 100;
+        if (topicAccuracy < criteria.accuracy) return false;
+    }
+
     return true;
 }

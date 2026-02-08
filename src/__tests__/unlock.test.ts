@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
 import { calculateTopicProgress } from '../lib/progression';
-import { TOPIC_UNLOCK_THRESHOLD } from '../../shared/math-config';
 
 describe('Sequential Unlock Logic', () => {
-  it('should keep Multiplication locked if Subtraction is below threshold', () => {
+  it('should keep Multiplication locked if Subtraction achievement is missing', () => {
     const mockStats = {
       totalScore: 150,
       topicScores: {
         addition: 100,
         subtraction: 50
-      }
+      },
+      achievements: ['addition-master']
     } as any;
 
     const topics = calculateTopicProgress(mockStats);
@@ -20,13 +20,14 @@ describe('Sequential Unlock Logic', () => {
     expect(multiplication?.isUnlocked).toBe(false);
   });
 
-  it('should unlock Multiplication if Subtraction is above threshold', () => {
+  it('should unlock Multiplication if Subtraction achievement is present', () => {
     const mockStats = {
       totalScore: 180,
       topicScores: {
         addition: 100,
         subtraction: 80
-      }
+      },
+      achievements: ['addition-master', 'subtraction-master']
     } as any;
 
     const topics = calculateTopicProgress(mockStats);

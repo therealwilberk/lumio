@@ -214,50 +214,54 @@ export const SPECIAL_ACHIEVEMENTS: Achievement[] = [
         points: 150
     },
     {
-        id: 'addition_master',
+        id: 'addition-master',
         name: 'Addition Master',
-        emoji: '➕',
-        description: 'Complete all addition levels',
+        emoji: '🏆',
+        description: 'Get 50 correct in Addition with 90% accuracy',
         category: 'special',
         criteria: {
             topic: 'addition',
-            completion: 100
+            correct: 50,
+            accuracy: 90
         },
         points: 250
     },
     {
-        id: 'subtraction_master',
-        name: 'Subtraction Master',
-        emoji: '➖',
-        description: 'Complete all subtraction levels',
+        id: 'subtraction-master',
+        name: 'Subtraction Expert',
+        emoji: '🛡️',
+        description: 'Get 40 correct in Subtraction with 85% accuracy',
         category: 'special',
         criteria: {
             topic: 'subtraction',
-            completion: 100
+            correct: 40,
+            accuracy: 85
         },
         points: 250
     },
     {
-        id: 'multiplication_master',
-        name: 'Multiplication Master',
-        emoji: '✖️',
-        description: 'Complete all multiplication levels',
+        id: 'multiplication-master',
+        name: 'Multiplication Wizard',
+        emoji: '🪄',
+        description: 'Get 60 correct in Multiplication with 88% accuracy',
         category: 'special',
         criteria: {
             topic: 'multiplication',
-            completion: 100
+            correct: 60,
+            accuracy: 88
         },
         points: 250
     },
     {
-        id: 'division_master',
+        id: 'division-master',
         name: 'Division Master',
         emoji: '➗',
-        description: 'Complete all division levels',
+        description: 'Get 50 correct in Division with 85% accuracy',
         category: 'special',
         criteria: {
             topic: 'division',
-            completion: 100
+            correct: 50,
+            accuracy: 85
         },
         points: 250
     }
