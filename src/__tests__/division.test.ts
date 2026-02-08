@@ -30,18 +30,14 @@ describe('Division Problem Generation', () => {
 });
 
 describe('Division Unlock Logic', () => {
-  it('should remain locked if multiplication progress is below 80%', () => {
+  it('should remain locked if multiplication-master achievement is missing', () => {
     const mockStats = {
-      totalScore: 279,
+      achievements: ['addition-master', 'subtraction-master'],
       topicScores: {
         addition: 100,
         subtraction: 100,
-        multiplication: 79
-      },
-      totalSolved: 50,
-      streak: 5,
-      accuracy: 90,
-      level: 5
+        multiplication: 80
+      }
     } as any;
 
     const progress = calculateTopicProgress(mockStats);
@@ -49,18 +45,14 @@ describe('Division Unlock Logic', () => {
     expect(division?.isUnlocked).toBe(false);
   });
 
-  it('should unlock when multiplication progress reaches 80%', () => {
+  it('should unlock when multiplication-master achievement is earned', () => {
     const mockStats = {
-      totalScore: 280,
+      achievements: ['addition-master', 'subtraction-master', 'multiplication-master'],
       topicScores: {
         addition: 100,
         subtraction: 100,
         multiplication: 80
-      },
-      totalSolved: 50,
-      streak: 5,
-      accuracy: 90,
-      level: 5
+      }
     } as any;
 
     const progress = calculateTopicProgress(mockStats);
