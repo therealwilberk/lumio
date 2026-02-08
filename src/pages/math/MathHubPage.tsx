@@ -14,6 +14,7 @@ import { LampContainer } from '@/components/ui/lamp';
 import { Spotlight } from '@/components/ui/spotlight';
 import { Meteors } from '@/components/ui/meteors';
 import { HoverBorderGradient } from '@/components/ui/hover-border-gradient';
+import { getAchievementById } from '@shared/achievements';
 import {
   Plus,
   Minus,
@@ -39,6 +40,7 @@ interface MathTopic {
   bgColor: string;
   description: string;
   requirement?: string;
+  masteryAchievementId?: string;
 }
 
 export function MathHubPage() {
@@ -82,7 +84,8 @@ export function MathHubPage() {
         symbol: '+',
         color: 'text-blue-600',
         bgColor: 'bg-blue-100',
-        description: 'Master basic addition with fun challenges'
+        description: 'Master basic addition with fun challenges',
+        masteryAchievementId: 'addition-master'
       },
       subtraction: {
         name: 'Subtraction',
@@ -91,7 +94,8 @@ export function MathHubPage() {
         color: 'text-green-600',
         bgColor: 'bg-green-100',
         description: 'Build confidence with subtraction problems',
-        requirement: 'Master Addition first!'
+        requirement: 'Earn Addition Master badge!',
+        masteryAchievementId: 'subtraction-master'
       },
       multiplication: {
         name: 'Multiplication',
@@ -100,7 +104,8 @@ export function MathHubPage() {
         color: 'text-purple-600',
         bgColor: 'bg-purple-100',
         description: 'Learn multiplication patterns and tables',
-        requirement: 'Master Subtraction first!'
+        requirement: 'Earn Subtraction Expert badge!',
+        masteryAchievementId: 'multiplication-master'
       },
       division: {
         name: 'Division',
@@ -109,7 +114,8 @@ export function MathHubPage() {
         color: 'text-orange-600',
         bgColor: 'bg-orange-100',
         description: 'Master division step by step',
-        requirement: 'Master Multiplication first!'
+        requirement: 'Earn Multiplication Wizard badge!',
+        masteryAchievementId: 'division-master'
       }
     };
 
@@ -269,8 +275,23 @@ export function MathHubPage() {
                 <div className="p-8 w-full">
                   {/* Icon and Symbol */}
                   <div className="flex items-center justify-between mb-6">
-                    <div className={`w-16 h-16 ${topic.bgColor} rounded-2xl flex items-center justify-center`}>
-                      <topic.icon className={`h-8 w-8 ${topic.color}`} />
+                    <div className="flex gap-4">
+                      <div className={`w-16 h-16 ${topic.bgColor} rounded-2xl flex items-center justify-center`}>
+                        <topic.icon className={`h-8 w-8 ${topic.color}`} />
+                      </div>
+
+                      {/* Mastery Badge Icon */}
+                      {topic.masteryAchievementId && (
+                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center border-2 border-dashed ${
+                          stats?.achievements?.includes(topic.masteryAchievementId)
+                            ? 'bg-yellow-50 border-yellow-200 dark:bg-yellow-900/20 dark:border-yellow-800'
+                            : 'bg-gray-50 border-gray-200 dark:bg-gray-900/40 dark:border-gray-800 opacity-40'
+                        }`}>
+                          <div className="text-3xl" title={getAchievementById(topic.masteryAchievementId)?.name}>
+                            {getAchievementById(topic.masteryAchievementId)?.emoji}
+                          </div>
+                        </div>
+                      )}
                     </div>
                     <div className="text-4xl font-bold text-gray-400 dark:text-gray-500">
                       {topic.symbol}

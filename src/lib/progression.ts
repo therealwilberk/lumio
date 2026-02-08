@@ -1,6 +1,5 @@
 import type { StudentStats } from '@shared/types';
 import {
-  TOPIC_UNLOCK_THRESHOLD,
   TOPIC_SCORE_LIMITS,
   POINTS_PER_LEVEL
 } from '@shared/math-config';
@@ -12,14 +11,14 @@ export interface MathTopicData {
   level: number;
 }
 
-export { TOPIC_UNLOCK_THRESHOLD };
-
 /**
  * Calculates progress and unlock status for each math topic.
  * Topics unlock sequentially: Addition -> Subtraction -> Multiplication -> Division.
- * A topic is unlocked when the previous one reaches the TOPIC_UNLOCK_THRESHOLD (80%).
+ * A topic is unlocked when a specific mastery achievement is earned for the previous topic.
  */
 export function calculateTopicProgress(userStats: StudentStats | null): MathTopicData[] {
+  const hasAchievement = (id: string) => userStats?.achievements?.includes(id) || false;
+
   const getTopicScore = (topicId: string) => {
     if (!userStats) return 0;
 
@@ -41,22 +40,22 @@ export function calculateTopicProgress(userStats: StudentStats | null): MathTopi
   const additionScore = getTopicScore('addition');
   const additionProgress = calculateProgress(additionScore, TOPIC_SCORE_LIMITS.addition);
 
-  // Subtraction: Unlocks at 80% Addition mastery
-  const subtractionUnlocked = additionProgress >= TOPIC_UNLOCK_THRESHOLD;
+  // Subtraction: Unlocks when 'addition-master' is earned
+  const subtractionUnlocked = hasAchievement('addition-master');
   const subtractionScore = getTopicScore('subtraction');
   const subtractionProgress = subtractionUnlocked
     ? calculateProgress(subtractionScore, TOPIC_SCORE_LIMITS.subtraction)
     : 0;
 
-  // Multiplication: Unlocks at 80% Subtraction mastery
-  const multiplicationUnlocked = subtractionUnlocked && subtractionProgress >= TOPIC_UNLOCK_THRESHOLD;
+  // Multiplication: Unlocks when 'subtraction-master' is earned
+  const multiplicationUnlocked = subtractionUnlocked && hasAchievement('subtraction-master');
   const multiplicationScore = getTopicScore('multiplication');
   const multiplicationProgress = multiplicationUnlocked
     ? calculateProgress(multiplicationScore, TOPIC_SCORE_LIMITS.multiplication)
     : 0;
 
-  // Division: Unlocks at 80% Multiplication mastery
-  const divisionUnlocked = multiplicationUnlocked && multiplicationProgress >= TOPIC_UNLOCK_THRESHOLD;
+  // Division: Unlocks when 'multiplication-master' is earned
+  const divisionUnlocked = multiplicationUnlocked && hasAchievement('multiplication-master');
   const divisionScore = getTopicScore('division');
   const divisionProgress = divisionUnlocked
     ? calculateProgress(divisionScore, TOPIC_SCORE_LIMITS.division)
