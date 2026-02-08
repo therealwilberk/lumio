@@ -26,6 +26,12 @@ export const MULTIPLICATION_LIMITS: Record<DifficultyLevel, { min1: number; max1
   hard: { min1: 10, max1: 99, min2: 2, max2: 12 },
 };
 
+export const DIVISION_LIMITS: Record<DifficultyLevel, { minDividend: number; maxDividend: number; minDivisor: number; maxDivisor: number }> = {
+  easy: { minDividend: 10, maxDividend: 99, minDivisor: 2, maxDivisor: 9 },
+  medium: { minDividend: 100, maxDividend: 999, minDivisor: 5, maxDivisor: 12 },
+  hard: { minDividend: 1000, maxDividend: 9999, minDivisor: 10, maxDivisor: 99 },
+};
+
 // Legacy support - default to medium
 export const BRIDGE_MAX_SUM = PROBLEM_LIMITS.medium.max;
 

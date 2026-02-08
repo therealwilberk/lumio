@@ -4,6 +4,7 @@ import {
   BRIDGE_MAX_SUM,
   PROBLEM_LIMITS,
   MULTIPLICATION_LIMITS,
+  DIVISION_LIMITS,
   MAX_PROBLEM_GENERATION_RETRIES,
   MIN_OPERAND_VALUE,
   MIN_SUM_RATIO,
@@ -109,6 +110,27 @@ export function generateProblem(
       }
     }
     return { num1: max1, num2: min2 };
+  }
+
+  if (operation === 'division') {
+    const diff = typeof difficultyOrMaxSum === 'number' ? 'medium' : difficultyOrMaxSum;
+    const { minDividend, maxDividend, minDivisor, maxDivisor } = DIVISION_LIMITS[diff];
+
+    while (attempts < MAX_RETRY) {
+      attempts++;
+      const n2 = Math.floor(Math.random() * (maxDivisor - minDivisor + 1)) + minDivisor;
+      const n1 = Math.floor(Math.random() * (maxDividend - minDividend + 1)) + minDividend;
+
+      const potential = { num1: n1, num2: n2 };
+      // For division, we just need dividend >= divisor for a valid quotient >= 1
+      // Although minDividend is already > maxDivisor in most cases
+      if (n1 >= n2) {
+        if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
+          return potential;
+        }
+      }
+    }
+    return { num1: maxDividend, num2: maxDivisor };
   }
 
   let min = MIN_OPERAND_VALUE;
