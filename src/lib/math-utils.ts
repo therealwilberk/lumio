@@ -10,6 +10,8 @@ import {
 } from '@shared/math-config';
 import { DifficultyLevel } from '@shared/types';
 
+export type Operation = 'addition' | 'subtraction' | 'multiplication' | 'division';
+
 export interface MakeTenBreakdown {
   needs: number;
   remainder: number;
@@ -78,11 +80,13 @@ export function isBridgeThroughTen(n1: number, n2: number): boolean {
   return n1 % BRIDGE_BASE !== 0 && (n1 % BRIDGE_BASE + n2 % BRIDGE_BASE) > BRIDGE_BASE;
 }
 /**
- * Generate a math problem based on difficulty level or a specific max sum.
+ * Generate a math problem based on operation and difficulty level.
+ * @param operation - The math operation (addition, subtraction, etc.)
  * @param difficultyOrMaxSum - Difficulty level (easy, medium, hard) or a number for max sum.
  * @param exclude - Problem to exclude from generation.
  */
 export function generateProblem(
+  operation: Operation = 'addition',
   difficultyOrMaxSum: DifficultyLevel | number = 'medium',
   exclude?: { num1: number, num2: number }
 ): { num1: number, num2: number } {
@@ -101,16 +105,41 @@ export function generateProblem(
   let attempts = 0;
   while (attempts < MAX_RETRY) {
     attempts++;
-    const n1 = Math.floor(Math.random() * (max - min)) + min;
-    const n2 = Math.floor(Math.random() * (max - n1)) + 1;
-    const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
-    if (n1 + n2 <= max && n1 + n2 >= max * MIN_SUM_RATIO) {
-      if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
-        return potential;
+
+    let n1: number, n2: number;
+
+    if (operation === 'subtraction') {
+      // For subtraction: n1 should be between min and max, n2 should be between min and n1
+      n1 = Math.floor(Math.random() * (max - min + 1)) + min;
+      n2 = Math.floor(Math.random() * (n1 - min + 1)) + min;
+
+      const potential = { num1: n1, num2: n2 };
+
+      // Basic validation for subtraction: result non-negative and within reasonable range
+      if (n1 >= n2) {
+        if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
+          return potential;
+        }
+      }
+    } else {
+      // Default to addition logic
+      n1 = Math.floor(Math.random() * (max - min)) + min;
+      n2 = Math.floor(Math.random() * (max - n1)) + 1;
+
+      const potential = n1 >= n2 ? { num1: n1, num2: n2 } : { num1: n2, num2: n1 };
+
+      if (potential.num1 + potential.num2 <= max && potential.num1 + potential.num2 >= max * MIN_SUM_RATIO) {
+        if (!exclude || (potential.num1 !== exclude.num1 || potential.num2 !== exclude.num2)) {
+          return potential;
+        }
       }
     }
   }
-  return { num1: Math.max(min, Math.floor(max / FALLBACK_DIVISOR)), num2: 1 };
+
+  // Fallback
+  return operation === 'subtraction'
+    ? { num1: max, num2: Math.floor(max / 2) }
+    : { num1: Math.max(min, Math.floor(max / FALLBACK_DIVISOR)), num2: 1 };
 }
 export function getProblemCategory(sum: number): string {
   if (sum <= FOUNDATION_MAX_SUM) return 'Foundation';
