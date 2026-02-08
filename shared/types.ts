@@ -32,6 +32,8 @@ export interface StudentStats {
   achievements: string[]; // IDs of unlocked achievements
   performanceMetrics: PerformanceMetrics;
   dayActivity: DayActivity[];
+  // Drill Data
+  drillAttempts?: DrillAttempt[];
 }
 
 // ============================================
@@ -134,6 +136,40 @@ export interface TroubleProblem {
   missed: number;
   total: number;
   failureRate: number;
+}
+
+// ============================================
+// Speed Drill Types
+// ============================================
+
+export interface DrillProblem {
+  question: string;
+  answer: number;
+  userAnswer: number;
+  timeSpent: number;
+  correct: boolean;
+}
+
+export interface DrillResult {
+  drillId: string;
+  userId: string;
+  topic: string;
+  range: string;
+  date: string;
+  totalTime: number;
+  problems: DrillProblem[];
+  accuracy: number;
+  averageTime: number;
+  bestStreak: number;
+}
+
+export interface DrillAttempt {
+  drillId: string;
+  date: string;
+  totalTime: number;
+  accuracy: number;
+  averageTime: number;
+  bestStreak: number;
 }
 
 // Dashboard API response

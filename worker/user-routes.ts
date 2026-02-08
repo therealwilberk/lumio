@@ -2,7 +2,7 @@ import { Hono } from "hono";
 import type { Env } from './core-utils';
 import { StudentEntity } from "./entities";
 import { ok, bad, notFound } from './core-utils';
-import type { StudentStats, SolveLog, Session, DashboardResponse, Achievement, Problem } from "@shared/types";
+import type { StudentStats, SolveLog, Session, DashboardResponse, Achievement, Problem, DrillResult, DrillAttempt } from "@shared/types";
 import { ALL_ACHIEVEMENTS } from '@shared/achievements';
 import {
   calculateTotalPracticeTime,
@@ -413,6 +413,76 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
       success: true,
       newAchievements: newUnlockedAchievements
     });
+  });
+
+  // ============================================
+  // DRILL ROUTES
+  // ============================================
+
+  // Save a drill result
+  app.post('/api/drill/save', async (c) => {
+    try {
+      const result = await c.req.json() as DrillResult;
+      
+      if (!result.userId || !result.drillId) {
+        return bad(c, 'Missing required fields: userId and drillId');
+      }
+
+      const student = new StudentEntity(c.env, result.userId);
+      
+      if (!await student.exists()) {
+        return notFound(c, 'User not found');
+      }
+
+      // Extract attempt summary from full result
+      const attempt: DrillAttempt = {
+        drillId: result.drillId,
+        date: result.date,
+        totalTime: result.totalTime,
+        accuracy: result.accuracy,
+        averageTime: result.averageTime,
+        bestStreak: result.bestStreak
+      };
+
+      // Save to student state
+      await student.mutate(s => {
+        const currentAttempts = s.drillAttempts || [];
+        return {
+          ...s,
+          drillAttempts: [...currentAttempts, attempt].slice(-50) // Keep last 50 attempts
+        };
+      });
+
+      return ok(c, { success: true, message: 'Drill result saved' });
+    } catch (error) {
+      console.error('Save drill error:', error);
+      return bad(c, 'Failed to save drill result');
+    }
+  });
+
+  // Get previous drill attempts for a user
+  app.get('/api/drill/attempts/:userId', async (c) => {
+    try {
+      const userId = c.req.param('userId');
+      
+      if (!userId) {
+        return bad(c, 'Missing userId parameter');
+      }
+
+      const student = new StudentEntity(c.env, userId);
+      
+      if (!await student.exists()) {
+        return notFound(c, 'User not found');
+      }
+
+      const state = await student.getState();
+      const attempts = state.drillAttempts || [];
+
+      return ok(c, attempts);
+    } catch (error) {
+      console.error('Get drill attempts error:', error);
+      return bad(c, 'Failed to load drill attempts');
+    }
   });
 }
 
