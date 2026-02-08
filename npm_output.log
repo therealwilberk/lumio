@@ -93,3 +93,5 @@ Server is running
 --> GET /api/student/user_1770532545470_mheqydf0u [32m200[0m 6ms
 <-- GET /api/student/user_1770532545470_mheqydf0u
 --> GET /api/student/user_1770532545470_mheqydf0u [32m200[0m 11ms
+6:49:18 AM [vite] (client) hmr update /src/pages/math/SubtractionPage.tsx, /src/index.css
+6:49:21 AM [vite] (client) hmr update /src/pages/math/MultiplicationPage.tsx, /src/index.css

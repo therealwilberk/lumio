@@ -213,9 +213,7 @@ export function MultiplicationPage() {
           </Button>
 
           <div className="flex gap-4">
-            <Button variant="outline" onClick={() => navigate('/math/speed-drill')} className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10 rounded-xl flex items-center gap-2">
-              <Zap className="h-4 w-4" /> Speed Drill
-            </Button>
+            {/* Speed Drill currently only supports Addition */}
           </div>
         </motion.div>
 

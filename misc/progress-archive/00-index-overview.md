@@ -66,6 +66,7 @@
 | T31 | [31-multiplication-module.md](./31-multiplication-module.md) | Multiplication Practice Module | ✅ Complete |
 | T32 | [32-division-module.md](./32-division-module.md) | Division Practice Module | ✅ Complete |
 | T33 | [33-progression-fix.md](./33-progression-fix.md) | Progression and Mastery Fixes | ✅ Complete |
+| T34 | [34-math-content-fix.md](./34-math-content-fix.md) | Math Expansion Content Audit & Fix | ✅ Complete |
 
 ---
 
@@ -86,6 +87,7 @@
 | v1.3.1 | 2026-02-07 | Refined Hero Spline foreground behavior & interaction |
 | v1.3.2 | 2026-02-07 | Tweaked mobile Spline composition for better visibility |
 | v1.4.0 | 2026-02-07 | Implemented Subtraction and Multiplication modules |
+| v1.5.0 | 2026-02-07 | Completed Math Expansion (Sub, Mult, Div) with Progression Fixes |
 
 ---
 

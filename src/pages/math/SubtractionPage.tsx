@@ -185,23 +185,7 @@ export function SubtractionPage() {
           </Button>
 
           <div className="flex gap-4">
-            <Button
-              variant="outline"
-              onClick={() => navigate('/math/speed-drill')}
-              className="border-yellow-500/50 text-yellow-500 hover:bg-yellow-500/10 rounded-xl flex items-center gap-2"
-            >
-              <Zap className="h-4 w-4" />
-              Speed Drill
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => navigate('/math/regular-practice')}
-              className="border-green-500/50 text-green-500 hover:bg-green-500/10 rounded-xl flex items-center gap-2"
-            >
-              <BookOpen className="h-4 w-4" />
-              Practice
-            </Button>
+            {/* Speed Drill and Practice modes currently only support Addition */}
           </div>
         </motion.div>
 
