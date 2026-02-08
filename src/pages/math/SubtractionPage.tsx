@@ -294,6 +294,7 @@ export function SubtractionPage() {
                         value={userAnswer}
                         onChange={(e) => setUserAnswer(e.target.value)}
                         placeholder="?"
+                        aria-label="Your answer"
                         className="text-5xl font-black text-center w-48 h-24 bg-slate-800 border-4 border-green-500/30 rounded-[2rem] text-white focus:outline-none focus:ring-8 focus:ring-green-500/20 transition-all no-spinner"
                         disabled={showResult}
                         onKeyPress={(e) => {

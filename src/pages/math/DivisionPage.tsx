@@ -416,6 +416,7 @@ export function DivisionPage() {
                                 if (val.length <= 1) setUserAnswer(val);
                               }}
                               placeholder="?"
+                              aria-label="Your answer"
                               className="text-5xl font-black text-center w-32 h-24 bg-slate-800 border-4 border-blue-500/30 rounded-[2rem] text-white focus:outline-none focus:ring-8 focus:ring-blue-500/20 transition-all no-spinner"
                               onKeyPress={(e) => e.key === 'Enter' && handleSubmit()}
                               autoFocus
