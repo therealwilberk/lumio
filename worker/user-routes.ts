@@ -231,10 +231,15 @@ export function userRoutes(app: Hono<{ Bindings: Env }>) {
 
   app.post('/api/student/:id/progress', async (c) => {
     const id = c.req.param('id');
-    const { isCorrect, points, solveLog } = (await c.req.json()) as { isCorrect: boolean; points?: number; solveLog?: SolveLog };
+    const { isCorrect, points, solveLog, topic } = (await c.req.json()) as {
+      isCorrect: boolean;
+      points?: number;
+      solveLog?: SolveLog;
+      topic?: string;
+    };
     const student = new StudentEntity(c.env, id);
     if (!await student.exists()) return notFound(c, 'student not found');
-    const updated = await student.updateProgress(isCorrect, points ?? 1, solveLog);
+    const updated = await student.updateProgress(isCorrect, points ?? 1, solveLog, topic);
     return ok(c, updated);
   });
 

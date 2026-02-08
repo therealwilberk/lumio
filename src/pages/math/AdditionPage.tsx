@@ -14,23 +14,17 @@ import { celebrate } from '@/components/ui/Celebration';
 import { generateProblem as generateMathProblem } from '@/lib/math-utils';
 import { Spotlight } from '@/components/ui/spotlight';
 import { Meteors } from '@/components/ui/meteors';
-import { AnimatedTooltip } from '@/components/ui/animated-tooltip';
 import { 
   Calculator, 
   CheckCircle, 
   XCircle, 
   RotateCcw, 
-  TrendingUp, 
-  Timer, 
   Target,
   ArrowLeft,
-  Sparkles,
-  BrainCircuit,
   Zap,
   BookOpen,
   Trophy,
-  Flame,
-  Star
+  Flame
 } from 'lucide-react';
 
 interface Problem {
@@ -120,6 +114,7 @@ export function AdditionPage() {
     
     const solveLog: SolveLog = {
       id: `log_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      topic: 'addition',
       num1: currentProblem!.num1,
       num2: currentProblem!.num2,
       userAnswer: parseInt(userAnswer),
@@ -134,7 +129,12 @@ export function AdditionPage() {
     try {
       await api(`/api/student/${user.id}/progress`, {
         method: 'POST',
-        body: JSON.stringify({ isCorrect, points, solveLog })
+        body: JSON.stringify({
+          isCorrect,
+          points,
+          solveLog,
+          topic: 'addition'
+        })
       });
     } catch (error) {
       console.error('Failed to save progress:', error);

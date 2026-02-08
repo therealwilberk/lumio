@@ -1,0 +1,95 @@
+
+> lumio@0.0.0 dev
+> vite --host 0.0.0.0 --port ${PORT:-3000}
+
+Server is running
+6:29:06 AM [vite] (client) Forced re-optimization of dependencies
+
+  VITE v6.4.1  ready in 6285 ms
+
+  ➜  Local:   http://localhost:3000/
+  ➜  Network: http://192.168.0.2:3000/
+  ➜  Debug:   http://localhost:3000/__debug
+Server is running
+<-- POST /api/auth/signup
+--> POST /api/auth/signup [32m200[0m 52ms
+<-- GET /api/dashboard/user_1770532268424_4joqebsj8
+--> GET /api/dashboard/user_1770532268424_4joqebsj8 [32m200[0m 15ms
+<-- GET /api/dashboard/user_1770532268424_4joqebsj8
+--> GET /api/dashboard/user_1770532268424_4joqebsj8 [32m200[0m 7ms
+<-- GET /api/auth/verify
+--> GET /api/auth/verify [32m200[0m 6ms
+<-- GET /api/auth/verify
+--> GET /api/auth/verify [32m200[0m 2ms
+<-- GET /api/student/user_1770532268424_4joqebsj8
+--> GET /api/student/user_1770532268424_4joqebsj8 [32m200[0m 10ms
+<-- GET /api/student/user_1770532268424_4joqebsj8
+--> GET /api/student/user_1770532268424_4joqebsj8 [32m200[0m 6ms
+<-- POST /api/student/user_1770532268424_4joqebsj8/progress
+--> POST /api/student/user_1770532268424_4joqebsj8/progress [32m200[0m 13ms
+<-- GET /api/student/user_1770532268424_4joqebsj8
+--> GET /api/student/user_1770532268424_4joqebsj8 [32m200[0m 7ms
+<-- GET /api/student/user_1770532268424_4joqebsj8
+--> GET /api/student/user_1770532268424_4joqebsj8 [32m200[0m 5ms
+<-- POST /api/auth/signup
+--> POST /api/auth/signup [32m200[0m 64ms
+<-- GET /api/dashboard/user_1770532296042_q9esrw9fi
+--> GET /api/dashboard/user_1770532296042_q9esrw9fi [32m200[0m 25ms
+<-- GET /api/dashboard/user_1770532296042_q9esrw9fi
+--> GET /api/dashboard/user_1770532296042_q9esrw9fi [32m200[0m 18ms
+<-- POST /api/client-errors
+[CLIENT ERROR] {
+  "timestamp": "2026-02-08T06:31:36.439Z",
+  "message": "[CONSOLE ERROR] {}",
+  "url": "http://localhost:3000/dashboard",
+  "stack": "Error\n    at createImmediateErrorPayload (http://localhost:3000/src/lib/errorReporter.ts:421:10)\n    at http://localhost:3000/src/lib/errorReporter.ts:481:25"
+}
+--> POST /api/client-errors [32m200[0m 0ms
+<-- GET /api/auth/verify
+--> GET /api/auth/verify [32m200[0m 4ms
+<-- GET /api/auth/verify
+--> GET /api/auth/verify [32m200[0m 3ms
+<-- GET /api/student/user_1770532296042_q9esrw9fi
+--> GET /api/student/user_1770532296042_q9esrw9fi [32m200[0m 19ms
+<-- GET /api/student/user_1770532296042_q9esrw9fi
+--> GET /api/student/user_1770532296042_q9esrw9fi [32m200[0m 6ms
+<-- GET /api/student/user_1770532296042_q9esrw9fi
+--> GET /api/student/user_1770532296042_q9esrw9fi [32m200[0m 5ms
+<-- POST /api/student/user_1770532296042_q9esrw9fi/progress
+--> POST /api/student/user_1770532296042_q9esrw9fi/progress [32m200[0m 12ms
+<-- GET /api/student/user_1770532296042_q9esrw9fi
+--> GET /api/student/user_1770532296042_q9esrw9fi [32m200[0m 6ms
+<-- GET /api/student/user_1770532296042_q9esrw9fi
+--> GET /api/student/user_1770532296042_q9esrw9fi [32m200[0m 8ms
+<-- POST /api/auth/signup
+--> POST /api/auth/signup [32m200[0m 41ms
+<-- GET /api/dashboard/user_1770532358843_7a15cnprp
+--> GET /api/dashboard/user_1770532358843_7a15cnprp [32m200[0m 11ms
+<-- GET /api/dashboard/user_1770532358843_7a15cnprp
+--> GET /api/dashboard/user_1770532358843_7a15cnprp [32m200[0m 8ms
+6:34:38 AM [vite] (client) hmr update /src/pages/math/AdditionPage.tsx, /src/index.css
+6:34:49 AM [vite] (client) hmr update /src/pages/math/AdditionPage.tsx, /src/index.css
+6:34:55 AM [vite] (client) hmr update /src/pages/math/MultiplicationPage.tsx, /src/index.css
+6:35:01 AM [vite] (client) hmr update /src/pages/math/DivisionPage.tsx, /src/index.css
+6:35:08 AM [vite] (client) hmr update /src/pages/math/SubtractionPage.tsx, /src/index.css
+6:35:13 AM [vite] (client) hmr update /src/pages/math/AdditionPage.tsx, /src/index.css
+<-- POST /api/auth/signup
+--> POST /api/auth/signup [32m200[0m 45ms
+<-- GET /api/dashboard/user_1770532545470_mheqydf0u
+--> GET /api/dashboard/user_1770532545470_mheqydf0u [32m200[0m 12ms
+<-- GET /api/dashboard/user_1770532545470_mheqydf0u
+--> GET /api/dashboard/user_1770532545470_mheqydf0u [32m200[0m 7ms
+<-- GET /api/auth/verify
+--> GET /api/auth/verify [32m200[0m 3ms
+<-- GET /api/auth/verify
+--> GET /api/auth/verify [32m200[0m 3ms
+<-- GET /api/student/user_1770532545470_mheqydf0u
+--> GET /api/student/user_1770532545470_mheqydf0u [32m200[0m 5ms
+<-- GET /api/student/user_1770532545470_mheqydf0u
+--> GET /api/student/user_1770532545470_mheqydf0u [32m200[0m 6ms
+<-- POST /api/student/user_1770532545470_mheqydf0u/progress
+--> POST /api/student/user_1770532545470_mheqydf0u/progress [32m200[0m 12ms
+<-- GET /api/student/user_1770532545470_mheqydf0u
+--> GET /api/student/user_1770532545470_mheqydf0u [32m200[0m 6ms
+<-- GET /api/student/user_1770532545470_mheqydf0u
+--> GET /api/student/user_1770532545470_mheqydf0u [32m200[0m 11ms

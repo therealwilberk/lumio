@@ -140,9 +140,9 @@ export function DivisionPage() {
         setIsProblemComplete(true);
         setCorrectAnswers(prev => prev + 1);
         setTotalAttempts(prev => prev + 1);
-        setScore(prev => prev + (difficulty === 'easy' ? 10 : difficulty === 'medium' ? 20 : 40));
+        setScore(prev => prev + (difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3));
         setStreak(prev => prev + 1);
-        saveProgress(true);
+        saveProgress(true, digit);
       } else {
         setTimeout(() => {
           setCurrentStepIndex(prev => prev + 1);
@@ -178,7 +178,7 @@ export function DivisionPage() {
     }
   };
 
-  const saveProgress = async (isCorrect: boolean) => {
+  const saveProgress = async (isCorrect: boolean, lastDigit: number) => {
     if (!user || !currentProblem) return;
 
     try {
@@ -186,13 +186,14 @@ export function DivisionPage() {
         method: 'POST',
         body: JSON.stringify({
           isCorrect,
-          points: isCorrect ? (difficulty === 'easy' ? 10 : difficulty === 'medium' ? 20 : 40) : 0,
+          points: isCorrect ? (difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3) : 0,
+          topic: 'division',
           solveLog: {
             id: crypto.randomUUID(),
+            topic: 'division',
             num1: currentProblem.dividend,
             num2: currentProblem.divisor,
-            operation: 'division',
-            userAnswer: currentProblem.quotient,
+            userAnswer: lastDigit,
             isCorrect,
             timeTaken: Date.now() - startTime,
             difficulty: currentProblem.difficulty,

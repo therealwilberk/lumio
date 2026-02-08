@@ -7,6 +7,7 @@ export interface ApiResponse<T = unknown> {
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export interface SolveLog {
   id: string;
+  topic?: string;
   num1: number;
   num2: number;
   userAnswer: number;
@@ -23,6 +24,7 @@ export interface StudentStats {
   highScore: number;
   totalSolved: number;
   totalScore: number;
+  topicScores?: Record<string, number>;
   lastSolvedAt: number;
   difficulty: DifficultyLevel;
   sessionLogs: SolveLog[];

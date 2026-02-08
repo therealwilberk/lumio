@@ -5,7 +5,11 @@ import { TOPIC_UNLOCK_THRESHOLD } from '../../shared/math-config';
 describe('Sequential Unlock Logic', () => {
   it('should keep Multiplication locked if Subtraction is below threshold', () => {
     const mockStats = {
-      totalScore: 150, // Subtraction starts at 100, so this is 50 points into Subtraction (50%)
+      totalScore: 150,
+      topicScores: {
+        addition: 100,
+        subtraction: 50
+      }
     } as any;
 
     const topics = calculateTopicProgress(mockStats);
@@ -18,7 +22,11 @@ describe('Sequential Unlock Logic', () => {
 
   it('should unlock Multiplication if Subtraction is above threshold', () => {
     const mockStats = {
-      totalScore: 180, // Subtraction starts at 100, so this is 80 points (80%)
+      totalScore: 180,
+      topicScores: {
+        addition: 100,
+        subtraction: 80
+      }
     } as any;
 
     const topics = calculateTopicProgress(mockStats);

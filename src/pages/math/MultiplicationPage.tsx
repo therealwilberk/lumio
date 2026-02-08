@@ -133,11 +133,11 @@ export function MultiplicationPage() {
         setIsProblemComplete(true);
         setCorrectAnswers(prev => prev + 1);
         setTotalAttempts(prev => prev + 1);
-        setScore(prev => prev + (difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 20));
+        setScore(prev => prev + (difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3));
         setStreak(prev => prev + 1);
 
         // Save progress
-        saveProgress(true);
+        saveProgress(true, answer);
       } else {
         setTimeout(() => {
           setCurrentStepIndex(prev => prev + 1);
@@ -154,7 +154,7 @@ export function MultiplicationPage() {
       setTotalAttempts(prev => prev + 1);
 
       if (isLastStep) {
-        saveProgress(false);
+        saveProgress(false, answer);
       }
 
       setTimeout(() => {
@@ -166,7 +166,7 @@ export function MultiplicationPage() {
     }
   };
 
-  const saveProgress = async (isCorrect: boolean) => {
+  const saveProgress = async (isCorrect: boolean, lastAnswer: number) => {
     if (!user || !currentProblem) return;
 
     try {
@@ -174,13 +174,14 @@ export function MultiplicationPage() {
         method: 'POST',
         body: JSON.stringify({
           isCorrect,
-          points: isCorrect ? (difficulty === 'easy' ? 5 : difficulty === 'medium' ? 10 : 20) : 0,
+          points: isCorrect ? (difficulty === 'easy' ? 1 : difficulty === 'medium' ? 2 : 3) : 0,
+          topic: 'multiplication',
           solveLog: {
             id: crypto.randomUUID(),
+            topic: 'multiplication',
             num1: currentProblem.num1,
             num2: currentProblem.num2,
-            operation: 'multiplication',
-            userAnswer: currentProblem.answer,
+            userAnswer: lastAnswer,
             isCorrect,
             timeTaken: Date.now() - startTime,
             difficulty: currentProblem.difficulty,

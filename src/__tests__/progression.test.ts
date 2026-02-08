@@ -3,15 +3,25 @@ import { calculateTopicProgress } from '@/lib/progression';
 import type { StudentStats } from '@shared/types';
 
 describe('Progression Logic', () => {
-  const mockStats = (score: number): StudentStats => ({
+  const mockStats = (topicScores: Record<string, number>): StudentStats => ({
     id: 'user1',
-    totalScore: score,
+    totalScore: Object.values(topicScores).reduce((a, b) => a + b, 0),
+    topicScores,
     streak: 0,
     highScore: 0,
     totalSolved: 0,
     lastSolvedAt: 0,
     difficulty: 'easy',
-    sessionLogs: []
+    sessionLogs: [],
+    achievements: [],
+    performanceMetrics: {
+      speed: 0,
+      accuracy: 0,
+      consistency: 0,
+      problemSolving: 0,
+      mentalMath: 0
+    },
+    dayActivity: []
   });
 
   it('unlocks addition by default', () => {
@@ -20,38 +30,47 @@ describe('Progression Logic', () => {
     expect(addition?.isUnlocked).toBe(true);
   });
 
-  it('unlocks subtraction when addition reaches threshold', () => {
-    // Threshold is 80. Addition progress is totalScore (capped at 100).
-    const topics = calculateTopicProgress(mockStats(80));
+  it('unlocks subtraction when addition reaches threshold (80%)', () => {
+    const topics = calculateTopicProgress(mockStats({ addition: 80 }));
     const subtraction = topics.find(t => t.id === 'subtraction');
     expect(subtraction?.isUnlocked).toBe(true);
+    expect(topics.find(t => t.id === 'addition')?.progress).toBe(80);
   });
 
   it('keeps subtraction locked below threshold', () => {
-    const topics = calculateTopicProgress(mockStats(79));
+    const topics = calculateTopicProgress(mockStats({ addition: 79 }));
     const subtraction = topics.find(t => t.id === 'subtraction');
     expect(subtraction?.isUnlocked).toBe(false);
   });
 
-  it('unlocks multiplication when subtraction reaches threshold', () => {
-    // subtractionProgress = totalScore - 100
-    // To reach 80% subtraction, totalScore must be 180.
-    const topics = calculateTopicProgress(mockStats(180));
-    const subtraction = topics.find(t => t.id === 'subtraction');
-    const multiplication = topics.find(t => t.id === 'multiplication');
+  it('handles per-topic progress independently', () => {
+    // 100 in addition, 50 in subtraction
+    const topics = calculateTopicProgress(mockStats({ addition: 100, subtraction: 50 }));
 
-    expect(subtraction?.progress).toBe(80);
+    expect(topics.find(t => t.id === 'addition')?.progress).toBe(100);
+    expect(topics.find(t => t.id === 'subtraction')?.progress).toBe(50);
+    expect(topics.find(t => t.id === 'multiplication')?.isUnlocked).toBe(false);
+  });
+
+  it('unlocks multiplication when subtraction reaches threshold', () => {
+    const topics = calculateTopicProgress(mockStats({ addition: 100, subtraction: 80 }));
+    const multiplication = topics.find(t => t.id === 'multiplication');
     expect(multiplication?.isUnlocked).toBe(true);
   });
 
-  it('unlocks division when multiplication reaches threshold', () => {
-    // multiplicationProgress = totalScore - 200
-    // To reach 80% multiplication, totalScore must be 280.
-    const topics = calculateTopicProgress(mockStats(280));
-    const multiplication = topics.find(t => t.id === 'multiplication');
-    const division = topics.find(t => t.id === 'division');
+  it('clamps progress between 0 and 100', () => {
+    const topics = calculateTopicProgress(mockStats({ addition: 150, subtraction: -10 }));
+    expect(topics.find(t => t.id === 'addition')?.progress).toBe(100);
+    expect(topics.find(t => t.id === 'subtraction')?.progress).toBe(0);
+  });
 
-    expect(multiplication?.progress).toBe(80);
-    expect(division?.isUnlocked).toBe(true);
+  it('supports legacy fallback to totalScore for addition', () => {
+    const legacyStats: any = {
+      totalScore: 75,
+      // topicScores is missing
+    };
+    const topics = calculateTopicProgress(legacyStats);
+    expect(topics.find(t => t.id === 'addition')?.progress).toBe(75);
+    expect(topics.find(t => t.id === 'subtraction')?.isUnlocked).toBe(false);
   });
 });
