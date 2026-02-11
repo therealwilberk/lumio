@@ -162,7 +162,7 @@ export function Navbar() {
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
                   : 'bg-white/30 dark:bg-white/10 text-gray-900 dark:text-white hover:bg-white/40 dark:hover:bg-white/20'
               )}
-              aria-label="Toggle theme"
+              aria-label={theme === 'dark' ? "Switch to light theme" : "Switch to dark theme"}
             >
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
@@ -340,6 +340,7 @@ export function Navbar() {
                     <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Theme</span>
                     <button
                       onClick={toggleTheme}
+                      aria-label={theme === 'dark' ? "Switch to light theme" : "Switch to dark theme"}
                       className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
                     >
                       {theme === 'dark' ? (

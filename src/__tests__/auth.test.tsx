@@ -12,7 +12,8 @@ describe('Authentication', () => {
   it('renders login form with PIN input', () => {
     render(<LoginPage />);
     
-    expect(screen.getByLabelText(/pin/i)).toBeInTheDocument();
+    // Use a more specific matcher to avoid conflict with the "Show PIN" button
+    expect(screen.getByLabelText(/^pin$/i)).toBeInTheDocument();
   });
 
   it('renders sign in button', () => {

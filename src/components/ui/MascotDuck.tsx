@@ -54,7 +54,12 @@ export function MascotDuck({
         }}
       >
         {/* Simple Duck SVG Fallback */}
-        <svg viewBox="0 0 100 100" className="w-full h-full drop-shadow-xl">
+        <svg
+          viewBox="0 0 100 100"
+          className="w-full h-full drop-shadow-xl"
+          role="img"
+          aria-label={`Mascot Duck - ${mood}`}
+        >
           {/* Body */}
           <ellipse cx="50" cy="60" rx="35" ry="30" fill="#FFD700" />
           {/* Head */}
