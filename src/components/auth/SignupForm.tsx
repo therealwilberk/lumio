@@ -91,7 +91,7 @@ export function SignupForm() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="Choose your hero name"
-                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl"
+                  className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:ring-offset-0"
                   required
                   disabled={loading}
                 />
@@ -120,14 +120,15 @@ export function SignupForm() {
                     value={pin}
                     onChange={(e) => setPin(e.target.value)}
                     placeholder="Set a secret PIN"
-                    className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl pr-10"
+                    className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl pr-10 focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:ring-offset-0"
                     required
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPin(!showPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded-md"
+                    aria-label={showPin ? "Hide secret" : "Show secret"}
                   >
                     {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -143,14 +144,15 @@ export function SignupForm() {
                     value={confirmPin}
                     onChange={(e) => setConfirmPin(e.target.value)}
                     placeholder="Repeat secret PIN"
-                    className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl pr-10"
+                    className="bg-white border-gray-200 text-gray-800 placeholder-gray-400 focus:border-teal-400 focus:ring-teal-400 h-11 rounded-xl pr-10 focus-visible:ring-2 focus-visible:ring-teal-500/50 focus-visible:ring-offset-0"
                     required
                     disabled={loading}
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPin(!showConfirmPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:outline-none rounded-md"
+                    aria-label={showConfirmPin ? "Hide secret" : "Show secret"}
                   >
                     {showConfirmPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
@@ -164,7 +166,8 @@ export function SignupForm() {
               >
                 <Button
                   type="submit"
-                  className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 rounded-2xl text-lg font-bold transition-all shadow-lg hover:shadow-teal-500/40 disabled:opacity-50"
+                  aria-label="Create account and start adventure"
+                  className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 rounded-2xl text-lg font-bold transition-all shadow-lg hover:shadow-teal-500/40 disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-teal-500 focus-visible:ring-offset-2 focus-visible:outline-none"
                   disabled={loading || !usernameRequirements.every(req => req.test(username)) || !pinRequirements.every(req => req.test(pin)) || pin !== confirmPin}
                 >
                   {loading ? (
