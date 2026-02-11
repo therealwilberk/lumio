@@ -18,7 +18,11 @@ export function AchievementBadge({ achievement, unlocked, progress }: Achievemen
                 }`}
         >
             {/* Badge Icon */}
-            <div className={`text-4xl mb-2 ${unlocked ? 'scale-110' : 'opacity-50'}`}>
+            <div
+                className={`text-4xl mb-2 ${unlocked ? 'scale-110' : 'opacity-50'}`}
+                role="img"
+                aria-label={achievement.name}
+            >
                 {achievement.emoji}
             </div>
 

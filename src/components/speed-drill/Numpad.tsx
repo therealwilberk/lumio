@@ -21,6 +21,7 @@ export function Numpad({ onNumberClick, onDelete, onSubmit, className = "" }: Nu
       ))}
       <NumpadButton
         onClick={onDelete}
+        aria-label="Delete"
         className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
       >
         <Delete className="h-6 w-6" />
@@ -30,6 +31,7 @@ export function Numpad({ onNumberClick, onDelete, onSubmit, className = "" }: Nu
       </NumpadButton>
       <NumpadButton
         onClick={onSubmit}
+        aria-label="Submit"
         className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
       >
         <Check className="h-6 w-6" />
@@ -41,17 +43,20 @@ export function Numpad({ onNumberClick, onDelete, onSubmit, className = "" }: Nu
 function NumpadButton({
   children,
   onClick,
-  className = ""
+  className = "",
+  "aria-label": ariaLabel
 }: {
   children: React.ReactNode;
   onClick: () => void;
   className?: string;
+  "aria-label"?: string;
 }) {
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
+      aria-label={ariaLabel}
       className={`h-16 flex items-center justify-center text-2xl font-bold rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-gray-100 dark:border-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition-colors ${className}`}
     >
       {children}
