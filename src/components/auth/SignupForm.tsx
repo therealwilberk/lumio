@@ -35,8 +35,13 @@ export function SignupForm() {
     { test: (username: string) => /^[a-zA-Z0-9_]+$/.test(username), text: 'Letters, numbers, and underscores only' }
   ];
 
+  const isFormValid = usernameRequirements.every(req => req.test(username)) &&
+                      pinRequirements.every(req => req.test(pin)) &&
+                      pin === confirmPin && pin.length > 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) return;
     setLoading(true);
     setError('');
 
@@ -58,7 +63,11 @@ export function SignupForm() {
 
       {/* Mascot Duck Peeking */}
       <div className="absolute -bottom-6 -right-6 z-20 pointer-events-none">
-        <MascotDuck className="scale-75 md:scale-100 opacity-80 scale-x-[-1]" delay={0.6} />
+        <MascotDuck
+          className="scale-75 md:scale-100 opacity-80 scale-x-[-1]"
+          delay={0.6}
+          mood={isFormValid ? 'happy' : 'idle'}
+        />
       </div>
 
       <motion.div
@@ -127,10 +136,25 @@ export function SignupForm() {
                   <button
                     type="button"
                     onClick={() => setShowPin(!showPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 focus-visible:text-teal-500 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg focus:outline-none transition-colors"
+                    aria-label={showPin ? "Hide PIN" : "Show PIN"}
                   >
                     {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
+                </div>
+                <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2 ml-1">
+                  {pinRequirements.map((req, index) => (
+                    <div key={index} className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-bold">
+                      {req.test(pin) ? (
+                        <Check className="h-3 w-3 text-green-500" />
+                      ) : (
+                        <div className="h-3 w-3 rounded-full border border-gray-300" />
+                      )}
+                      <span className={req.test(pin) ? 'text-green-600' : 'text-gray-400'}>
+                        {req.text}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -150,10 +174,21 @@ export function SignupForm() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPin(!showConfirmPin)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-teal-500 focus-visible:text-teal-500 focus-visible:ring-2 focus-visible:ring-teal-500 rounded-lg focus:outline-none transition-colors"
+                    aria-label={showConfirmPin ? "Hide confirmed PIN" : "Show confirmed PIN"}
                   >
                     {showConfirmPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
+                </div>
+                <div className="flex items-center gap-1.5 mt-2 ml-1 text-[10px] uppercase tracking-wider font-bold">
+                  {pin === confirmPin && pin.length > 0 ? (
+                    <Check className="h-3 w-3 text-green-500" />
+                  ) : (
+                    <div className="h-3 w-3 rounded-full border border-gray-300" />
+                  )}
+                  <span className={pin === confirmPin && pin.length > 0 ? 'text-green-600' : 'text-gray-400'}>
+                    PINs Match
+                  </span>
                 </div>
               </div>
 
@@ -165,7 +200,7 @@ export function SignupForm() {
                 <Button
                   type="submit"
                   className="w-full bg-teal-500 hover:bg-teal-600 text-white h-12 rounded-2xl text-lg font-bold transition-all shadow-lg hover:shadow-teal-500/40 disabled:opacity-50"
-                  disabled={loading || !usernameRequirements.every(req => req.test(username)) || !pinRequirements.every(req => req.test(pin)) || pin !== confirmPin}
+                  disabled={loading || !isFormValid}
                 >
                   {loading ? (
                     <div className="flex items-center gap-2">
