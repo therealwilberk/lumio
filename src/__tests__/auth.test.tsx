@@ -12,7 +12,8 @@ describe('Authentication', () => {
   it('renders login form with PIN input', () => {
     render(<LoginPage />);
     
-    expect(screen.getByLabelText(/pin/i)).toBeInTheDocument();
+    // Use strict regex to avoid matching "Show PIN" button aria-label
+    expect(screen.getByLabelText(/^pin$/i)).toBeInTheDocument();
   });
 
   it('renders sign in button', () => {
