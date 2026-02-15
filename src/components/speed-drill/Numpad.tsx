@@ -22,6 +22,7 @@ export function Numpad({ onNumberClick, onDelete, onSubmit, className = "" }: Nu
       <NumpadButton
         onClick={onDelete}
         className="bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400"
+        aria-label="Delete last digit"
       >
         <Delete className="h-6 w-6" />
       </NumpadButton>
@@ -31,6 +32,7 @@ export function Numpad({ onNumberClick, onDelete, onSubmit, className = "" }: Nu
       <NumpadButton
         onClick={onSubmit}
         className="bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400"
+        aria-label="Submit answer"
       >
         <Check className="h-6 w-6" />
       </NumpadButton>
@@ -41,18 +43,20 @@ export function Numpad({ onNumberClick, onDelete, onSubmit, className = "" }: Nu
 function NumpadButton({
   children,
   onClick,
-  className = ""
+  className = "",
+  ...props
 }: {
   children: React.ReactNode;
   onClick: () => void;
   className?: string;
-}) {
+} & React.ComponentProps<typeof motion.button>) {
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
       className={`h-16 flex items-center justify-center text-2xl font-bold rounded-2xl bg-white dark:bg-gray-800 shadow-md border border-gray-100 dark:border-gray-700 active:bg-gray-50 dark:active:bg-gray-700 transition-colors ${className}`}
+      {...props}
     >
       {children}
     </motion.button>
