@@ -162,7 +162,7 @@ export function Navbar() {
                   ? 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700'
                   : 'bg-white/30 dark:bg-white/10 text-gray-900 dark:text-white hover:bg-white/40 dark:hover:bg-white/20'
               )}
-              aria-label="Toggle theme"
+              aria-label={theme === 'dark' ? "Switch to light theme" : "Switch to dark theme"}
             >
               {theme === 'dark' ? (
                 <Sun className="h-5 w-5" />
@@ -252,7 +252,7 @@ export function Navbar() {
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Toggle menu"
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
             className={cn(
               'md:hidden',
               !isHomePage || scrolled
@@ -304,6 +304,7 @@ export function Navbar() {
                     variant="ghost"
                     size="icon"
                     onClick={() => setMobileMenuOpen(false)}
+                    aria-label="Close menu"
                     className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
                   >
                     <X className="h-6 w-6" />
@@ -341,6 +342,7 @@ export function Navbar() {
                     <button
                       onClick={toggleTheme}
                       className="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-600"
+                      aria-label={theme === 'dark' ? "Switch to light theme" : "Switch to dark theme"}
                     >
                       {theme === 'dark' ? (
                         <Sun className="h-5 w-5" />

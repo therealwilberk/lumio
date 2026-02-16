@@ -131,6 +131,7 @@ export function LoginForm() {
                     type="button"
                     onClick={() => setShowPin(!showPin)}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-blue-500"
+                    aria-label={showPin ? "Hide PIN" : "Show PIN"}
                   >
                     {showPin ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
