@@ -56,7 +56,7 @@ export function BadgeUnlockModal({ achievement, isOpen, onClose }: BadgeUnlockMo
                             />
 
                             <div className="absolute top-2 right-2">
-                                <Button variant="ghost" size="icon" onClick={onClose} className="rounded-full hover:bg-yellow-200/50 dark:hover:bg-yellow-800/50">
+                                <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close" className="rounded-full hover:bg-yellow-200/50 dark:hover:bg-yellow-800/50">
                                     <X className="w-5 h-5 text-yellow-700 dark:text-yellow-300" />
                                 </Button>
                             </div>
